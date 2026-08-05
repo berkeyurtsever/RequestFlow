@@ -144,6 +144,7 @@ function MainLayout() {
       <div className="rf-layout-content">
         <Navbar
           onMenuClick={openMobileSidebar}
+          isMenuOpen={isMobileSidebarOpen}
         />
 
         <main

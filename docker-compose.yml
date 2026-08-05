@@ -1,0 +1,34 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/RequestFlow.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Data Source=/data/requestflow.db
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY before starting RequestFlow}
+      Jwt__Issuer: RequestFlow.Api
+      Jwt__Audience: RequestFlow.Client
+      Cors__AllowedOrigins__0: http://localhost:5173
+    ports:
+      - "5131:8080"
+    volumes:
+      - requestflow-data:/data
+      - requestflow-uploads:/app/Uploads
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: backend/RequestFlow.Api/frontend/requestflow-ui/Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
+volumes:
+  requestflow-data:
+  requestflow-uploads:

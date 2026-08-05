@@ -31,7 +31,8 @@ import { useToast } from "../context/ToastContext";
 const NOTIFICATION_REFRESH_TIME = 30000;
 
 function Navbar({
-  onMenuClick = () => {}
+  onMenuClick = () => {},
+  isMenuOpen = false
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -699,6 +700,8 @@ function Navbar({
         className="rf-navbar-mobile-menu"
         onClick={onMenuClick}
         aria-label="Open navigation menu"
+        aria-controls="rf-sidebar-navigation"
+        aria-expanded={isMenuOpen}
       >
         <Menu size={21} />
       </button>

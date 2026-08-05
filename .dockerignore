@@ -1,0 +1,17 @@
+.git
+.github
+**/.DS_Store
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env*.example
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/.vite
+**/*.db
+**/*.db-shm
+**/*.db-wal
+backend/RequestFlow.Api/Uploads
+docs/screenshots

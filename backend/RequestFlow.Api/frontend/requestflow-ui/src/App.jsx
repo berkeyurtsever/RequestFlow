@@ -39,7 +39,7 @@ const TASK_ROLES = [
   "staff"
 ];
 
-function ProtectedRoute({
+export function ProtectedRoute({
   children,
   allowedRoles
 }) {

@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   backend:
-    name: Backend build
+    name: Backend build and tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -31,11 +31,11 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore backend dependencies
-        run: dotnet restore backend/RequestFlow.Api/RequestFlow.Api.csproj
+        run: dotnet restore backend/RequestFlow.Api.Tests/RequestFlow.Api.Tests.csproj
 
-      - name: Build backend
+      - name: Test backend
         run: >-
-          dotnet build backend/RequestFlow.Api/RequestFlow.Api.csproj
+          dotnet test backend/RequestFlow.Api.Tests/RequestFlow.Api.Tests.csproj
           --configuration Release
           --no-restore
           --nologo
@@ -65,5 +65,12 @@ jobs:
       - name: Lint frontend
         run: npm run lint
 
+      - name: Test frontend
+        run: npm run test
+
       - name: Build frontend
         run: npm run build
+
+      - name: Audit frontend dependencies
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
