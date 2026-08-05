@@ -1,24 +1,48 @@
 # RequestFlow
 
-RequestFlow is a role-based corporate request management system developed during my internship. It allows company employees to create requests, follow their progress, communicate through comments, upload attachments, and receive notifications.
+[![CI](https://github.com/berkeyurtsever/RequestFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/berkeyurtsever/RequestFlow/actions/workflows/ci.yml)
 
-The system provides separate permissions and interfaces for Admin, Supervisor, Staff, and User roles.
+RequestFlow is a full-stack, role-based request management system developed during an internship. Employees can create requests, follow their progress, communicate through comments, upload attachments, and receive in-app notifications. Admin, Supervisor, Staff, and User roles have separate permissions and interfaces.
 
-## Technologies
+![RequestFlow dashboard](docs/screenshots/day-15/01_final_dashboard.png)
+
+## Features
+
+- JWT-based authentication and role-based authorization
+- Request creation, editing, deletion, assignment, and status tracking
+- Priority management, advanced filtering, sorting, and pagination
+- Comments, attachments, permanent activity history, and notifications
+- Employee, role, category, and system-setting management
+- Dashboard charts, reports, and CSV export
+- Light and dark themes
+- Responsive desktop, tablet, and mobile layouts
+- Loading, empty, error, confirmation, and toast states
+
+## Screenshots
+
+| Dashboard | Create Request |
+| --- | --- |
+| ![Dashboard](docs/screenshots/day-11/01_dashboard_final.png) | ![Create request](docs/screenshots/day-11/03_create_request_form.png) |
+
+| Reports | Mobile Layout |
+| --- | --- |
+| ![Reports](docs/screenshots/day-11/13_reports_page.png) | ![Mobile layout](docs/screenshots/day-15/02_mobile_responsive_test.png) |
+
+The complete development timeline is available in [`docs/screenshots`](docs/screenshots).
+
+## Technology Stack
 
 ### Backend
 
-- C#
-- ASP.NET Core Web API
+- C# and ASP.NET Core Web API
 - Entity Framework Core
 - SQLite
-- JWT Authentication
+- JWT authentication
 - Swagger / OpenAPI
 
 ### Frontend
 
-- React
-- JavaScript
+- React and JavaScript
 - Vite
 - React Router
 - Axios
@@ -26,101 +50,130 @@ The system provides separate permissions and interfaces for Admin, Supervisor, S
 - Lucide React
 - CSS
 
-## Main Features
+## Requirements
 
-- User registration and login
-- JWT-based authentication
-- Role-based authorization
-- Request creation, editing and deletion
-- Request assignment to staff members
-- Status and priority management
-- Advanced request filtering
-- Search, sorting and pagination
-- Comment system
-- Attachment upload, download and deletion
-- Permanent Activity Timeline
-- Backend notification system
-- Notification preference settings
-- Category management
-- Employee and role management
-- Reports and dashboard charts
-- CSV report export
-- Light and dark themes
-- Responsive desktop, tablet and mobile design
-- Loading, empty and error states
-- Confirmation dialogs and toast messages
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Node.js 22.13 or newer](https://nodejs.org/)
+- npm
+- Git
+- Optional: the `sqlite3` command-line tool for promoting the first local user to Admin
+
+## Local Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/berkeyurtsever/RequestFlow.git
+cd RequestFlow
+```
+
+Because the repository is private, the GitHub account cloning it must have access.
+
+### 2. Configure and start the backend
+
+Use a local JWT key instead of committing a real secret:
+
+```bash
+cd backend/RequestFlow.Api
+export Jwt__Key="replace-with-a-long-random-local-key"
+dotnet restore
+dotnet run --launch-profile http
+```
+
+The API applies Entity Framework migrations and creates the SQLite database automatically. Swagger is available at <http://localhost:5131/swagger> while the backend runs in the Development environment.
+
+### 3. Create the first local user
+
+Open Swagger and call `POST /api/Auth/register`, or run:
+
+```bash
+curl -X POST http://localhost:5131/api/Auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullName": "Local Admin",
+    "email": "admin@example.com",
+    "password": "ChangeMe123!"
+  }'
+```
+
+New registrations receive the `User` role. For local development, stop the backend and promote the first account with:
+
+```bash
+sqlite3 requestflow.db \
+  "UPDATE Users SET Role = 'Admin' WHERE Email = 'admin@example.com';"
+```
+
+Restart the backend and sign in with that account. Change the example email and password for your own local environment. Never commit real credentials or the generated database.
+
+### 4. Configure and start the frontend
+
+In a second terminal:
+
+```bash
+cd backend/RequestFlow.Api/frontend/requestflow-ui
+cp .env.example .env
+npm ci
+npm run dev
+```
+
+Open <http://localhost:5173>.
+
+## Local Addresses
+
+| Service | Address |
+| --- | --- |
+| Frontend | <http://localhost:5173> |
+| API | <http://localhost:5131> |
+| Swagger | <http://localhost:5131/swagger> |
+| SQLite database | `backend/RequestFlow.Api/requestflow.db` |
 
 ## User Roles
 
-### Admin
-
-- Can view and manage all requests
-- Can assign requests to Staff users
-- Can delete requests
-- Can manage employees and roles
-- Can manage categories
-- Can view reports
-- Can change system settings
-
-### Supervisor
-
-- Can view all requests
-- Can assign requests to Staff users
-- Can update request status and priority
-- Can access management operations allowed by the system
-
-### Staff
-
-- Can view only requests assigned to them
-- Can update assigned requests
-- Can add comments and attachments
-- Can receive assignment and request update notifications
-
-### User
-
-- Can create new requests
-- Can view only their own requests
-- Can edit permitted request information
-- Can add comments and attachments
-- Can follow request progress
+| Role | Main permissions |
+| --- | --- |
+| Admin | Manage all requests, assignments, users, roles, categories, reports, and settings |
+| Supervisor | Review and assign requests, update statuses and priorities, and use management operations |
+| Staff | Work on assigned requests and add comments or attachments |
+| User | Create requests, view their own requests, and follow progress |
 
 ## Request Workflow
 
-A request normally follows this process:
-
-1. A user creates a new request.
+1. A user creates a request.
 2. Management reviews the request.
 3. The request is assigned to a Staff user.
-4. The Staff user processes the request.
-5. The request status is updated.
-6. Comments, attachments and activities are recorded.
-7. The request is marked as resolved or rejected.
+4. Staff processes the request and updates its status.
+5. Comments, attachments, notifications, and activity records are stored.
+6. The request is resolved or rejected.
 
-## Notification System
+## Quality Checks
 
-RequestFlow creates in-application notifications for:
+Run the same checks used by GitHub Actions before opening a pull request.
 
-- New request creation
-- Staff assignment
-- Assignment changes
-- Assignment removal
-- Request status changes
-- Request priority changes
-- Request detail updates
-- New comments
-- Attachment operations
+Backend:
 
-Administrators can enable or disable the following notification categories from the Settings page:
+```bash
+dotnet restore backend/RequestFlow.Api/RequestFlow.Api.csproj
+dotnet build backend/RequestFlow.Api/RequestFlow.Api.csproj \
+  --configuration Release \
+  --no-restore
+```
 
-- New request notifications
-- Assignment notifications
-- Status change notifications
-- Comment notifications
+Frontend:
+
+```bash
+cd backend/RequestFlow.Api/frontend/requestflow-ui
+npm ci
+npm run lint
+npm run build
+```
 
 ## Project Structure
 
 ```text
 RequestFlow/
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   └── workflows/
 ├── backend/
 │   └── RequestFlow.Api/
 │       ├── Controllers/
@@ -128,16 +181,25 @@ RequestFlow/
 │       ├── DTOs/
 │       ├── Migrations/
 │       ├── Models/
-│       ├── frontend/
-│       │   └── requestflow-ui/
-│       │       ├── src/
-│       │       │   ├── components/
-│       │       │   ├── context/
-│       │       │   ├── layouts/
-│       │       │   ├── pages/
-│       │       │   └── services/
-│       │       └── package.json
+│       ├── frontend/requestflow-ui/
 │       ├── Program.cs
-│       ├── appsettings.json
 │       └── RequestFlow.Api.csproj
+├── docs/screenshots/
+├── CONTRIBUTING.md
 └── README.md
+```
+
+## Development Workflow
+
+Use a short-lived branch for each change, such as `feature/docker-support` or `fix/mobile-navigation`, then open a pull request into `main`. See [CONTRIBUTING.md](CONTRIBUTING.md) for the complete workflow.
+
+## Security Notes
+
+- Do not commit `.env` files, JWT keys, local databases, uploads, or real credentials.
+- `appsettings.json` contains development placeholders only; override secrets locally with environment variables.
+- Uploaded files and SQLite working files are intentionally excluded by `.gitignore`.
+- The forgot-password endpoint currently returns a safe generic response but does not send email.
+
+## License
+
+This is currently a private portfolio and internship repository. No open-source license has been granted.
