@@ -1,10 +1,6 @@
-/* =========================================================
-   REQUESTFLOW — FINAL APP.CSS
-   ========================================================= */
+/* REQUESTFLOW STYLES */
 
-/* ---------------------------------------------------------
-   ROOT AND RESET
-   --------------------------------------------------------- */
+/* ROOT AND RESET */
 
 :root {
   font-family:
@@ -96,9 +92,7 @@ a {
   color: inherit;
 }
 
-/* ---------------------------------------------------------
-   MAIN APPLICATION LAYOUT
-   --------------------------------------------------------- */
+/* MAIN APPLICATION LAYOUT */
 
 .rf-app-layout {
   width: 100%;
@@ -123,9 +117,7 @@ a {
   background: var(--rf-page-bg);
 }
 
-/* ---------------------------------------------------------
-   SIDEBAR
-   --------------------------------------------------------- */
+/* SIDEBAR */
 
 .rf-sidebar {
   position: fixed;
@@ -148,8 +140,6 @@ a {
   display: flex;
   flex-direction: column;
 }
-
-/* Sidebar brand */
 
 .rf-sidebar-brand {
   width: 100%;
@@ -228,8 +218,6 @@ a {
   letter-spacing: 0.1px;
   white-space: nowrap;
 }
-
-/* Sidebar navigation */
 
 .rf-sidebar-navigation {
   flex: 1;
@@ -327,8 +315,6 @@ a {
   color: #ffffff;
 }
 
-/* Sidebar profile */
-
 .rf-sidebar-profile {
   width: calc(100% - 34px);
   min-height: 86px;
@@ -404,9 +390,7 @@ a {
   font-weight: 500;
 }
 
-/* ---------------------------------------------------------
-   TOP NAVBAR
-   --------------------------------------------------------- */
+/* TOP NAVBAR */
 
 .rf-navbar {
   position: fixed;
@@ -580,9 +564,7 @@ a {
   color: var(--rf-danger);
 }
 
-/* ---------------------------------------------------------
-   SHARED PAGE ELEMENTS
-   --------------------------------------------------------- */
+/* SHARED PAGE ELEMENTS */
 
 .dashboard-page,
 .requests-page,
@@ -667,9 +649,7 @@ a {
   }
 }
 
-/* ---------------------------------------------------------
-   DASHBOARD
-   --------------------------------------------------------- */
+/* DASHBOARD */
 
 .dashboard-header {
   width: 100%;
@@ -691,8 +671,6 @@ a {
   color: var(--rf-muted);
   font-size: 13px;
 }
-
-/* Dashboard statistics */
 
 .dashboard-stats-grid {
   width: 100%;
@@ -874,8 +852,6 @@ a {
   font-weight: 700;
 }
 
-/* Dashboard lower content */
-
 .dashboard-content-grid {
   width: 100%;
 
@@ -917,8 +893,6 @@ a {
   font-size: 20px;
   font-weight: 800;
 }
-
-/* Dashboard donut chart */
 
 .dashboard-chart-content {
   min-height: 220px;
@@ -1030,8 +1004,6 @@ a {
   font-weight: 800;
 }
 
-/* Recent requests */
-
 .dashboard-view-all-button {
   min-height: 40px;
   padding: 0 16px;
@@ -1127,9 +1099,7 @@ a {
   justify-content: center;
 }
 
-/* ---------------------------------------------------------
-   STATUS AND PRIORITY BADGES
-   --------------------------------------------------------- */
+/* STATUS AND PRIORITY BADGES */
 
 .status-badge,
 .priority-badge {
@@ -1194,9 +1164,7 @@ a {
   color: #dc2626;
 }
 
-/* ---------------------------------------------------------
-   REQUESTS LIST PAGE
-   --------------------------------------------------------- */
+/* REQUESTS LIST PAGE */
 
 .requests-header {
   width: 100%;
@@ -1424,9 +1392,7 @@ a {
   flex-direction: column;
 }
 
-/* ---------------------------------------------------------
-   CREATE REQUEST
-   --------------------------------------------------------- */
+/* CREATE REQUEST */
 
 .create-request-header {
   margin-bottom: 20px;
@@ -1734,8 +1700,6 @@ a {
   cursor: not-allowed;
 }
 
-/* Create request side cards */
-
 .create-request-sidebar {
   display: flex;
   flex-direction: column;
@@ -1946,9 +1910,7 @@ a {
   cursor: pointer;
 }
 
-/* ---------------------------------------------------------
-   EDIT REQUEST
-   --------------------------------------------------------- */
+/* EDIT REQUEST */
 
 .edit-request-header {
   margin-bottom: 20px;
@@ -2142,9 +2104,7 @@ a {
   cursor: pointer;
 }
 
-/* ---------------------------------------------------------
-   ASSIGNED TASKS
-   --------------------------------------------------------- */
+/* ASSIGNED TASKS */
 
 .assigned-tasks-header,
 .employees-header,
@@ -2328,9 +2288,7 @@ a {
   cursor: pointer;
 }
 
-/* ---------------------------------------------------------
-   EMPLOYEES AND CATEGORIES
-   --------------------------------------------------------- */
+/* EMPLOYEES AND CATEGORIES */
 
 .employees-stats-grid,
 .categories-stats-grid {
@@ -2617,9 +2575,7 @@ a {
   cursor: pointer;
 }
 
-/* ---------------------------------------------------------
-   PROFILE
-   --------------------------------------------------------- */
+/* PROFILE */
 
 .profile-card {
   width: min(680px, 100%);
@@ -2705,9 +2661,7 @@ a {
   font-weight: 800;
 }
 
-/* ---------------------------------------------------------
-   CHANGE PASSWORD
-   --------------------------------------------------------- */
+/* CHANGE PASSWORD */
 
 .change-password-back-button {
   margin-bottom: 18px;
@@ -2852,9 +2806,7 @@ a {
   gap: 10px;
 }
 
-/* ---------------------------------------------------------
-   SIMPLE PLACEHOLDER PAGES
-   --------------------------------------------------------- */
+/* SIMPLE PLACEHOLDER PAGES */
 
 .settings-page,
 .reports-page {
@@ -2875,9 +2827,7 @@ a {
   font-size: 13px;
 }
 
-/* ---------------------------------------------------------
-   RESPONSIVE DESIGN
-   --------------------------------------------------------- */
+/* RESPONSIVE DESIGN */
 
 @media (max-width: 1250px) {
   .dashboard-stats-grid {
@@ -3080,8 +3030,6 @@ a {
   }
 }
 
-/* Sidebar kısa ekranlarda kaydırma olmadan sıkışır */
-
 @media (max-height: 830px) and (min-width: 761px) {
   .rf-sidebar-brand {
     min-height: 95px;
@@ -3229,9 +3177,7 @@ a {
   }
 }
 
-/* ==================================
-   ASSIGNED TASKS FINAL FIX
-   ================================== */
+/* ASSIGNED TASKS */
 
 .assigned-tasks-page {
   width: 100%;
@@ -3483,9 +3429,7 @@ a {
   }
 }
 
-/* =========================================================
-   EMPLOYEES PAGE — FINAL FIX
-   ========================================================= */
+/* EMPLOYEES PAGE */
 
 .employees-page {
   width: 100%;
@@ -3495,8 +3439,6 @@ a {
   background: #f5f7fb;
   box-sizing: border-box;
 }
-
-/* Header */
 
 .employees-header {
   width: 100%;
@@ -3551,8 +3493,6 @@ a {
   background: #eff6ff;
   color: #2563eb;
 }
-
-/* Statistic cards */
 
 .employees-stats-grid,
 .employee-stats-grid,
@@ -3610,8 +3550,6 @@ a {
   font-weight: 800;
   line-height: 1;
 }
-
-/* Search and role filter */
 
 .employees-toolbar {
   width: 100%;
@@ -3677,8 +3615,6 @@ a {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Table card */
-
 .employees-table-card {
   width: 100%;
   min-width: 0;
@@ -3728,8 +3664,6 @@ a {
   background: #fafcff;
 }
 
-/* Employee information */
-
 .employee-cell {
   min-width: 210px;
   display: flex;
@@ -3771,8 +3705,6 @@ a {
   line-height: 1.3;
 }
 
-/* Role badges */
-
 .role-badge {
   width: fit-content;
   min-height: 25px;
@@ -3804,8 +3736,6 @@ a {
   background: #dbeafe;
   color: #2563eb;
 }
-
-/* Role change section */
 
 .employee-role-control {
   min-width: 190px;
@@ -3842,8 +3772,6 @@ a {
   white-space: normal;
 }
 
-/* Status */
-
 .employee-status-badge {
   width: fit-content;
   min-height: 25px;
@@ -3865,8 +3793,6 @@ a {
   background: #fee2e2;
   color: #dc2626;
 }
-
-/* Update button */
 
 .update-role-button {
   min-width: 96px;
@@ -3898,15 +3824,11 @@ a {
   cursor: not-allowed;
 }
 
-/* Error */
-
 .employees-error-content {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
-/* Responsive */
 
 @media (max-width: 1200px) {
   .employees-stats-grid,
@@ -3981,9 +3903,7 @@ a {
   font-size: 11px;
 }
 
-/* =========================================================
-   CATEGORIES PAGE — FINAL FIX
-   ========================================================= */
+/* CATEGORIES PAGE */
 
 .categories-page {
   width: 100%;
@@ -3993,8 +3913,6 @@ a {
   background: #f5f7fb;
   box-sizing: border-box;
 }
-
-/* Header */
 
 .categories-header {
   width: 100%;
@@ -4073,8 +3991,6 @@ a {
   background: #1d4ed8;
 }
 
-/* Statistics */
-
 .categories-stats-grid,
 .category-stats-grid,
 .categories-summary-grid {
@@ -4148,8 +4064,6 @@ a {
   line-height: 1;
 }
 
-/* Search */
-
 .categories-toolbar {
   width: 100%;
   margin-bottom: 18px;
@@ -4200,8 +4114,6 @@ a {
   font-weight: 700;
   white-space: nowrap;
 }
-
-/* Table */
 
 .categories-table-card {
   width: 100%;
@@ -4291,8 +4203,6 @@ a {
   line-height: 1.5;
 }
 
-/* Status */
-
 .category-status-badge {
   width: fit-content;
   min-height: 25px;
@@ -4314,8 +4224,6 @@ a {
   background: #fee2e2;
   color: #dc2626;
 }
-
-/* Actions */
 
 .category-actions {
   display: flex;
@@ -4364,8 +4272,6 @@ a {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
-/* Empty state */
 
 .categories-empty-state {
   min-height: 300px;
@@ -4639,9 +4545,7 @@ a {
   cursor: not-allowed;
 }
 
-/* =========================================================
-   EDIT REQUEST — FINAL FIX
-   ========================================================= */
+/* EDIT REQUEST */
 
 .edit-request-page {
   width: 100%;
@@ -4771,8 +4675,6 @@ a {
   min-width: 0;
 }
 
-/* Summary */
-
 .edit-request-summary-card {
   padding: 21px;
   border: 1px solid #e2e8f0;
@@ -4821,8 +4723,6 @@ a {
   text-align: right;
   overflow-wrap: anywhere;
 }
-
-/* Assign Staff */
 
 .assign-staff-card {
   overflow: hidden;
@@ -4957,8 +4857,6 @@ a {
   gap: 5px;
 }
 
-/* Information cards */
-
 .edit-request-info-card {
   padding: 18px;
   border: 1px solid #e2e8f0;
@@ -5028,9 +4926,7 @@ a {
   }
 }
 
-/* =========================================================
-   PROFILE PAGE — FINAL FIX
-   ========================================================= */
+/* PROFILE PAGE */
 
 .profile-page {
   width: 100%;
@@ -5071,8 +4967,6 @@ a {
   line-height: 1.5;
 }
 
-/* Profile card */
-
 .profile-card {
   width: min(700px, 100%);
   overflow: hidden;
@@ -5087,8 +4981,6 @@ a {
       0.06
     );
 }
-
-/* Card header */
 
 .profile-card-top {
   min-height: 116px;
@@ -5151,8 +5043,6 @@ a {
   font-size: 11px;
 }
 
-/* Role badge */
-
 .profile-role-badge {
   min-height: 25px;
   padding: 4px 10px;
@@ -5183,8 +5073,6 @@ a {
   background: #f1f5f9;
   color: #475569;
 }
-
-/* Information rows */
 
 .profile-card-body {
   padding: 6px 24px;
@@ -5241,8 +5129,6 @@ a {
   font-weight: 800;
   line-height: 1.4;
 }
-
-/* Footer */
 
 .profile-card-footer {
   min-height: 91px;
@@ -5318,8 +5204,6 @@ a {
   background: #1d4ed8;
 }
 
-/* Responsive */
-
 @media (max-width: 760px) {
   .profile-page {
     padding: 22px 16px 28px;
@@ -5339,9 +5223,7 @@ a {
   }
 }
 
-/* =========================================================
-   CHANGE PASSWORD PAGE — FINAL FIX
-   ========================================================= */
+/* CHANGE PASSWORD PAGE */
 
 .change-password-page {
   width: 100%;
@@ -5401,8 +5283,6 @@ a {
   line-height: 1.5;
 }
 
-/* Messages */
-
 .change-password-message {
   width: min(700px, 100%);
   margin-bottom: 18px;
@@ -5426,8 +5306,6 @@ a {
   background: #f0fdf4;
   color: #15803d;
 }
-
-/* Main card */
 
 .password-card {
   width: min(700px, 100%);
@@ -5479,8 +5357,6 @@ a {
   font-size: 10px;
   line-height: 1.5;
 }
-
-/* Form */
 
 .password-form {
   padding: 24px;
@@ -5589,8 +5465,6 @@ a {
   line-height: 1.4;
 }
 
-/* Requirements */
-
 .password-requirements {
   margin-top: 4px;
   padding: 14px;
@@ -5622,8 +5496,6 @@ a {
   font-size: 9px;
   line-height: 1.5;
 }
-
-/* Actions */
 
 .password-form-actions {
   margin-top: 25px;
@@ -5703,8 +5575,6 @@ a {
   }
 }
 
-/* Change Password üst boşluk ve buton konumu */
-
 .change-password-page {
   padding-top: 20px !important;
 }
@@ -5775,9 +5645,7 @@ a {
   }
 }
 
-/* =========================================================
-   SIDEBAR TEXT SIZE INCREASE
-   ========================================================= */
+/* SIDEBAR TYPOGRAPHY */
 
 .rf-brand-request,
 .rf-brand-flow {
@@ -5835,8 +5703,6 @@ a {
   font-size: 15px !important;
 }
 
-/* Kısa ekranlarda sidebar taşmasını önler */
-
 @media (max-height: 850px) and (min-width: 761px) {
   .rf-sidebar-brand {
     min-height: 105px !important;
@@ -5878,8 +5744,6 @@ a {
   }
 }
 
-/* Requests by Status kartını ortala */
-
 .dashboard-chart-card {
   display: flex;
   flex-direction: column;
@@ -5901,9 +5765,7 @@ a {
   gap: 42px;
 }
 
-/* =========================================================
-   LOGIN PAGE — FINAL FIX
-   ========================================================= */
+/* LOGIN PAGE */
 
 .login-page {
   width: 100%;
@@ -5914,8 +5776,6 @@ a {
     minmax(430px, 0.95fr)
     minmax(500px, 1.05fr);
 }
-
-/* Left branding panel */
 
 .login-brand-panel {
   position: relative;
@@ -6089,8 +5949,6 @@ a {
   gap: 20px;
 }
 
-/* Right form panel */
-
 .login-form-panel {
   min-height: 100vh;
   padding: 48px;
@@ -6151,8 +6009,6 @@ a {
   line-height: 1.55;
 }
 
-/* Error message */
-
 .login-error-message {
   margin-bottom: 20px;
   padding: 13px 14px;
@@ -6171,8 +6027,6 @@ a {
 .login-error-message svg {
   flex: 0 0 auto;
 }
-
-/* Form */
 
 .login-form {
   width: 100%;
@@ -6285,8 +6139,6 @@ a {
   color: #d97706;
 }
 
-/* Remember and forgot */
-
 .login-form-options {
   margin: 5px 0 24px;
   display: flex;
@@ -6322,8 +6174,6 @@ a {
 .login-forgot-link:hover {
   text-decoration: underline;
 }
-
-/* Submit */
 
 .login-submit-button {
   width: 100%;
@@ -6376,8 +6226,6 @@ a {
   }
 }
 
-/* Development account */
-
 .login-development-account {
   margin-top: 24px;
   padding: 14px;
@@ -6415,8 +6263,6 @@ a {
   font-size: 11px;
   font-weight: 800;
 }
-
-/* Responsive */
 
 @media (max-width: 980px) {
   .login-page {
@@ -6537,9 +6383,7 @@ a {
   }
 }
 
-/* =========================================================
-   CREATE REQUEST RIGHT SIDEBAR — FINAL FIX
-   ========================================================= */
+/* CREATE REQUEST RIGHT SIDEBAR */
 
 .create-request-sidebar {
   min-width: 0;
@@ -6547,8 +6391,6 @@ a {
   flex-direction: column;
   gap: 18px;
 }
-
-/* Before submitting kartı */
 
 .create-request-help-card {
   width: 100%;
@@ -6616,8 +6458,6 @@ a {
   line-height: 1.5;
 }
 
-/* Estimated response time kartı */
-
 .create-request-response-card {
   width: 100%;
   padding: 18px;
@@ -6673,8 +6513,6 @@ a {
   line-height: 1.55;
 }
 
-/* Priority renkleri */
-
 .create-request-response-card.low {
   border-color: #bbf7d0;
   background: #f0fdf4;
@@ -6719,8 +6557,6 @@ a {
   color: #dc2626;
 }
 
-/* Ana düzen */
-
 .create-request-layout {
   width: 100%;
   display: grid;
@@ -6751,9 +6587,7 @@ a {
   }
 }
 
-/* =========================================================
-   FORGOT PASSWORD PAGE — FINAL FIX
-   ========================================================= */
+/* FORGOT PASSWORD PAGE */
 
 .forgot-password-page {
   width: 100%;
@@ -6764,8 +6598,6 @@ a {
     minmax(520px, 1.05fr);
   background: #f5f7fb;
 }
-
-/* Left panel */
 
 .forgot-password-brand-panel {
   position: relative;
@@ -6917,8 +6749,6 @@ a {
   font-size: 11px;
 }
 
-/* Right panel */
-
 .forgot-password-form-panel {
   min-height: 100vh;
   padding: 48px;
@@ -6991,8 +6821,6 @@ a {
   line-height: 1.6;
 }
 
-/* Messages */
-
 .forgot-password-message {
   margin-bottom: 19px;
   padding: 13px 14px;
@@ -7020,8 +6848,6 @@ a {
 .forgot-password-message svg {
   flex: 0 0 auto;
 }
-
-/* Form */
 
 .forgot-password-form-group {
   margin-bottom: 21px;
@@ -7090,8 +6916,6 @@ a {
   font-weight: 650;
 }
 
-/* Submit button */
-
 .forgot-password-submit-button {
   width: 100%;
   min-height: 50px;
@@ -7150,8 +6974,6 @@ a {
   }
 }
 
-/* Security note */
-
 .forgot-password-security-note {
   margin-top: 22px;
   padding: 14px;
@@ -7175,8 +6997,6 @@ a {
   font-size: 9px;
   line-height: 1.55;
 }
-
-/* Responsive */
 
 @media (max-width: 960px) {
   .forgot-password-page {
@@ -7392,9 +7212,7 @@ color:#111827;
 
 }
 
-/* =========================================================
-   REPORTS PAGE
-   ========================================================= */
+/* REPORTS PAGE */
 
 .reports-page {
   width: 100%;
@@ -7492,8 +7310,6 @@ color:#111827;
   }
 }
 
-/* Loading and error */
-
 .reports-loading {
   min-height: calc(100vh - var(--rf-navbar-height));
   color: #64748b;
@@ -7535,8 +7351,6 @@ color:#111827;
   font-weight: 800;
   cursor: pointer;
 }
-
-/* Summary cards */
 
 .reports-summary-grid {
   margin-bottom: 22px;
@@ -7642,8 +7456,6 @@ color:#111827;
   font-size: 9px;
   line-height: 1.4;
 }
-
-/* Charts */
 
 .reports-chart-grid {
   margin-bottom: 22px;
@@ -7764,8 +7576,6 @@ color:#111827;
   width: 100%;
   height: 300px;
 }
-
-/* Recent table */
 
 .reports-recent-card {
   overflow: hidden;
@@ -7934,8 +7744,6 @@ color:#111827;
   gap: 10px;
 }
 
-/* Responsive */
-
 @media (max-width: 1100px) {
   .reports-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -7976,9 +7784,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   SETTINGS PAGE
-   ========================================================= */
+/* SETTINGS PAGE */
 
 .settings-page {
   width: 100%;
@@ -8354,8 +8160,6 @@ color:#111827;
   }
 }
 
-/* Settings page text size improvement */
-
 .settings-toggle-information strong {
   font-size: 13px !important;
 }
@@ -8377,9 +8181,7 @@ color:#111827;
   color: #94a3b8;
 }
 
-/* =========================================================
-   REQUESTFLOW TOAST NOTIFICATIONS
-   ========================================================= */
+/* TOAST NOTIFICATIONS */
 
 .rf-toast-container {
   position: fixed;
@@ -8539,9 +8341,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   REQUESTFLOW CONFIRM MODAL
-   ========================================================= */
+/* CONFIRM MODAL */
 
 .rf-confirm-overlay {
   position: fixed;
@@ -8749,9 +8549,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   REQUESTS PAGE — FINAL DESIGN FIX
-   ========================================================= */
+/* REQUESTS PAGE */
 
 .requests-page {
   width: 100%;
@@ -8760,8 +8558,6 @@ color:#111827;
   padding: 30px 32px 40px;
   background: #f5f7fb;
 }
-
-/* Header */
 
 .requests-header {
   margin-bottom: 22px;
@@ -8853,8 +8649,6 @@ color:#111827;
   cursor: not-allowed;
 }
 
-/* Main card */
-
 .requests-content-card {
   overflow: hidden;
   border: 1px solid #e2e8f0;
@@ -8863,8 +8657,6 @@ color:#111827;
   box-shadow:
     0 8px 26px rgba(15, 23, 42, 0.05);
 }
-
-/* Toolbar */
 
 .requests-toolbar {
   padding: 18px 20px;
@@ -8984,8 +8776,6 @@ color:#111827;
   background: #fef2f2;
 }
 
-/* Table */
-
 .requests-table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -9054,8 +8844,6 @@ color:#111827;
   color: #2563eb;
 }
 
-/* Status and priority badges */
-
 .requests-status-badge,
 .requests-priority-badge {
   min-height: 27px;
@@ -9115,8 +8903,6 @@ color:#111827;
   color: #dc2626;
 }
 
-/* Actions */
-
 .requests-actions {
   display: flex;
   align-items: center;
@@ -9164,8 +8950,6 @@ color:#111827;
   opacity: 0.55;
   cursor: not-allowed;
 }
-
-/* Pagination */
 
 .requests-pagination {
   min-height: 64px;
@@ -9223,8 +9007,6 @@ color:#111827;
   cursor: not-allowed;
 }
 
-/* Loading, empty and error states */
-
 .requests-state {
   min-height: 360px;
   padding: 40px;
@@ -9274,8 +9056,6 @@ color:#111827;
   color: #94a3b8;
 }
 
-/* Spinner */
-
 .requests-rotating-icon {
   animation: requests-spin 0.8s linear infinite;
 }
@@ -9285,8 +9065,6 @@ color:#111827;
     transform: rotate(360deg);
   }
 }
-
-/* Responsive */
 
 @media (max-width: 1100px) {
   .requests-toolbar {
@@ -9337,8 +9115,6 @@ color:#111827;
   }
 }
 
-/* Requests search input overlap fix */
-
 .requests-search-wrapper {
   position: relative !important;
   display: block !important;
@@ -9376,8 +9152,6 @@ color:#111827;
   z-index: 3 !important;
   transform: translateY(-50%) !important;
 }
-
-/* Requests search final fix */
 
 .requests-search-wrapper {
   position: relative !important;
@@ -9450,9 +9224,7 @@ color:#111827;
   color: #dc2626 !important;
 }
 
-/* =========================================================
-   REQUESTS SEARCH — SINGLE BORDER FINAL FIX
-   ========================================================= */
+/* REQUESTS SEARCH */
 
 .requests-toolbar .requests-search-wrapper {
   position: relative !important;
@@ -9587,9 +9359,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   EDIT REQUEST PAGE — FINAL DESIGN FIX
-   ========================================================= */
+/* EDIT REQUEST PAGE */
 
 .edit-request-page {
   width: 100%;
@@ -9598,8 +9368,6 @@ color:#111827;
   padding: 28px 32px 42px;
   background: #f5f7fb;
 }
-
-/* Page header */
 
 .edit-request-header {
   margin-bottom: 24px;
@@ -9684,8 +9452,6 @@ color:#111827;
   cursor: not-allowed;
 }
 
-/* Main two-column layout */
-
 .edit-request-layout {
   width: 100%;
   min-width: 0;
@@ -9696,8 +9462,6 @@ color:#111827;
   align-items: start;
   gap: 20px;
 }
-
-/* Main form card */
 
 .edit-request-form-card {
   min-width: 0;
@@ -9743,8 +9507,6 @@ color:#111827;
   font-size: 11px;
   line-height: 1.55;
 }
-
-/* Form layout */
 
 .edit-request-form-grid {
   display: grid;
@@ -9857,8 +9619,6 @@ color:#111827;
   font-weight: 650;
 }
 
-/* Form buttons */
-
 .edit-request-form-actions {
   margin-top: 23px;
   padding-top: 19px;
@@ -9911,16 +9671,12 @@ color:#111827;
   cursor: not-allowed;
 }
 
-/* Right sidebar */
-
 .edit-request-sidebar {
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
-
-/* Summary card */
 
 .edit-request-summary-card {
   overflow: hidden;
@@ -10066,8 +9822,6 @@ color:#111827;
   color: #15803d;
 }
 
-/* Workflow card */
-
 .edit-request-workflow-card {
   padding: 20px;
   border: 1px solid #e2e8f0;
@@ -10143,8 +9897,6 @@ color:#111827;
   font-size: 9px;
 }
 
-/* Loading and error */
-
 .edit-request-state {
   min-height: calc(100vh - 72px);
   padding: 40px;
@@ -10200,8 +9952,6 @@ color:#111827;
     transform: rotate(360deg);
   }
 }
-
-/* Responsive */
 
 @media (max-width: 1120px) {
   .edit-request-layout {
@@ -10262,9 +10012,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   EDIT REQUEST SUMMARY — COMPACT ALIGNMENT FIX
-   ========================================================= */
+/* EDIT REQUEST SUMMARY */
 
 .edit-request-summary-card {
   width: 100% !important;
@@ -10374,8 +10122,6 @@ color:#111827;
   line-height: 1 !important;
 }
 
-/* Edit Request card header alignment fix */
-
 .edit-request-form-card .edit-request-card-header {
   width: 100% !important;
   min-height: auto !important;
@@ -10451,9 +10197,7 @@ color:#111827;
   text-align: left !important;
 }
 
-/* =========================================================
-   REQUESTFLOW EMPTY STATE
-   ========================================================= */
+/* EMPTY STATE */
 
 .rf-empty-state {
   width: 100%;
@@ -10551,8 +10295,6 @@ color:#111827;
   }
 }
 
-/* Employees Clear Filters button fix */
-
 .employees-toolbar .employees-clear-filter-button {
   width: auto !important;
   min-width: 118px !important;
@@ -10615,9 +10357,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   REQUESTFLOW LOADING SKELETON
-   ========================================================= */
+/* LOADING SKELETON */
 
 .rf-skeleton-block {
   position: relative;
@@ -10646,8 +10386,6 @@ color:#111827;
     transform: translateX(100%);
   }
 }
-
-/* Statistic cards */
 
 .rf-skeleton-stats-grid {
   width: 100%;
@@ -10691,8 +10429,6 @@ color:#111827;
   width: 36%;
   height: 23px;
 }
-
-/* Table skeleton */
 
 .rf-table-skeleton {
   width: 100%;
@@ -10843,9 +10579,7 @@ color:#111827;
   pointer-events: none;
 }
 
-/* =========================================================
-   NAVBAR GLOBAL SEARCH PANEL
-   ========================================================= */
+/* NAVBAR GLOBAL SEARCH PANEL */
 
 .rf-navbar-search-container {
   position: relative;
@@ -11149,9 +10883,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   NAVBAR NOTIFICATION CENTER
-   ========================================================= */
+/* NAVBAR NOTIFICATION CENTER */
 
 .rf-navbar-actions {
   margin-left: auto;
@@ -11462,9 +11194,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   REQUESTFLOW MOBILE SIDEBAR
-   ========================================================= */
+/* MOBILE SIDEBAR */
 
 .rf-sidebar-mobile-header {
   display: contents;
@@ -11695,9 +11425,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   MOBILE SIDEBAR VISIBILITY FIX
-   ========================================================= */
+/* MOBILE SIDEBAR */
 
 @media (max-width: 900px) {
   .rf-sidebar {
@@ -11773,9 +11501,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   REQUESTFLOW 403 AND 404 PAGES
-   ========================================================= */
+/* 403 AND 404 PAGES */
 
 .rf-system-state-page {
   width: 100%;
@@ -12091,9 +11817,7 @@ color:#111827;
   }
 }
 
-/* =========================================================
-   REQUESTFLOW ACCESSIBILITY
-   ========================================================= */
+/* ACCESSIBILITY */
 
 .rf-skip-link {
   position: fixed;
@@ -12154,8 +11878,6 @@ color:#111827;
   white-space: nowrap !important;
 }
 
-/* Global keyboard focus */
-
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
@@ -12166,16 +11888,12 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-/* Disabled controls */
-
 button:disabled,
 input:disabled,
 select:disabled,
 textarea:disabled {
   cursor: not-allowed;
 }
-
-/* Touch devices */
 
 @media (pointer: coarse) {
   button,
@@ -12200,9 +11918,7 @@ textarea:disabled {
   }
 }
 
-/* =========================================================
-   NAVBAR SEARCH FOCUS FIX
-   ========================================================= */
+/* NAVBAR SEARCH */
 
 .rf-navbar-search-container .rf-navbar-search {
   position: relative !important;
@@ -12338,9 +12054,7 @@ textarea:disabled {
   outline-offset: 1px !important;
 }
 
-/* =========================================================
-   EDIT REQUEST UNSAVED CHANGES
-   ========================================================= */
+/* EDIT REQUEST UNSAVED CHANGES */
 
 .edit-request-unsaved-badge {
   width: fit-content;
@@ -12371,9 +12085,7 @@ textarea:disabled {
   cursor: not-allowed !important;
 }
 
-/* =========================================================
-   EDIT REQUEST ACTIVITY TIMELINE
-   ========================================================= */
+/* EDIT REQUEST ACTIVITY TIMELINE */
 
 .edit-request-activity-card {
   width: 100%;
@@ -12675,9 +12387,7 @@ textarea:disabled {
   font-size: 9px;
 }
 
-/* =========================================================
-   CREATE REQUEST DRAFT SYSTEM
-   ========================================================= */
+/* CREATE REQUEST DRAFT SYSTEM */
 
 .create-request-header-actions {
   display: flex;
@@ -12847,9 +12557,7 @@ textarea:disabled {
   }
 }
 
-/* =========================================================
-   ADVANCED DASHBOARD
-   ========================================================= */
+/* ADVANCED DASHBOARD */
 
 .dashboard-advanced-header {
   align-items: flex-start;
@@ -13058,8 +12766,6 @@ textarea:disabled {
   font-weight: 850;
 }
 
-/* Stat variants */
-
 .dashboard-stat-card.in-progress
   .dashboard-stat-accent,
 .dashboard-stat-card.in-progress
@@ -13099,8 +12805,6 @@ textarea:disabled {
   color: #dc2626;
 }
 
-/* Headers */
-
 .dashboard-card-header > div > p {
   margin: 5px 0 0;
 
@@ -13113,8 +12817,6 @@ textarea:disabled {
 .dashboard-view-all-button {
   gap: 6px !important;
 }
-
-/* Empty recent requests */
 
 .dashboard-empty-requests {
   min-height: 270px;
@@ -13159,8 +12861,6 @@ textarea:disabled {
   font-size: 9px !important;
   font-weight: 800 !important;
 }
-
-/* Analytics */
 
 .dashboard-insights-grid {
   margin-top: 19px;
@@ -13324,8 +13024,6 @@ textarea:disabled {
   justify-content: center;
 }
 
-/* Quick actions */
-
 .dashboard-quick-actions-list {
   margin-top: 16px;
 
@@ -13420,8 +13118,6 @@ textarea:disabled {
 .dashboard-quick-action > svg {
   color: #94a3b8;
 }
-
-/* Workload */
 
 .dashboard-workload-card {
   margin-top: 19px;
@@ -13557,8 +13253,6 @@ textarea:disabled {
   justify-content: center;
 }
 
-/* Loading */
-
 .dashboard-loading-grid {
   display: grid;
   grid-template-columns:
@@ -13595,8 +13289,6 @@ textarea:disabled {
   height: 44px;
   margin-bottom: 12px;
 }
-
-/* Responsive */
 
 @media (max-width: 1150px) {
   .dashboard-period-card {
@@ -13695,11 +13387,8 @@ textarea:disabled {
   }
 }
 
-/* =========================================================
-   DASHBOARD TEXT SIZE IMPROVEMENT
-   ========================================================= */
+/* DASHBOARD TYPOGRAPHY */
 
-/* Priority Distribution, Top Categories, Quick Actions */
 .dashboard-insight-header h2 {
   font-size: 16px !important;
 }
@@ -13720,7 +13409,6 @@ textarea:disabled {
   font-size: 9.5px !important;
 }
 
-/* Quick Actions */
 .dashboard-quick-action strong {
   font-size: 10.5px !important;
 }
@@ -13731,7 +13419,6 @@ textarea:disabled {
   line-height: 1.4 !important;
 }
 
-/* Team Workload */
 .dashboard-workload-card .dashboard-card-header h2 {
   font-size: 18px !important;
 }
@@ -13757,7 +13444,6 @@ textarea:disabled {
   line-height: 1.45;
 }
 
-/* Dashboard View All button fix */
 .dashboard-view-all-button {
   width: auto !important;
   min-width: 92px !important;
@@ -13801,9 +13487,7 @@ textarea:disabled {
   color: #1d4ed8 !important;
 }
 
-/* =========================================================
-   REQUEST TABLE SORTING
-   ========================================================= */
+/* REQUEST TABLE SORTING */
 
 .requests-table thead th {
   white-space: nowrap;
@@ -13867,9 +13551,7 @@ textarea:disabled {
   outline-offset: 4px !important;
 }
 
-/* =========================================================
-   EMPLOYEES TABLE SORTING
-   ========================================================= */
+/* EMPLOYEES TABLE SORTING */
 
 .employees-table thead th {
   white-space: nowrap;
@@ -13935,9 +13617,7 @@ textarea:disabled {
   outline-offset: 4px !important;
 }
 
-/* =========================================================
-   REQUESTS ADVANCED FILTERS
-   ========================================================= */
+/* REQUESTS ADVANCED FILTERS */
 
 .requests-toolbar-actions {
   display: flex;
@@ -14127,8 +13807,6 @@ textarea:disabled {
     0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Active filter chips */
-
 .requests-active-filters {
   min-height: 49px;
   margin: 0 18px 15px;
@@ -14206,8 +13884,6 @@ textarea:disabled {
   white-space: nowrap;
 }
 
-/* Responsive */
-
 @media (max-width: 1180px) {
   .requests-advanced-filter-grid {
     grid-template-columns:
@@ -14266,8 +13942,6 @@ textarea:disabled {
   }
 }
 
-/* Advanced Filters text size improvement */
-
 .requests-filter-panel-header strong {
   font-size: 13px !important;
 }
@@ -14301,9 +13975,7 @@ textarea:disabled {
   font-size: 10px !important;
 }
 
-/* =========================================================
-   REQUEST COMMENTS
-   ========================================================= */
+/* REQUEST COMMENTS */
 
 .request-comments-card {
   width: 100%;
@@ -14715,9 +14387,7 @@ textarea:disabled {
   }
 }
 
-/* =========================================================
-   REQUEST ATTACHMENTS
-   ========================================================= */
+/* REQUEST ATTACHMENTS */
 
 .request-attachments-card {
   width: 100%;
@@ -15043,9 +14713,7 @@ textarea:disabled {
   }
 }
 
-/* =========================================================
-   THEME SELECTOR
-   ========================================================= */
+/* THEME SELECTOR */
 
 .settings-theme-section {
   padding: 20px;
@@ -15221,9 +14889,7 @@ textarea:disabled {
   color: #ffffff;
 }
 
-/* =========================================================
-   REQUESTFLOW DARK THEME
-   ========================================================= */
+/* DARK THEME */
 
 :root {
   --rf-page-background: #f5f7fb;
@@ -15285,8 +14951,6 @@ html[data-theme="dark"] .rf-main-content {
   color: var(--rf-text-primary);
 }
 
-/* Page titles */
-
 html[data-theme="dark"] h1,
 html[data-theme="dark"] h2,
 html[data-theme="dark"] h3,
@@ -15298,8 +14962,6 @@ html[data-theme="dark"] p,
 html[data-theme="dark"] label {
   color: var(--rf-text-secondary);
 }
-
-/* General cards */
 
 html[data-theme="dark"]
 :is(
@@ -15330,8 +14992,6 @@ html[data-theme="dark"]
   box-shadow: var(--rf-shadow) !important;
 }
 
-/* Inputs */
-
 html[data-theme="dark"]
 :is(
   input,
@@ -15360,8 +15020,6 @@ html[data-theme="dark"]
   background: #1b2638;
   color: #7f8da3;
 }
-
-/* Tables */
 
 html[data-theme="dark"]
 :is(
@@ -15405,8 +15063,6 @@ html[data-theme="dark"]
   background: #172033;
 }
 
-/* Advanced filters */
-
 html[data-theme="dark"]
 .requests-advanced-filter-panel {
   border-color: var(--rf-border);
@@ -15424,8 +15080,6 @@ html[data-theme="dark"]
   border-color: var(--rf-border);
   background: var(--rf-surface);
 }
-
-/* Comments and attachments */
 
 html[data-theme="dark"]
 .request-comment-form,
@@ -15462,8 +15116,6 @@ html[data-theme="dark"]
   background: var(--rf-surface-soft);
 }
 
-/* Theme selector dark appearance */
-
 html[data-theme="dark"]
 .settings-theme-option {
   border-color: var(--rf-border) !important;
@@ -15495,8 +15147,6 @@ html[data-theme="dark"]
   color: var(--rf-text-muted);
 }
 
-/* Scrollbar */
-
 html[data-theme="dark"] {
   scrollbar-color:
     #475569 #111827;
@@ -15510,8 +15160,6 @@ html[data-theme="dark"]
   background: #475569;
 }
 
-/* Responsive theme cards */
-
 @media (max-width: 760px) {
   .settings-theme-options {
     grid-template-columns: 1fr;
@@ -15519,9 +15167,7 @@ html[data-theme="dark"]
 
 }
 
-/* =========================================================
-   REQUESTFLOW DARK THEME — FIXED VERSION
-   ========================================================= */
+/* DARK THEME */
 
 html[data-theme="dark"] {
   --dark-page: #0b1220;
@@ -15542,8 +15188,6 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
-/* Page backgrounds */
-
 html[data-theme="dark"] body,
 html[data-theme="dark"] #root,
 html[data-theme="dark"] .main-layout,
@@ -15563,8 +15207,6 @@ html[data-theme="dark"] .profile-page {
   color: var(--dark-text) !important;
 }
 
-/* Main top navbar */
-
 html[data-theme="dark"] .navbar,
 html[data-theme="dark"] .top-navbar,
 html[data-theme="dark"] .main-navbar,
@@ -15573,8 +15215,6 @@ html[data-theme="dark"] .rf-navbar {
   background: var(--dark-surface) !important;
   color: var(--dark-title) !important;
 }
-
-/* Page headings */
 
 html[data-theme="dark"]
 :is(
@@ -15634,9 +15274,7 @@ html[data-theme="dark"]
   color: #60a5fa !important;
 }
 
-/* =========================================================
-   COMMON CARDS
-   ========================================================= */
+/* COMMON CARDS */
 
 html[data-theme="dark"]
 :is(
@@ -15677,8 +15315,6 @@ html[data-theme="dark"]
     0 12px 30px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* Dashboard additional cards */
-
 html[data-theme="dark"]
 .dashboard-page
 :is(
@@ -15690,8 +15326,6 @@ html[data-theme="dark"]
   border-color: var(--dark-border) !important;
   background: var(--dark-surface) !important;
 }
-
-/* Dashboard quick actions */
 
 html[data-theme="dark"] .dashboard-quick-action {
   border-color: var(--dark-border) !important;
@@ -15710,8 +15344,6 @@ html[data-theme="dark"] .dashboard-view-all-button {
   color: #60a5fa !important;
 }
 
-/* Dashboard progress bars */
-
 html[data-theme="dark"]
 :is(
   .dashboard-insight-progress,
@@ -15721,9 +15353,7 @@ html[data-theme="dark"]
   background: #253248 !important;
 }
 
-/* =========================================================
-   REQUESTS
-   ========================================================= */
+/* REQUESTS */
 
 html[data-theme="dark"] .requests-toolbar,
 html[data-theme="dark"] .requests-active-filters,
@@ -15783,10 +15413,7 @@ html[data-theme="dark"]
   color: var(--dark-muted) !important;
 }
 
-/* =========================================================
-   INPUTS AND SELECTS
-   Login page is excluded later
-   ========================================================= */
+/* INPUTS AND SELECTS */
 
 html[data-theme="dark"]
 :is(
@@ -15859,8 +15486,6 @@ html[data-theme="dark"]
   color: #74849b !important;
 }
 
-/* Search fields */
-
 html[data-theme="dark"]
 :is(
   .requests-search-wrapper,
@@ -15874,9 +15499,7 @@ html[data-theme="dark"]
   color: var(--dark-text) !important;
 }
 
-/* =========================================================
-   TABLES
-   ========================================================= */
+/* TABLES */
 
 html[data-theme="dark"]
 :is(
@@ -15945,8 +15568,6 @@ html[data-theme="dark"]
   color: #60a5fa !important;
 }
 
-/* Employee table */
-
 html[data-theme="dark"] .employee-cell-info strong {
   color: var(--dark-title) !important;
 }
@@ -15961,9 +15582,7 @@ html[data-theme="dark"] .employee-avatar {
   color: #60a5fa !important;
 }
 
-/* =========================================================
-   CREATE REQUEST
-   ========================================================= */
+/* CREATE REQUEST */
 
 html[data-theme="dark"]
 .request-form-card-header,
@@ -15993,9 +15612,7 @@ html[data-theme="dark"]
   color: var(--dark-muted) !important;
 }
 
-/* =========================================================
-   COMMENTS AND ATTACHMENTS
-   ========================================================= */
+/* COMMENTS AND ATTACHMENTS */
 
 html[data-theme="dark"]
 :is(
@@ -16045,9 +15662,7 @@ html[data-theme="dark"]
   color: var(--dark-title) !important;
 }
 
-/* =========================================================
-   REPORTS AND RECHARTS
-   ========================================================= */
+/* REPORTS AND RECHARTS */
 
 html[data-theme="dark"]
 .recharts-wrapper text,
@@ -16076,9 +15691,7 @@ html[data-theme="dark"]
   color: var(--dark-title) !important;
 }
 
-/* =========================================================
-   SETTINGS
-   ========================================================= */
+/* SETTINGS */
 
 html[data-theme="dark"]
 .settings-theme-option {
@@ -16155,8 +15768,6 @@ html[data-theme="dark"]
   color: var(--dark-muted) !important;
 }
 
-/* Restore Defaults button */
-
 .settings-restore-button {
   width: auto !important;
   min-width: 150px !important;
@@ -16201,17 +15812,13 @@ html[data-theme="dark"]
   color: #fbbf24 !important;
 }
 
-/* Settings form footer */
-
 html[data-theme="dark"]
 .settings-form-actions {
   border-color: var(--dark-border) !important;
   background: var(--dark-surface) !important;
 }
 
-/* =========================================================
-   TOAST AND MODALS
-   ========================================================= */
+/* TOAST AND MODALS */
 
 html[data-theme="dark"]
 :is(
@@ -16224,10 +15831,7 @@ html[data-theme="dark"]
   color: var(--dark-text) !important;
 }
 
-/* =========================================================
-   LOGIN PAGE
-   Keep the login form readable and light
-   ========================================================= */
+/* LOGIN PAGE */
 
 html[data-theme="dark"] .login-page,
 html[data-theme="dark"] .login-layout,
@@ -16293,9 +15897,7 @@ input::placeholder {
   color: #94a3b8 !important;
 }
 
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
+/* SCROLLBAR */
 
 html[data-theme="dark"] {
   scrollbar-color:
@@ -16318,9 +15920,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   background: #46566d;
 }
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+/* RESPONSIVE */
 
 @media (max-width: 760px) {
   .settings-theme-options {
@@ -16342,17 +15942,13 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   }
 }
 
-/* =========================================================
-   SETTINGS PAGE LAYOUT FIX
-   ========================================================= */
+/* SETTINGS PAGE LAYOUT */
 
 .settings-page {
   width: 100%;
   padding: 28px 32px 40px;
   box-sizing: border-box;
 }
-
-/* Page header */
 
 .settings-header {
   width: 100%;
@@ -16422,8 +16018,6 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   color: #b45309 !important;
 }
 
-/* Main settings form */
-
 .settings-form {
   width: 100%;
   margin-top: 18px;
@@ -16448,8 +16042,6 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
 
   box-sizing: border-box;
 }
-
-/* Card header */
 
 .settings-card-header {
   width: 100%;
@@ -16539,8 +16131,6 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   justify-content: center !important;
 }
 
-/* Card content */
-
 .settings-card-content {
   width: 100%;
   padding: 22px 23px !important;
@@ -16553,8 +16143,6 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
 
   box-sizing: border-box;
 }
-
-/* Text fields */
 
 .settings-form-group {
   width: 100%;
@@ -16621,8 +16209,6 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
     0 0 0 3px rgba(37, 99, 235, 0.1) !important;
 }
 
-/* Description and character counter */
-
 .settings-field-footer {
   width: 100%;
   min-height: 18px;
@@ -16672,8 +16258,6 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   font-size: 9px !important;
   line-height: 1.5 !important;
 }
-
-/* Toggle rows */
 
 .settings-toggle-row {
   width: 100%;
@@ -16739,8 +16323,6 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   font-weight: 500 !important;
   line-height: 1.5 !important;
 }
-
-/* Real switch shape */
 
 .settings-toggle-button {
   position: relative !important;
@@ -16811,8 +16393,6 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
 
   background: #e2e8f0;
 }
-
-/* Footer */
 
 .settings-form-actions {
   width: 100%;
@@ -16897,9 +16477,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   cursor: not-allowed !important;
 }
 
-/* =========================================================
-   SETTINGS DARK MODE
-   ========================================================= */
+/* SETTINGS DARK MODE */
 
 html[data-theme="dark"] .settings-card,
 html[data-theme="dark"] .settings-card-header,
@@ -16956,8 +16534,6 @@ html[data-theme="dark"]
   background: #273449;
 }
 
-/* Responsive */
-
 @media (max-width: 780px) {
   .settings-page {
     padding: 22px 18px 32px;
@@ -16994,10 +16570,7 @@ html[data-theme="dark"]
   }
 }
 
-/* =========================================================
-   REQUESTFLOW DARK MODE — FINAL PAGE FIXES
-   Bu bölüm App.css dosyasının EN SONUNDA olmalıdır.
-   ========================================================= */
+/* DARK MODE */
 
 html[data-theme="dark"] {
   --rf-dark-page: #08111f;
@@ -17015,9 +16588,7 @@ html[data-theme="dark"] {
   --rf-dark-muted: #8fa1ba;
 }
 
-/* =========================================================
-   NAVBAR USER AND NOTIFICATIONS
-   ========================================================= */
+/* NAVBAR USER AND NOTIFICATIONS */
 
 html[data-theme="dark"]
 :is(
@@ -17063,8 +16634,6 @@ html[data-theme="dark"]
 ) {
   color: var(--rf-dark-title) !important;
 }
-
-/* Bildirim paneli */
 
 html[data-theme="dark"]
 :is(
@@ -17168,9 +16737,7 @@ html[data-theme="dark"]
   background: var(--rf-dark-card) !important;
 }
 
-/* =========================================================
-   MODALS — CATEGORY, CONFIRM AND GENERAL DIALOGS
-   ========================================================= */
+/* MODALS — CATEGORY, CONFIRM AND GENERAL DIALOGS */
 
 html[data-theme="dark"] [role="dialog"],
 html[data-theme="dark"]
@@ -17288,8 +16855,6 @@ html[data-theme="dark"]
   background: var(--rf-dark-card-soft) !important;
 }
 
-/* Modal kapatma ikonu */
-
 html[data-theme="dark"]
 :is(
   .category-modal-close,
@@ -17311,8 +16876,6 @@ html[data-theme="dark"]
   color: var(--rf-dark-title) !important;
 }
 
-/* Confirm modal cancel button */
-
 html[data-theme="dark"]
 :is(
   .rf-confirm-cancel,
@@ -17323,9 +16886,7 @@ html[data-theme="dark"]
   color: var(--rf-dark-text) !important;
 }
 
-/* =========================================================
-   REPORTS PAGE
-   ========================================================= */
+/* REPORTS PAGE */
 
 html[data-theme="dark"]
 .reports-page
@@ -17417,8 +16978,6 @@ html[data-theme="dark"]
   background: var(--rf-dark-hover) !important;
 }
 
-/* Recharts */
-
 html[data-theme="dark"]
 .reports-page
 .recharts-wrapper text {
@@ -17431,9 +16990,7 @@ html[data-theme="dark"]
   stroke: #2b3b53 !important;
 }
 
-/* =========================================================
-   ASSIGNED TASKS
-   ========================================================= */
+/* ASSIGNED TASKS */
 
 html[data-theme="dark"]
 .assigned-tasks-page
@@ -17503,9 +17060,7 @@ html[data-theme="dark"]
   background: var(--rf-dark-hover) !important;
 }
 
-/* =========================================================
-   EDIT REQUEST SIDEBAR
-   ========================================================= */
+/* EDIT REQUEST SIDEBAR */
 
 html[data-theme="dark"]
 .edit-request-sidebar > section,
@@ -17569,9 +17124,7 @@ html[data-theme="dark"]
   background: var(--rf-dark-card-soft) !important;
 }
 
-/* =========================================================
-   PROFILE PAGE
-   ========================================================= */
+/* PROFILE PAGE */
 
 html[data-theme="dark"]
 .profile-page
@@ -17636,9 +17189,7 @@ html[data-theme="dark"]
   border-color: var(--rf-dark-border-soft) !important;
 }
 
-/* =========================================================
-   CHANGE PASSWORD PAGE
-   ========================================================= */
+/* CHANGE PASSWORD PAGE */
 
 html[data-theme="dark"]
 :is(
@@ -17710,9 +17261,7 @@ html[data-theme="dark"]
   background: var(--rf-dark-card-soft) !important;
 }
 
-/* =========================================================
-   LOGIN PAGE — FULL DARK MODE
-   ========================================================= */
+/* LOGIN PAGE */
 
 html[data-theme="dark"]
 :is(
@@ -17797,9 +17346,7 @@ html[data-theme="dark"]
   color: var(--rf-dark-text) !important;
 }
 
-/* =========================================================
-   WHITE BUTTONS IN DARK MODE
-   ========================================================= */
+/* WHITE BUTTONS IN DARK MODE */
 
 html[data-theme="dark"]
 :is(
@@ -17831,10 +17378,7 @@ html[data-theme="dark"]
   color: #93c5fd !important;
 }
 
-/* =========================================================
-   REQUESTFLOW DARK MODE — FINAL OVERRIDE
-   App.css dosyasının mutlaka EN SONUNDA olmalı
-   ========================================================= */
+/* DARK MODE */
 
 html[data-theme="dark"] {
   --dark-page: #08111f;
@@ -17854,9 +17398,7 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
-/* =========================================================
-   TEMEL SAYFA VE NAVBAR
-   ========================================================= */
+/* BASE PAGE AND NAVBAR */
 
 html[data-theme="dark"] body,
 html[data-theme="dark"] #root,
@@ -17880,8 +17422,6 @@ html[data-theme="dark"]
   background: var(--dark-navbar) !important;
   color: var(--dark-title) !important;
 }
-
-/* Navbar kullanıcı adı */
 
 html[data-theme="dark"]
 :is(
@@ -17928,8 +17468,6 @@ html[data-theme="dark"]
   color: var(--dark-muted) !important;
 }
 
-/* Navbar arama */
-
 html[data-theme="dark"]
 :is(
   .navbar-search,
@@ -17952,9 +17490,7 @@ input {
   color: var(--dark-title) !important;
 }
 
-/* =========================================================
-   BİLDİRİM PANELİ
-   ========================================================= */
+/* NOTIFICATION PANEL */
 
 html[data-theme="dark"]
 :is(
@@ -18056,9 +17592,7 @@ html[data-theme="dark"]
   color: var(--dark-muted) !important;
 }
 
-/* =========================================================
-   DASHBOARD
-   ========================================================= */
+/* DASHBOARD */
 
 html[data-theme="dark"] .dashboard-page {
   background: var(--dark-page) !important;
@@ -18082,8 +17616,6 @@ html[data-theme="dark"]
   background: var(--dark-card) !important;
   color: var(--dark-text) !important;
 }
-
-/* Üstte beyaz kalan Last 7 Days özeti */
 
 html[data-theme="dark"]
 :is(
@@ -18123,8 +17655,6 @@ html[data-theme="dark"]
   color: var(--dark-muted) !important;
 }
 
-/* Tarih seçimi ve Refresh */
-
 html[data-theme="dark"]
 :is(
   .dashboard-range-selector,
@@ -18151,8 +17681,6 @@ html[data-theme="dark"]
   background: var(--dark-hover) !important;
   color: #93c5fd !important;
 }
-
-/* Dashboard Recent Requests tablosu */
 
 html[data-theme="dark"]
 .dashboard-recent-card table,
@@ -18197,8 +17725,6 @@ html[data-theme="dark"]
   color: #60a5fa !important;
 }
 
-/* Team Workload */
-
 html[data-theme="dark"]
 .dashboard-workload-card,
 html[data-theme="dark"]
@@ -18229,9 +17755,7 @@ html[data-theme="dark"]
   color: var(--dark-muted) !important;
 }
 
-/* =========================================================
-   REQUESTS VE PAGINATION
-   ========================================================= */
+/* REQUESTS AND PAGINATION */
 
 html[data-theme="dark"]
 .requests-content-card {
@@ -18265,8 +17789,6 @@ html[data-theme="dark"]
   background: var(--dark-hover) !important;
 }
 
-/* Beyaz kalan pagination bölümü */
-
 html[data-theme="dark"]
 .requests-pagination {
   border-color: var(--dark-border) !important;
@@ -18298,9 +17820,7 @@ html[data-theme="dark"]
   opacity: 0.45 !important;
 }
 
-/* =========================================================
-   REPORTS
-   ========================================================= */
+/* REPORTS */
 
 html[data-theme="dark"]
 .reports-page
@@ -18320,8 +17840,6 @@ html[data-theme="dark"]
   background: var(--dark-card) !important;
   color: var(--dark-text) !important;
 }
-
-/* Reports Recent Requests */
 
 html[data-theme="dark"]
 .reports-page
@@ -18368,9 +17886,7 @@ html[data-theme="dark"]
   background: var(--dark-hover) !important;
 }
 
-/* =========================================================
-   ASSIGNED TASKS
-   ========================================================= */
+/* ASSIGNED TASKS */
 
 html[data-theme="dark"]
 .assigned-tasks-page
@@ -18402,9 +17918,7 @@ html[data-theme="dark"]
   color: var(--dark-text) !important;
 }
 
-/* =========================================================
-   EDIT REQUEST
-   ========================================================= */
+/* EDIT REQUEST */
 
 html[data-theme="dark"]
 .edit-request-page
@@ -18426,8 +17940,6 @@ html[data-theme="dark"]
   background: var(--dark-card-soft) !important;
   color: var(--dark-muted) !important;
 }
-
-/* Assign Staff */
 
 html[data-theme="dark"]
 .edit-request-sidebar
@@ -18492,9 +18004,7 @@ html[data-theme="dark"]
   background: var(--dark-card-soft) !important;
 }
 
-/* =========================================================
-   PROFILE
-   ========================================================= */
+/* PROFILE */
 
 html[data-theme="dark"]
 .profile-page
@@ -18540,9 +18050,7 @@ html[data-theme="dark"]
   color: var(--dark-muted) !important;
 }
 
-/* =========================================================
-   CHANGE PASSWORD
-   ========================================================= */
+/* CHANGE PASSWORD */
 
 html[data-theme="dark"]
 :is(
@@ -18551,8 +18059,6 @@ html[data-theme="dark"]
 ) {
   background: var(--dark-page) !important;
 }
-
-/* Üst başlıktaki dikdörtgen koyu blok */
 
 html[data-theme="dark"]
 :is(
@@ -18638,9 +18144,7 @@ html[data-theme="dark"]
   background: var(--dark-card-soft) !important;
 }
 
-/* =========================================================
-   CATEGORY MODAL VE CONFIRM MODAL
-   ========================================================= */
+/* CATEGORY AND CONFIRM MODALS */
 
 html[data-theme="dark"]
 [role="dialog"],
@@ -18739,9 +18243,7 @@ html[data-theme="dark"]
   background: var(--dark-card-soft) !important;
 }
 
-/* =========================================================
-   LOGIN
-   ========================================================= */
+/* LOGIN */
 
 html[data-theme="dark"] .login-page {
   background: var(--dark-page) !important;
@@ -18819,9 +18321,7 @@ html[data-theme="dark"]
   background: var(--dark-card-soft) !important;
 }
 
-/* =========================================================
-   GENEL BUTON DÜZELTMESİ
-   ========================================================= */
+/* GENERAL BUTTONS */
 
 html[data-theme="dark"]
 :is(
@@ -18854,8 +18354,6 @@ html[data-theme="dark"]
   background: var(--dark-hover) !important;
   color: #93c5fd !important;
 }
-
-/* Navbar kullanıcı avatarı — Dark mode düzeltmesi */
 
 html[data-theme="dark"]
 :is(
@@ -18897,8 +18395,6 @@ html[data-theme="dark"]
 
   box-shadow: none !important;
 }
-
-/* Avatar içindeki BY yazısı */
 
 html[data-theme="dark"]
 :is(
@@ -18944,17 +18440,12 @@ html[data-theme="dark"]
   justify-content: center !important;
 }
 
-/* =========================================================
-   CHANGE PASSWORD — DARK MODE FIX
-   App.css dosyasının en sonunda olmalı
-   ========================================================= */
+/* CHANGE PASSWORD DARK MODE */
 
 html[data-theme="dark"] .change-password-page {
   background: #08111f !important;
   color: #cbd5e1 !important;
 }
-
-/* Sayfa başlığı */
 
 html[data-theme="dark"]
 .change-password-page
@@ -18979,8 +18470,6 @@ html[data-theme="dark"]
   color: #9aaac0 !important;
 }
 
-/* Ana kart */
-
 html[data-theme="dark"]
 .change-password-page
 :is(
@@ -18999,8 +18488,6 @@ html[data-theme="dark"]
   box-shadow:
     0 14px 34px rgba(0, 0, 0, 0.24) !important;
 }
-
-/* Kartın üst açıklama bölümü */
 
 html[data-theme="dark"]
 .change-password-page
@@ -19024,8 +18511,6 @@ html[data-theme="dark"]
   color: #9aaac0 !important;
 }
 
-/* Form gövdesi */
-
 html[data-theme="dark"]
 .change-password-page
 :is(
@@ -19036,8 +18521,6 @@ html[data-theme="dark"]
   background: #111c2e !important;
 }
 
-/* Etiketler */
-
 html[data-theme="dark"]
 .change-password-page label {
   opacity: 1 !important;
@@ -19045,8 +18528,6 @@ html[data-theme="dark"]
 
   font-weight: 750 !important;
 }
-
-/* Input alanları */
 
 html[data-theme="dark"]
 .change-password-page
@@ -19076,8 +18557,6 @@ html[data-theme="dark"]
     0 0 0 3px rgba(59, 130, 246, 0.14) !important;
 }
 
-/* Input içindeki kilit ve göz ikonları */
-
 html[data-theme="dark"]
 .change-password-page
 :is(
@@ -19097,8 +18576,6 @@ html[data-theme="dark"]
 ):hover {
   color: #93c5fd !important;
 }
-
-/* Password requirements */
 
 html[data-theme="dark"]
 .change-password-page
@@ -19134,8 +18611,6 @@ html[data-theme="dark"]
   color: #9aaac0 !important;
 }
 
-/* Alt buton bölümü */
-
 html[data-theme="dark"]
 .change-password-page
 :is(
@@ -19146,8 +18621,6 @@ html[data-theme="dark"]
   border-top: 1px solid #2b3c55 !important;
   background: #111c2e !important;
 }
-
-/* Cancel */
 
 html[data-theme="dark"]
 .change-password-page
@@ -19170,8 +18643,6 @@ html[data-theme="dark"]
   background: #1d2d46 !important;
   color: #93c5fd !important;
 }
-
-/* Update Password */
 
 html[data-theme="dark"]
 .change-password-page
@@ -19209,8 +18680,6 @@ html[data-theme="dark"]
   opacity: 1 !important;
 }
 
-/* Back to Profile */
-
 html[data-theme="dark"]
 .change-password-page
 :is(
@@ -19233,17 +18702,13 @@ html[data-theme="dark"]
   color: #93c5fd !important;
 }
 
-/* =========================================================
-   CHANGE PASSWORD DARK MODE — EXACT FIX
-   ========================================================= */
+/* CHANGE PASSWORD DARK MODE */
 
 html[data-theme="dark"] #change-password-page {
   min-height: 100%;
   background: #08111f !important;
   color: #cbd5e1 !important;
 }
-
-/* Sayfadaki ana kartlar */
 
 html[data-theme="dark"]
 #change-password-page
@@ -19260,8 +18725,6 @@ html[data-theme="dark"]
   color: #cbd5e1 !important;
 }
 
-/* Kartın başlık ve alt buton bölümleri */
-
 html[data-theme="dark"]
 #change-password-page
 :is(
@@ -19275,8 +18738,6 @@ html[data-theme="dark"]
   background: #111c2e !important;
 }
 
-/* Sayfa başlığı arka plansız kalsın */
-
 html[data-theme="dark"]
 #change-password-page
 > :first-child,
@@ -19288,16 +18749,12 @@ html[data-theme="dark"]
   box-shadow: none !important;
 }
 
-/* Başlıklar */
-
 html[data-theme="dark"]
 #change-password-page
 :is(h1, h2, h3, strong, label) {
   opacity: 1 !important;
   color: #f8fafc !important;
 }
-
-/* Açıklama metinleri */
 
 html[data-theme="dark"]
 #change-password-page
@@ -19306,8 +18763,6 @@ html[data-theme="dark"]
   color: #94a3b8 !important;
 }
 
-/* Form etiketleri */
-
 html[data-theme="dark"]
 #change-password-page label {
   display: block !important;
@@ -19315,8 +18770,6 @@ html[data-theme="dark"]
   font-size: 10px !important;
   font-weight: 800 !important;
 }
-
-/* Inputlar */
 
 html[data-theme="dark"]
 #change-password-page input {
@@ -19345,8 +18798,6 @@ html[data-theme="dark"]
     0 0 0 3px rgba(59, 130, 246, 0.14) !important;
 }
 
-/* Input wrapper alanları */
-
 html[data-theme="dark"]
 #change-password-page
 :is(
@@ -19356,8 +18807,6 @@ html[data-theme="dark"]
 ) {
   background: transparent !important;
 }
-
-/* Kilit ve göz ikonları */
 
 html[data-theme="dark"]
 #change-password-page
@@ -19369,8 +18818,6 @@ html[data-theme="dark"]
 ) {
   color: #91a3bc !important;
 }
-
-/* Password Requirements kutusu */
 
 html[data-theme="dark"]
 #change-password-page
@@ -19397,8 +18844,6 @@ strong {
   color: #f8fafc !important;
 }
 
-/* Üstteki anahtar ikon kutusu */
-
 html[data-theme="dark"]
 #change-password-page
 :is(
@@ -19408,8 +18853,6 @@ html[data-theme="dark"]
   background: #172554 !important;
   color: #60a5fa !important;
 }
-
-/* Cancel ve Back to Profile */
 
 html[data-theme="dark"]
 #change-password-page
@@ -19432,8 +18875,6 @@ html[data-theme="dark"]
   background: #1d2d46 !important;
   color: #93c5fd !important;
 }
-
-/* Update Password butonu */
 
 html[data-theme="dark"]
 #change-password-page
@@ -19458,8 +18899,6 @@ html[data-theme="dark"]
   opacity: 1 !important;
 }
 
-/* Formun beyaz kalmasını kesin olarak engeller */
-
 html[data-theme="dark"]
 #change-password-page form,
 html[data-theme="dark"]
@@ -19467,8 +18906,6 @@ html[data-theme="dark"]
   border-color: #2b3c55 !important;
   background-color: #111c2e !important;
 }
-
-/* Team Workload alt çizgi düzeltmesi */
 
 .dashboard-workload-card
 :is(
@@ -19495,13 +18932,9 @@ html[data-theme="dark"]
   content: none !important;
 }
 
-/* JSX içinde hr kullanılmışsa onu da kaldırır */
-
 .dashboard-workload-card hr {
   display: none !important;
 }
-
-/* Kartların alt kısmında dengeli boşluk */
 
 .dashboard-workload-card
 :is(
@@ -19511,8 +18944,6 @@ html[data-theme="dark"]
 ) {
   padding-bottom: 8px !important;
 }
-
-/* İçindeki bütün beyaz arka planları kaldırır */
 
 html[data-theme="dark"]
 .dashboard-header-actions
@@ -19528,8 +18959,6 @@ html[data-theme="dark"]
   color: #f8fafc !important;
   box-shadow: none !important;
 }
-
-/* Takvim ikonunun bulunduğu sol alan */
 
 html[data-theme="dark"]
 .dashboard-header-actions
@@ -19554,8 +18983,6 @@ html[data-theme="dark"]
   justify-content: center !important;
 }
 
-/* Last 7 Days yazısı */
-
 html[data-theme="dark"]
 .dashboard-header-actions
 :is(
@@ -19572,8 +18999,6 @@ html[data-theme="dark"]
   color: #f8fafc !important;
   font-weight: 750 !important;
 }
-
-/* Sağdaki ok alanı */
 
 html[data-theme="dark"]
 .dashboard-header-actions
@@ -19598,8 +19023,6 @@ html[data-theme="dark"]
   justify-content: center !important;
 }
 
-/* Hover */
-
 html[data-theme="dark"]
 .dashboard-header-actions
 :is(
@@ -19612,8 +19035,6 @@ html[data-theme="dark"]
   background: #1d2d46 !important;
 }
 
-/* Sol ve sağdaki beyaz parçaları kaldırır */
-
 html[data-theme="dark"]
 .dashboard-header-actions > :first-child > *,
 html[data-theme="dark"]
@@ -19624,8 +19045,6 @@ html[data-theme="dark"]
   color: inherit !important;
   box-shadow: none !important;
 }
-
-/* Select kullanılıyorsa */
 
 html[data-theme="dark"]
 .dashboard-header-actions > :first-child select {
@@ -19651,8 +19070,6 @@ html[data-theme="dark"]
   outline: none !important;
 }
 
-/* Takvim ve ok ikonları */
-
 html[data-theme="dark"]
 .dashboard-header-actions > :first-child svg {
   width: 16px !important;
@@ -19662,8 +19079,6 @@ html[data-theme="dark"]
   color: #cbd5e1 !important;
   stroke: currentColor !important;
 }
-
-/* Beyaz parçalar pseudo-element ise kaldırır */
 
 html[data-theme="dark"]
 .dashboard-header-actions > :first-child::before,
@@ -19678,17 +19093,13 @@ html[data-theme="dark"]
   box-shadow: none !important;
 }
 
-/* Hover */
-
 html[data-theme="dark"]
 .dashboard-header-actions > :first-child:hover {
   border-color: #3b82f6 !important;
   background-color: #1d2d46 !important;
 }
 
-/* =========================================================
-   DASHBOARD RANGE CONTROL
-   ========================================================= */
+/* DASHBOARD RANGE CONTROL */
 
 .dashboard-header-controls {
   display: flex;
@@ -19795,9 +19206,7 @@ html[data-theme="dark"]
   pointer-events: none;
 }
 
-/* =========================================================
-   DASHBOARD RANGE CONTROL — DARK MODE
-   ========================================================= */
+/* DASHBOARD RANGE CONTROL DARK MODE */
 
 html[data-theme="dark"]
 .dashboard-range-control {
@@ -19859,9 +19268,7 @@ html[data-theme="dark"]
   color: #cbd5e1 !important;
 }
 
-/* =========================================================
-   TOAST — DARK MODE TEXT FIX
-   ========================================================= */
+/* TOAST DARK MODE */
 
 html[data-theme="dark"] .rf-toast {
   border-color: #2b3c55 !important;
@@ -19871,8 +19278,6 @@ html[data-theme="dark"] .rf-toast {
   box-shadow:
     0 18px 45px rgba(0, 0, 0, 0.35) !important;
 }
-
-/* Success, Error, Warning, Info başlığı */
 
 html[data-theme="dark"]
 .rf-toast
@@ -19888,8 +19293,6 @@ html[data-theme="dark"]
   color: #f8fafc !important;
 }
 
-/* Açıklama metni */
-
 html[data-theme="dark"]
 .rf-toast
 :is(
@@ -19901,8 +19304,6 @@ html[data-theme="dark"]
   opacity: 1 !important;
   color: #cbd5e1 !important;
 }
-
-/* Kapatma butonu */
 
 html[data-theme="dark"]
 .rf-toast
@@ -19926,8 +19327,6 @@ html[data-theme="dark"]
   color: #f8fafc !important;
 }
 
-/* Success toast */
-
 html[data-theme="dark"]
 :is(
   .rf-toast.success,
@@ -19935,8 +19334,6 @@ html[data-theme="dark"]
 ) {
   border-left-color: #22c55e !important;
 }
-
-/* Success ikon alanı */
 
 html[data-theme="dark"]
 :is(
@@ -19951,9 +19348,7 @@ html[data-theme="dark"]
   color: #16a34a !important;
 }
 
-/* =========================================================
-   EDIT REQUEST — DARK MODE BORDER FIX
-   ========================================================= */
+/* EDIT REQUEST DARK MODE */
 
 html[data-theme="dark"]
 .edit-request-page
@@ -19969,8 +19364,6 @@ html[data-theme="dark"]
   border-color: #2b3c55 !important;
 }
 
-/* Kart başlıkları ve alt bölümler */
-
 html[data-theme="dark"]
 .edit-request-page
 :is(
@@ -19985,8 +19378,6 @@ html[data-theme="dark"]
   border-color: #2b3c55 !important;
 }
 
-/* Request Summary içindeki yatay çizgiler */
-
 html[data-theme="dark"]
 .edit-request-page
 :is(
@@ -19998,8 +19389,6 @@ html[data-theme="dark"]
   border-color: #33455f !important;
 }
 
-/* Request Information formundaki üst ve alt çizgiler */
-
 html[data-theme="dark"]
 .edit-request-page
 :is(
@@ -20009,8 +19398,6 @@ html[data-theme="dark"]
 ) {
   border-color: #33455f !important;
 }
-
-/* Activity Timeline satır ayraçları */
 
 html[data-theme="dark"]
 .edit-request-page
@@ -20022,8 +19409,6 @@ html[data-theme="dark"]
   border-color: #33455f !important;
 }
 
-/* Timeline içindeki dikey bağlantı çizgisi */
-
 html[data-theme="dark"]
 .edit-request-page
 :is(
@@ -20032,8 +19417,6 @@ html[data-theme="dark"]
 )::before {
   background: #405572 !important;
 }
-
-/* Activity satırlarının pseudo-element çizgileri */
 
 html[data-theme="dark"]
 .edit-request-page
@@ -20052,16 +19435,12 @@ html[data-theme="dark"]
   border-color: #33455f !important;
 }
 
-/* JSX içinde hr kullanıldıysa */
-
 html[data-theme="dark"]
 .edit-request-page hr {
   border: 0 !important;
   border-top: 1px solid #33455f !important;
   background: transparent !important;
 }
-
-/* Genel güvenlik düzeltmesi */
 
 html[data-theme="dark"]
 .edit-request-page
@@ -20073,9 +19452,7 @@ html[data-theme="dark"]
   background-color: #33455f !important;
 }
 
-/* =========================================================
-   CATEGORY MODAL — DARK MODE EXACT FIX
-   ========================================================= */
+/* CATEGORY MODAL DARK MODE */
 
 html[data-theme="dark"] #category-editor-modal {
   overflow: hidden !important;
@@ -20117,8 +19494,6 @@ html[data-theme="dark"]
   gap: 12px !important;
 }
 
-/* Cancel */
-
 html[data-theme="dark"]
 #category-editor-modal
 .category-modal-cancel-button {
@@ -20141,8 +19516,6 @@ html[data-theme="dark"]
   background: #1d2d46 !important;
   color: #93c5fd !important;
 }
-
-/* Save Changes */
 
 html[data-theme="dark"]
 #category-editor-modal
@@ -20174,8 +19547,6 @@ html[data-theme="dark"]
   color: #8290a5 !important;
 }
 
-/* Form alanları */
-
 html[data-theme="dark"]
 #category-editor-modal
 :is(input, textarea) {
@@ -20205,9 +19576,7 @@ html[data-theme="dark"]
   color: #cbd5e1 !important;
 }
 
-/* =========================================================
-   CATEGORY MODAL FOOTER — DARK MODE EXACT FIX
-   ========================================================= */
+/* CATEGORY MODAL FOOTER DARK MODE */
 
 html[data-theme="dark"] #category-form-modal {
   overflow: hidden !important;
@@ -20219,14 +19588,10 @@ html[data-theme="dark"] #category-form-modal {
   color: #cbd5e1 !important;
 }
 
-/* Formun tamamı */
-
 html[data-theme="dark"]
 #category-form-modal form {
   background: #111c2e !important;
 }
-
-/* Modal gövdesi */
 
 html[data-theme="dark"]
 #category-form-modal
@@ -20237,8 +19602,6 @@ html[data-theme="dark"]
 ) {
   background: #111c2e !important;
 }
-
-/* Alt taraftaki beyaz alan */
 
 html[data-theme="dark"]
 #category-form-modal
@@ -20261,8 +19624,6 @@ html[data-theme="dark"]
   box-sizing: border-box !important;
 }
 
-/* Footer sınıfı eşleşmese bile formun son bölümünü yakalar */
-
 html[data-theme="dark"]
 #category-form-modal
 form > :last-child {
@@ -20272,8 +19633,6 @@ form > :last-child {
   background-color: #17243a !important;
   background-image: none !important;
 }
-
-/* Cancel butonu */
 
 html[data-theme="dark"]
 #category-form-modal
@@ -20300,8 +19659,6 @@ html[data-theme="dark"]
   background: #1d2d46 !important;
   color: #93c5fd !important;
 }
-
-/* Create Category / Save Changes */
 
 html[data-theme="dark"]
 #category-form-modal
@@ -20336,9 +19693,7 @@ html[data-theme="dark"]
   color: #8290a5 !important;
 }
 
-/* =========================================================
-   CATEGORY MODAL FOOTER — GUARANTEED DARK FIX
-   ========================================================= */
+/* CATEGORY MODAL FOOTER DARK MODE */
 
 html[data-theme="dark"]
 :is(
@@ -20371,8 +19726,6 @@ html[data-theme="dark"]
   box-shadow: none !important;
 }
 
-/* Formun son bölümü için yedek seçici */
-
 html[data-theme="dark"]
 :is(
   [role="dialog"],
@@ -20389,8 +19742,6 @@ form > :last-child:has(button) {
   background-image: none !important;
 }
 
-/* Footer içindeki tüm alt elemanların beyaz arka planını kaldır */
-
 html[data-theme="dark"]
 :is(
   [role="dialog"],
@@ -20406,8 +19757,6 @@ html[data-theme="dark"]
 > * {
   background-image: none !important;
 }
-
-/* Cancel butonu */
 
 html[data-theme="dark"]
 :is(
@@ -20438,8 +19787,6 @@ html[data-theme="dark"]
 
   box-shadow: none !important;
 }
-
-/* Save Changes / Create Category */
 
 html[data-theme="dark"]
 :is(
@@ -20506,8 +19853,6 @@ html[data-theme="dark"]
   background: #1d4ed8 !important;
 }
 
-/* Category modal footer butonlarını ortala */
-
 html[data-theme="dark"]
 :is(
   [role="dialog"],
@@ -20522,8 +19867,6 @@ html[data-theme="dark"]
 ):has(> button + button) {
   justify-content: center !important;
 }
-
-/* Buton grubunu dengeli tut */
 
 html[data-theme="dark"]
 :is(
@@ -20540,8 +19883,6 @@ html[data-theme="dark"]
 > button {
   margin: 0 !important;
 }
-
-/* Açık temada da ortalı kalsın */
 
 :is(
   [role="dialog"],
@@ -20587,9 +19928,7 @@ html[data-theme="dark"]
   width: 190px !important;
 }
 
-/* =========================================================
-   CATEGORY MODAL ACTIONS — EXACT FIX
-   ========================================================= */
+/* CATEGORY MODAL ACTIONS */
 
 .category-modal-actions {
   width: 100% !important;
@@ -20609,8 +19948,6 @@ html[data-theme="dark"]
   box-sizing: border-box !important;
 }
 
-/* Her iki butondaki eski hizalamaları temizler */
-
 .category-modal-actions > button {
   position: static !important;
   float: none !important;
@@ -20623,8 +19960,6 @@ html[data-theme="dark"]
   align-items: center !important;
   justify-content: center !important;
 }
-
-/* Cancel */
 
 .category-modal-cancel {
   width: 140px !important;
@@ -20642,8 +19977,6 @@ html[data-theme="dark"]
   font-size: 12px !important;
   font-weight: 800 !important;
 }
-
-/* Save Changes / Create Category */
 
 .category-modal-submit {
   width: 200px !important;
@@ -20675,9 +20008,7 @@ html[data-theme="dark"]
   background: #1d4ed8 !important;
 }
 
-/* =========================================================
-   CATEGORY MODAL ACTIONS — DARK MODE
-   ========================================================= */
+/* CATEGORY MODAL ACTIONS DARK MODE */
 
 html[data-theme="dark"] .category-modal-actions {
   border-top-color: #2b3c55 !important;
@@ -20702,8 +20033,6 @@ html[data-theme="dark"] .category-modal-submit {
   background: #2563eb !important;
   color: #ffffff !important;
 }
-
-/* Category modal butonlarını her ekranda yan yana tut */
 
 .category-modal-actions {
   width: 100% !important;
@@ -20733,8 +20062,6 @@ html[data-theme="dark"] .category-modal-submit {
   min-width: 200px !important;
 }
 
-/* Küçük ekranlarda da yan yana */
-
 @media (max-width: 600px) {
   .category-modal-actions {
     flex-direction: row !important;
@@ -20754,9 +20081,7 @@ html[data-theme="dark"] .category-modal-submit {
   }
 }
 
-/* =========================================================
-   REQUESTS TOOLBAR ALIGNMENT FIX
-   ========================================================= */
+/* REQUESTS TOOLBAR */
 
 .requests-toolbar {
   width: 100% !important;
@@ -20781,8 +20106,6 @@ html[data-theme="dark"] .category-modal-submit {
   gap: 12px !important;
 }
 
-/* Arama kutusu */
-
 .requests-search-wrapper {
   width: min(100%, 340px) !important;
   min-width: 240px !important;
@@ -20797,8 +20120,6 @@ html[data-theme="dark"] .category-modal-submit {
   margin: 0 !important;
   box-sizing: border-box !important;
 }
-
-/* Filters butonu */
 
 .requests-filter-toggle {
   width: auto !important;
@@ -20819,8 +20140,6 @@ html[data-theme="dark"] .category-modal-submit {
   white-space: nowrap !important;
 }
 
-/* Clear All sağ tarafta */
-
 .requests-clear-filters {
   width: auto !important;
   min-width: 100px !important;
@@ -20828,8 +20147,6 @@ html[data-theme="dark"] .category-modal-submit {
   margin: 0 !important;
   flex: 0 0 auto !important;
 }
-
-/* Tablet ve telefon */
 
 @media (max-width: 640px) {
   .requests-toolbar {
@@ -20856,9 +20173,7 @@ html[data-theme="dark"] .category-modal-submit {
   }
 }
 
-/* =========================================================
-   REQUESTS — ADVANCED FILTERS FINAL LAYOUT
-   ========================================================= */
+/* REQUESTS ADVANCED FILTERS */
 
 .requests-page .requests-advanced-filter-panel {
   width: 100%;
@@ -20871,8 +20186,6 @@ html[data-theme="dark"] .category-modal-submit {
   background: #ffffff;
   box-sizing: border-box;
 }
-
-/* Panel başlığı */
 
 .requests-page .requests-filter-panel-header {
   min-height: 82px;
@@ -20951,8 +20264,6 @@ html[data-theme="dark"] .category-modal-submit {
   cursor: pointer;
 }
 
-/* Filtrelerin yerleşimi */
-
 .requests-page .requests-filter-grid {
   width: 100%;
   padding: 20px;
@@ -20967,8 +20278,6 @@ html[data-theme="dark"] .category-modal-submit {
 
   box-sizing: border-box;
 }
-
-/* Her filtre alanı */
 
 .requests-page .requests-filter-field {
   width: 100%;
@@ -21004,8 +20313,6 @@ html[data-theme="dark"] .category-modal-submit {
 
   color: #94a3b8;
 }
-
-/* Select ve tarih alanları */
 
 .requests-page .requests-filter-field select,
 .requests-page .requests-filter-field input {
@@ -21051,8 +20358,6 @@ html[data-theme="dark"] .category-modal-submit {
     0 0 0 3px rgba(37, 99, 235, 0.1) !important;
 }
 
-/* Tarih alanındaki takvim ikonu */
-
 .requests-page
 .requests-filter-field
 input[type="date"] {
@@ -21066,9 +20371,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-/* =========================================================
-   DARK MODE
-   ========================================================= */
+/* DARK MODE */
 
 html[data-theme="dark"]
 .requests-page
@@ -21146,9 +20449,7 @@ input[type="date"] {
   color-scheme: dark;
 }
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+/* RESPONSIVE */
 
 @media (max-width: 1100px) {
   .requests-page .requests-filter-grid {
@@ -21176,9 +20477,7 @@ input[type="date"] {
   }
 }
 
-/* =========================================================
-   REQUEST FILTER CUSTOM SELECT AND DATE ICONS
-   ========================================================= */
+/* REQUEST FILTER CUSTOM SELECT AND DATE ICONS */
 
 .requests-filter-input-wrapper {
   position: relative;
@@ -21216,7 +20515,7 @@ input[type="date"] {
     background-color 0.18s ease;
 }
 
-/* Tarayıcının normal select okunu kaldırır */
+/* Hide the browser's native select arrow. */
 
 .requests-filter-select {
   appearance: none !important;
@@ -21230,8 +20529,6 @@ input[type="date"] {
 .requests-filter-select::-ms-expand {
   display: none;
 }
-
-/* Sağdaki özel ikon */
 
 .requests-filter-field-icon {
   position: absolute;
@@ -21255,8 +20552,6 @@ input[type="date"] {
 .requests-filter-field-icon {
   color: #2563eb;
 }
-
-/* Focus */
 
 .requests-filter-input-wrapper:focus-within
 .requests-filter-field-icon {
@@ -21282,7 +20577,7 @@ input[type="date"] {
     0 0 0 3px rgba(37, 99, 235, 0.11) !important;
 }
 
-/* Native tarih ikonunu görünmez yapar fakat tıklanabilir bırakır */
+/* Keep the native date picker clickable while hiding its icon. */
 
 .requests-filter-date {
   position: relative;
@@ -21303,8 +20598,6 @@ input[type="date"] {
   opacity: 0;
   cursor: pointer;
 }
-
-/* Dark mode */
 
 html[data-theme="dark"]
 .requests-filter-input-wrapper
@@ -21342,9 +20635,7 @@ html[data-theme="dark"]
   color-scheme: dark;
 }
 
-/* =========================================================
-   REQUEST FILTER CONTROLS — FINAL
-   ========================================================= */
+/* REQUEST FILTER CONTROLS */
 
 .requests-filter-control {
   position: relative;
@@ -21434,14 +20725,12 @@ html[data-theme="dark"]
     0 0 0 3px rgba(37, 99, 235, 0.1) !important;
 }
 
-/* Chrome ve Safari native takvim ikonunu görünmez yapar */
+/* Hide the native Chrome and Safari date icon. */
 
 .requests-custom-date {
   position: relative;
   color-scheme: light;
 }
-
-/* Dark mode */
 
 html[data-theme="dark"]
 .requests-filter-control
@@ -21479,9 +20768,7 @@ html[data-theme="dark"]
   color-scheme: dark;
 }
 
-/* =========================================================
-   REQUEST FILTER DATE PICKER — FINAL FIX
-   ========================================================= */
+/* REQUEST FILTER DATE PICKER */
 
 .requests-date-control {
   position: relative !important;
@@ -21512,7 +20799,7 @@ html[data-theme="dark"]
   outline: none !important;
 }
 
-/* Tarayıcının büyük native takvim ikonunu tamamen kaldırır */
+/* Hide the browser's oversized native calendar icon. */
 
 .requests-date-control
 .requests-custom-date::-webkit-calendar-picker-indicator {
@@ -21534,8 +20821,6 @@ html[data-theme="dark"]
   display: none !important;
   -webkit-appearance: none !important;
 }
-
-/* Sağdaki özel takvim butonu */
 
 .requests-date-picker-button {
   position: absolute !important;
@@ -21588,8 +20873,6 @@ html[data-theme="dark"]
     0 0 0 3px rgba(37, 99, 235, 0.1) !important;
 }
 
-/* Dark mode */
-
 html[data-theme="dark"]
 .requests-date-control
 .requests-custom-date {
@@ -21611,9 +20894,7 @@ html[data-theme="dark"]
   color: #bfdbfe !important;
 }
 
-/* =========================================================
-   DASHBOARD DATE RANGE CONTROL — FINAL FIX
-   ========================================================= */
+/* DASHBOARD DATE RANGE CONTROL */
 
 .dashboard-page .dashboard-range-control {
   position: relative !important;
@@ -21656,8 +20937,6 @@ html[data-theme="dark"]
     0 0 0 3px rgba(37, 99, 235, 0.1) !important;
 }
 
-/* Sol takvim ikonu */
-
 .dashboard-page .dashboard-range-calendar {
   position: absolute !important;
   left: 14px !important;
@@ -21672,8 +20951,6 @@ html[data-theme="dark"]
   pointer-events: none !important;
   z-index: 2 !important;
 }
-
-/* Select */
 
 .dashboard-page .dashboard-range-control select {
   width: 100% !important;
@@ -21703,8 +20980,6 @@ html[data-theme="dark"]
   cursor: pointer !important;
 }
 
-/* Sağ ok */
-
 .dashboard-page .dashboard-range-chevron {
   position: absolute !important;
   right: 13px !important;
@@ -21728,8 +21003,6 @@ html[data-theme="dark"]
 ) {
   color: #2563eb !important;
 }
-
-/* Dark mode */
 
 html[data-theme="dark"]
 .dashboard-page
@@ -21771,11 +21044,7 @@ html[data-theme="dark"]
   color: #60a5fa !important;
 }
 
-/* =========================================================
-   LOGIN PAGE — DARK MODE FINAL FIX
-   ========================================================= */
-
-/* Sağ bölüm */
+/* LOGIN PAGE DARK MODE */
 
 html[data-theme="dark"]
 .login-page
@@ -21787,8 +21056,6 @@ html[data-theme="dark"]
 ) {
   background: #071225 !important;
 }
-
-/* Login kartı */
 
 html[data-theme="dark"]
 .login-page
@@ -21805,8 +21072,6 @@ html[data-theme="dark"]
     0 22px 55px rgba(0, 0, 0, 0.32) !important;
 }
 
-/* Başlık */
-
 html[data-theme="dark"]
 .login-page
 :is(
@@ -21819,8 +21084,6 @@ html[data-theme="dark"]
   opacity: 1 !important;
 }
 
-/* Alt açıklama */
-
 html[data-theme="dark"]
 .login-page
 :is(
@@ -21832,8 +21095,6 @@ html[data-theme="dark"]
   opacity: 1 !important;
 }
 
-/* Form etiketleri */
-
 html[data-theme="dark"]
 .login-page
 :is(
@@ -21844,8 +21105,6 @@ label {
   color: #cbd5e1 !important;
   opacity: 1 !important;
 }
-
-/* Input alanları */
 
 html[data-theme="dark"]
 .login-page
@@ -21892,8 +21151,6 @@ html[data-theme="dark"]
     0 0 0 3px rgba(59, 130, 246, 0.13) !important;
 }
 
-/* Input ikonları */
-
 html[data-theme="dark"]
 .login-page
 :is(
@@ -21905,8 +21162,6 @@ svg {
   color: #91a3bc !important;
   background: transparent !important;
 }
-
-/* Remember me */
 
 html[data-theme="dark"]
 .login-page
@@ -21927,8 +21182,6 @@ input[type="checkbox"] {
   accent-color: #2563eb !important;
 }
 
-/* Forgot password */
-
 html[data-theme="dark"]
 .login-page
 :is(
@@ -21946,8 +21199,6 @@ html[data-theme="dark"]
 ):hover {
   color: #93c5fd !important;
 }
-
-/* Sign In butonu */
 
 html[data-theme="dark"]
 .login-page
@@ -21972,8 +21223,6 @@ span {
   color: #ffffff !important;
   opacity: 1 !important;
 }
-
-/* Ok ikonundaki siyah kutuyu kaldırır */
 
 html[data-theme="dark"]
 .login-page
@@ -22007,8 +21256,6 @@ html[data-theme="dark"]
   border-color: #1d4ed8 !important;
   background: #1d4ed8 !important;
 }
-
-/* Development account kutusu */
 
 html[data-theme="dark"]
 .login-page
@@ -22046,8 +21293,6 @@ html[data-theme="dark"]
   color: #94a3b8 !important;
 }
 
-/* Üstteki güvenlik ikonu */
-
 html[data-theme="dark"]
 .login-page
 :is(
@@ -22059,22 +21304,15 @@ html[data-theme="dark"]
   color: #60a5fa !important;
 }
 
-/* =========================================================
-   LOGIN PAGE DARK MODE — ACTUAL CLASS NAMES
-   Bu bölüm App.css dosyasının en sonunda kalmalıdır.
-   ========================================================= */
+/* LOGIN PAGE DARK MODE */
 
 html[data-theme="dark"] .login-page {
   background: #071225 !important;
 }
 
-/* Sağ taraftaki alan */
-
 html[data-theme="dark"] .login-form-panel {
   background: #071225 !important;
 }
-
-/* Login kartı */
 
 html[data-theme="dark"] .login-form-wrapper {
   border: 1px solid #2b3c55 !important;
@@ -22085,14 +21323,10 @@ html[data-theme="dark"] .login-form-wrapper {
     0 24px 65px rgba(0, 0, 0, 0.38) !important;
 }
 
-/* Güvenlik ikonu */
-
 html[data-theme="dark"] .login-security-icon {
   background: #172554 !important;
   color: #60a5fa !important;
 }
-
-/* Başlık */
 
 html[data-theme="dark"] .login-form-heading h2 {
   opacity: 1 !important;
@@ -22104,14 +21338,10 @@ html[data-theme="dark"] .login-form-heading p {
   color: #94a3b8 !important;
 }
 
-/* Form etiketleri */
-
 html[data-theme="dark"] .login-form-group label {
   opacity: 1 !important;
   color: #cbd5e1 !important;
 }
-
-/* Input dış kutusu */
 
 html[data-theme="dark"] .login-input-wrapper {
   border: 1px solid #405572 !important;
@@ -22129,8 +21359,6 @@ html[data-theme="dark"]
     0 0 0 4px rgba(59, 130, 246, 0.14) !important;
 }
 
-/* Input */
-
 html[data-theme="dark"]
 .login-input-wrapper input {
   border: 0 !important;
@@ -22146,8 +21374,6 @@ html[data-theme="dark"]
   color: #91a3bc !important;
 }
 
-/* Mail, kilit ve göz ikonları */
-
 html[data-theme="dark"] .login-input-icon,
 html[data-theme="dark"] .login-password-toggle {
   background: transparent !important;
@@ -22159,8 +21385,6 @@ html[data-theme="dark"]
   background: #25344d !important;
   color: #93c5fd !important;
 }
-
-/* Remember me */
 
 html[data-theme="dark"] .login-remember-control {
   color: #cbd5e1 !important;
@@ -22180,8 +21404,6 @@ html[data-theme="dark"]
   accent-color: #2563eb !important;
 }
 
-/* Forgot password */
-
 html[data-theme="dark"] .login-forgot-link {
   color: #60a5fa !important;
 }
@@ -22190,8 +21412,6 @@ html[data-theme="dark"]
 .login-forgot-link:hover {
   color: #93c5fd !important;
 }
-
-/* Sign In butonu */
 
 html[data-theme="dark"] .login-submit-button {
   border-color: #2563eb !important;
@@ -22242,8 +21462,6 @@ html[data-theme="dark"]
     ) !important;
 }
 
-/* Development account */
-
 html[data-theme="dark"]
 .login-development-account {
   border-color: #405572 !important;
@@ -22268,15 +21486,11 @@ html[data-theme="dark"]
   color: #f8fafc !important;
 }
 
-/* Hata mesajı */
-
 html[data-theme="dark"] .login-error-message {
   border-color: #7f1d1d !important;
   background: #3f161d !important;
   color: #fecaca !important;
 }
-
-/* Dashboard donut center text fix */
 
 html[data-theme="dark"] .dashboard-donut::after {
   background: #ffffff !important;
@@ -22339,9 +21553,7 @@ html[data-theme="dark"]
   color: #bfdbfe;
 }
 
-/* =========================================================
-   NOTIFICATIONS PAGE
-========================================================= */
+/* NOTIFICATIONS PAGE */
 
 .notifications-page {
   width: 100%;
@@ -22731,8 +21943,6 @@ html[data-theme="dark"]
   color: #2563eb;
 }
 
-/* Notifications dark mode */
-
 html[data-theme="dark"] .notifications-page-header h1 {
   color: #f8fafc;
 }
@@ -22860,8 +22070,6 @@ html[data-theme="dark"]
   color: #f87171;
 }
 
-/* Notifications responsive */
-
 @media (max-width: 900px) {
   .notifications-page {
     padding: 26px 22px 40px;
@@ -22922,14 +22130,9 @@ html[data-theme="dark"]
   }
 }
 
-/* =========================================================
-   FINAL DARK MODE FIXES
-   Notifications, Summary Badges, Activity Timeline
-========================================================= */
+/* DARK MODE */
 
-/* =========================
-   NAVBAR NOTIFICATIONS
-========================= */
+/* NAVBAR NOTIFICATIONS */
 
 .rf-navbar-notification-panel {
   width: min(440px, calc(100vw - 32px));
@@ -23019,8 +22222,6 @@ html[data-theme="dark"]
   font-size: 14px;
   font-weight: 700;
 }
-
-/* Dark navbar notifications */
 
 html[data-theme="dark"]
 .rf-navbar-notification-panel {
@@ -23143,9 +22344,7 @@ html[data-theme="dark"]
   color: #60a5fa;
 }
 
-/* =========================
-   EDIT REQUEST SUMMARY
-========================= */
+/* EDIT REQUEST SUMMARY */
 
 html[data-theme="dark"]
 .edit-request-summary-row {
@@ -23170,8 +22369,6 @@ html[data-theme="dark"]
 ) {
   color: #f1f5f9;
 }
-
-/* Priority badges */
 
 html[data-theme="dark"]
 .edit-request-summary-badge.low {
@@ -23200,8 +22397,6 @@ html[data-theme="dark"]
   background: #451a1a;
   color: #fecaca;
 }
-
-/* Status badges */
 
 html[data-theme="dark"]
 .edit-request-summary-badge.open {
@@ -23247,9 +22442,7 @@ html[data-theme="dark"]
   white-space: nowrap;
 }
 
-/* =========================
-   ACTIVITY TIMELINE
-========================= */
+/* ACTIVITY TIMELINE */
 
 .edit-request-activity-item {
   min-height: 132px;
@@ -23312,8 +22505,6 @@ html[data-theme="dark"]
   color: #94a3b8;
 }
 
-/* Timeline marker colors */
-
 html[data-theme="dark"]
 .edit-request-activity-item.assignment
 .edit-request-activity-marker {
@@ -23370,9 +22561,7 @@ html[data-theme="dark"]
   color: #cbd5e1;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* RESPONSIVE */
 
 @media (max-width: 640px) {
   .rf-navbar-notification-panel {
@@ -23402,9 +22591,7 @@ html[data-theme="dark"]
   }
 }
 
-/* =========================================================
-   NAVBAR NOTIFICATION FINAL FIX
-========================================================= */
+/* NAVBAR NOTIFICATION */
 
 .rf-navbar-notification-panel {
   width: 410px !important;
@@ -23448,7 +22635,6 @@ html[data-theme="dark"]
   justify-content: center;
 }
 
-/* İçte görünen koyu dikdörtgeni kaldırır */
 .rf-navbar-notification-content,
 .rf-navbar-notification-item
 .rf-navbar-notification-content {
@@ -23516,9 +22702,7 @@ html[data-theme="dark"]
   font-weight: 700;
 }
 
-/* =========================
-   DARK MODE
-========================= */
+/* DARK MODE */
 
 html[data-theme="dark"]
 .rf-navbar-notification-panel {
@@ -23592,9 +22776,7 @@ html[data-theme="dark"]
   color: #60a5fa;
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* MOBILE */
 
 @media (max-width: 520px) {
   .rf-navbar-notification-panel {
@@ -23623,8 +22805,6 @@ html[data-theme="dark"]
     font-size: 12px !important;
   }
 }
-
-/* Login input outer rectangle fix */
 
 .login-input-wrapper,
 .login-password-wrapper,
@@ -23664,9 +22844,7 @@ html[data-theme="dark"]
   box-shadow: none !important;
 }
 
-/* =========================================================
-   LOGIN INPUT FINAL BORDER FIX
-========================================================= */
+/* LOGIN INPUTS */
 
 .login-input-wrapper,
 .login-password-wrapper,
@@ -23698,8 +22876,6 @@ html[data-theme="dark"]
   box-shadow: none !important;
 }
 
-/* Gerçek input kendi ikinci çerçevesini oluşturmasın */
-
 .login-input-wrapper input,
 .login-password-wrapper input,
 .login-input-container input,
@@ -23715,7 +22891,7 @@ html[data-theme="dark"]
   color: #0f172a;
 }
 
-/* Safari ve Chrome autofill düzeltmesi */
+/* Preserve the input appearance during Chrome and Safari autofill. */
 
 .login-input-wrapper input:-webkit-autofill,
 .login-password-wrapper input:-webkit-autofill,
@@ -23725,8 +22901,6 @@ html[data-theme="dark"]
     0 0 0 1000px #ffffff inset !important;
   -webkit-text-fill-color: #0f172a !important;
 }
-
-/* Dark mode */
 
 html[data-theme="dark"]
 .login-input-wrapper:focus-within,
@@ -23764,9 +22938,7 @@ html[data-theme="dark"]
   -webkit-text-fill-color: #f8fafc !important;
 }
 
-/* =========================================================
-   LOGIN INPUT ICON AND BORDER FINAL FIX
-========================================================= */
+/* LOGIN INPUTS */
 
 .login-input-wrapper,
 .login-password-wrapper,
@@ -23787,8 +22959,6 @@ html[data-theme="dark"]
   overflow: hidden;
 }
 
-/* Input alanı */
-
 .login-input-wrapper input,
 .login-password-wrapper input,
 .login-input-container input,
@@ -23807,8 +22977,6 @@ html[data-theme="dark"]
   box-sizing: border-box !important;
 }
 
-/* Sol taraftaki email ve kilit ikonları */
-
 .login-input-wrapper > svg:first-child,
 .login-password-wrapper > svg:first-child,
 .login-input-container > svg:first-child,
@@ -23824,8 +22992,6 @@ html[data-theme="dark"]
   pointer-events: none;
   transform: translateY(-50%) !important;
 }
-
-/* İkon özel bir span/div içindeyse */
 
 .login-input-icon,
 .login-password-icon {
@@ -23843,8 +23009,6 @@ html[data-theme="dark"]
   pointer-events: none;
   transform: translateY(-50%) !important;
 }
-
-/* Şifre gösterme butonu */
 
 .login-password-wrapper > button,
 .login-password-container > button,
@@ -23877,8 +23041,6 @@ html[data-theme="dark"]
   color: #475569 !important;
 }
 
-/* Focus görünümü */
-
 .login-input-wrapper:focus-within,
 .login-password-wrapper:focus-within,
 .login-input-container:focus-within,
@@ -23896,8 +23058,6 @@ html[data-theme="dark"]
   box-shadow: none !important;
 }
 
-/* Placeholder */
-
 .login-input-wrapper input::placeholder,
 .login-password-wrapper input::placeholder,
 .login-input-container input::placeholder,
@@ -23905,8 +23065,6 @@ html[data-theme="dark"]
   color: #94a3b8 !important;
   opacity: 1;
 }
-
-/* Dark mode */
 
 html[data-theme="dark"] .login-input-wrapper,
 html[data-theme="dark"] .login-password-wrapper,
@@ -23933,9 +23091,7 @@ html[data-theme="dark"]
   color: #cbd5e1 !important;
 }
 
-/* =========================================================
-   SETTINGS STORAGE NOTE FIX
-========================================================= */
+/* SETTINGS STORAGE NOTE */
 
 .settings-storage-note {
   min-width: 0;
@@ -23987,8 +23143,6 @@ html[data-theme="dark"]
   gap: 20px !important;
 }
 
-/* Dark mode */
-
 html[data-theme="dark"] .settings-storage-note > svg {
   color: #94a3b8;
 }
@@ -24001,8 +23155,6 @@ html[data-theme="dark"] .settings-storage-note small {
   color: #7f91aa;
 }
 
-/* Mobile */
-
 @media (max-width: 700px) {
   .settings-form-actions {
     align-items: stretch !important;
@@ -24014,7 +23166,6 @@ html[data-theme="dark"] .settings-storage-note small {
   }
 }
 
-/* FINAL TABLET NAVBAR FIX */
 @media (max-width: 900px) {
   :root {
     --rf-sidebar-width: 0px !important;
@@ -24106,9 +23257,7 @@ html[data-theme="dark"] .settings-storage-note small {
   }
 }
 
-/* =========================================================
-   REQUESTS PAGE MOBILE FINAL FIX
-   ========================================================= */
+/* REQUESTS PAGE MOBILE */
 
 @media (max-width: 700px) {
   .requests-page {
