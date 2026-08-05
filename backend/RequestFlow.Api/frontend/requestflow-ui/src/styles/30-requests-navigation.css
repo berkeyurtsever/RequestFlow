@@ -3503,19 +3503,19 @@ textarea:disabled {
   outline-offset: 1px !important;
 }
 
-/* EDIT REQUEST UNSAVED CHANGES */
+/* EDIT REQUEST SAVE STATUS */
 
-.edit-request-unsaved-badge {
+.edit-request-save-status {
   width: fit-content;
   min-height: 28px;
   margin-top: 12px;
   padding: 0 10px;
 
-  border: 1px solid #fde68a;
+  border: 1px solid #bbf7d0;
   border-radius: 999px;
 
-  background: #fffbeb;
-  color: #b45309;
+  background: #f0fdf4;
+  color: #15803d;
 
   font-size: 10px;
   font-weight: 800;
@@ -3524,6 +3524,50 @@ textarea:disabled {
   align-items: center;
   justify-content: center;
   gap: 6px;
+}
+
+.edit-request-save-status.pending,
+.edit-request-save-status.waiting {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.edit-request-save-status.saving {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.edit-request-save-status.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.edit-request-delete-error {
+  width: 100%;
+  min-height: 44px;
+  margin: -10px 0 20px;
+  padding: 11px 14px;
+
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+
+  background: #fef2f2;
+  color: #b91c1c;
+
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.edit-request-delete-error svg {
+  flex: 0 0 auto;
 }
 
 .edit-request-save-button:disabled {

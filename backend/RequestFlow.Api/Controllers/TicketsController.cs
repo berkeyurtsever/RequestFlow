@@ -14,10 +14,18 @@ namespace RequestFlow.Api.Controllers;
 public class TicketsController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IWebHostEnvironment _environment;
+    private readonly ILogger<TicketsController> _logger;
 
-    public TicketsController(AppDbContext context)
+    public TicketsController(
+        AppDbContext context,
+        IWebHostEnvironment environment,
+        ILogger<TicketsController> logger
+    )
     {
         _context = context;
+        _environment = environment;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -663,9 +671,54 @@ public class TicketsController : ControllerBase
             });
         }
 
-        _context.Tickets.Remove(ticket);
+        try
+        {
+            _context.Tickets.Remove(ticket);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Request {TicketId} could not be deleted.",
+                id
+            );
 
-        await _context.SaveChangesAsync();
+            return Problem(
+                title: "Request deletion failed.",
+                detail:
+                    "The request could not be deleted. Please try again.",
+                statusCode:
+                    StatusCodes.Status500InternalServerError
+            );
+        }
+
+        var uploadDirectory = Path.Combine(
+            _environment.ContentRootPath,
+            "Uploads",
+            "Tickets",
+            id.ToString()
+        );
+
+        if (Directory.Exists(uploadDirectory))
+        {
+            try
+            {
+                Directory.Delete(
+                    uploadDirectory,
+                    recursive: true
+                );
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning(
+                    exception,
+                    "Files for deleted request {TicketId} could not be removed from {Path}.",
+                    id,
+                    uploadDirectory
+                );
+            }
+        }
 
         return NoContent();
     }

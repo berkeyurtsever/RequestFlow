@@ -1,6 +1,9 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using RequestFlow.Api.Data;
 using RequestFlow.Api.DTOs;
 using RequestFlow.Api.Models;
 using Xunit;
@@ -121,6 +124,89 @@ public sealed class AuthenticationAndTicketsTests :
 
         Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
         Assert.Contains(tickets!, item => item.Id == createdTicket.Id);
+    }
+
+    [Fact]
+    public async Task Admin_CanDeleteTicketWithRelatedNotifications()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var createResponse = await _client.PostAsJsonAsync(
+            "/api/Tickets",
+            new Ticket
+            {
+                Title = "Request scheduled for deletion",
+                Description = "This request verifies related record cleanup.",
+                Category = "General Request",
+                Priority = "Medium"
+            }
+        );
+
+        createResponse.EnsureSuccessStatusCode();
+
+        var ticket = await createResponse.Content
+            .ReadFromJsonAsync<Ticket>();
+
+        Assert.NotNull(ticket);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+
+            var user = await context.Users.FindAsync(auth.UserId);
+            Assert.NotNull(user);
+
+            user.Role = "Admin";
+
+            context.Notifications.Add(new Notification
+            {
+                UserId = auth.UserId,
+                TicketId = ticket.Id,
+                Type = "update",
+                Title = "Request updated",
+                Message = "A notification connected to the request."
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        var loginResponse = await _client.PostAsJsonAsync(
+            "/api/Auth/login",
+            new LoginDto
+            {
+                Email = auth.Email,
+                Password = "SafePassword123!"
+            }
+        );
+
+        loginResponse.EnsureSuccessStatusCode();
+
+        var adminAuth = await loginResponse.Content
+            .ReadFromJsonAsync<AuthResponseDto>();
+
+        Assert.NotNull(adminAuth);
+        UseBearerToken(adminAuth.Token);
+
+        var deleteResponse = await _client.DeleteAsync(
+            $"/api/Tickets/{ticket.Id}"
+        );
+
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        using var verificationScope = _factory.Services.CreateScope();
+
+        var verificationContext = verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        Assert.False(await verificationContext.Tickets.AnyAsync(
+            item => item.Id == ticket.Id
+        ));
+
+        Assert.False(await verificationContext.Notifications.AnyAsync(
+            notification => notification.TicketId == ticket.Id
+        ));
     }
 
     private async Task<AuthResponseDto> RegisterUserAsync()

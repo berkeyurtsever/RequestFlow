@@ -47,6 +47,7 @@ public class AppDbContext : DbContext
         ConfigureTicketComment(modelBuilder);
         ConfigureTicketAttachment(modelBuilder);
         ConfigureTicketActivity(modelBuilder);
+        ConfigureNotification(modelBuilder);
     }
 
     private static void ConfigureUser(
@@ -361,5 +362,25 @@ public class AppDbContext : DbContext
                 activity => activity.ActorUserId
             )
             .OnDelete(DeleteBehavior.SetNull);
+    }
+
+    private static void ConfigureNotification(
+        ModelBuilder modelBuilder
+    )
+    {
+        var notificationEntity =
+            modelBuilder.Entity<Notification>();
+
+        notificationEntity
+            .HasOne(notification => notification.Ticket)
+            .WithMany()
+            .HasForeignKey(notification => notification.TicketId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        notificationEntity
+            .HasOne(notification => notification.User)
+            .WithMany()
+            .HasForeignKey(notification => notification.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
