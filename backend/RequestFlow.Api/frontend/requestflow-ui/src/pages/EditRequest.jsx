@@ -121,6 +121,8 @@ const STATUS_OPTIONS = [
   "Rejected"
 ];
 
+const AUTO_SAVE_DELAY = 1200;
+
 const initialForm = {
   title: "",
   category: "",
@@ -172,6 +174,18 @@ function EditRequest() {
   const [isDeleting, setIsDeleting] =
     useState(false);
 
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] =
+    useState(false);
+
+  const [autoSaveStatus, setAutoSaveStatus] =
+    useState("idle");
+
+  const [lastSavedAt, setLastSavedAt] =
+    useState(null);
+
+  const [deleteError, setDeleteError] =
+    useState("");
+
   const [loadError, setLoadError] =
     useState("");
 
@@ -183,6 +197,9 @@ function EditRequest() {
 
   const promptOpenRef =
     useRef(false);
+
+  const autoSaveFailureFingerprintRef =
+    useRef(null);
 
   const normalizedRole = String(
     user?.role || "User"
@@ -284,6 +301,11 @@ function EditRequest() {
         setTicket(loadedTicket);
         setFormData(loadedForm);
         setSavedFormData(loadedForm);
+        setAutoSaveStatus("saved");
+        setLastSavedAt(null);
+        setDeleteError("");
+        autoSaveFailureFingerprintRef.current =
+          null;
       } catch (requestError) {
         console.error(
           "Request could not be loaded:",
@@ -590,140 +612,231 @@ function EditRequest() {
       ...previousForm,
       [name]: value
     }));
+
+    autoSaveFailureFingerprintRef.current =
+      null;
+
+    setAutoSaveStatus("pending");
   };
+
+  const saveChanges = useCallback(
+    async (
+      sourceFormData,
+      {
+        showSuccessToast = false
+      } = {}
+    ) => {
+      const validationMessage =
+        getFormValidationMessage(
+          sourceFormData
+        );
+
+      if (validationMessage) {
+        setAutoSaveStatus("waiting");
+
+        if (showSuccessToast) {
+          showError(validationMessage);
+        }
+
+        return false;
+      }
+
+      const updatePayload = {
+        title:
+          sourceFormData.title.trim(),
+
+        category:
+          sourceFormData.category,
+
+        priority:
+          sourceFormData.priority,
+
+        status:
+          canChangeStatus
+            ? sourceFormData.status
+            : sourceFormData.status ||
+              "Open",
+
+        description:
+          sourceFormData.description.trim()
+      };
+
+      const saveFingerprint =
+        JSON.stringify(
+          normalizeFormData(updatePayload)
+        );
+
+      setIsSaving(true);
+      setAutoSaveStatus("saving");
+
+      try {
+        const response = await api.put(
+          `/Tickets/${id}`,
+          updatePayload
+        );
+
+        const responseTicket =
+          response.data &&
+          typeof response.data === "object"
+            ? response.data
+            : {};
+
+        const updatedAt =
+          responseTicket.updatedAt ||
+          new Date().toISOString();
+
+        setTicket(previousTicket => ({
+          ...previousTicket,
+          ...responseTicket,
+          ...updatePayload,
+          updatedAt
+        }));
+
+        setSavedFormData(updatePayload);
+        setLastSavedAt(new Date());
+        setAutoSaveStatus("saved");
+
+        autoSaveFailureFingerprintRef.current =
+          null;
+
+        if (showSuccessToast) {
+          success(
+            "Request was updated successfully."
+          );
+        }
+
+        await loadActivities();
+
+        return true;
+      } catch (requestError) {
+        console.error(
+          "Request could not be updated:",
+          requestError
+        );
+
+        const errorMessage =
+          getUpdateErrorMessage(
+            requestError
+          );
+
+        autoSaveFailureFingerprintRef.current =
+          saveFingerprint;
+
+        setAutoSaveStatus("error");
+
+        showError(errorMessage, {
+          duration: 6000
+        });
+
+        return false;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [
+      canChangeStatus,
+      id,
+      loadActivities,
+      showError,
+      success
+    ]
+  );
+
+  useEffect(() => {
+    if (
+      isLoading ||
+      !ticket ||
+      !savedFormData ||
+      !hasUnsavedChanges ||
+      isSaving ||
+      isDeleting ||
+      isDeleteConfirmOpen
+    ) {
+      return undefined;
+    }
+
+    const validationMessage =
+      getFormValidationMessage(formData);
+
+    if (validationMessage) {
+      setAutoSaveStatus("waiting");
+      return undefined;
+    }
+
+    const formFingerprint =
+      JSON.stringify(
+        normalizeFormData(formData)
+      );
+
+    if (
+      autoSaveFailureFingerprintRef.current ===
+      formFingerprint
+    ) {
+      return undefined;
+    }
+
+    setAutoSaveStatus("pending");
+
+    const autoSaveTimer = window.setTimeout(
+      () => {
+        void saveChanges(formData);
+      },
+      AUTO_SAVE_DELAY
+    );
+
+    return () => {
+      window.clearTimeout(autoSaveTimer);
+    };
+  }, [
+    formData,
+    hasUnsavedChanges,
+    isDeleteConfirmOpen,
+    isDeleting,
+    isLoading,
+    isSaving,
+    savedFormData,
+    saveChanges,
+    ticket
+  ]);
 
   const handleSubmit = async event => {
     event.preventDefault();
-
-    if (!formData.title.trim()) {
-      showError(
-        "Request title is required."
-      );
-      return;
-    }
-
-    if (!formData.category) {
-      showError(
-        "Please select a request category."
-      );
-      return;
-    }
-
-    if (!formData.description.trim()) {
-      showError(
-        "Request description is required."
-      );
-      return;
-    }
 
     if (!hasUnsavedChanges) {
       return;
     }
 
-    setIsSaving(true);
-
-    try {
-      const updatePayload = {
-        title:
-          formData.title.trim(),
-
-        category:
-          formData.category,
-
-        priority:
-          formData.priority,
-
-        status:
-          canChangeStatus
-            ? formData.status
-            : ticket?.status ||
-              "Open",
-
-        description:
-          formData.description.trim()
-      };
-
-      const response = await api.put(
-        `/Tickets/${id}`,
-        updatePayload
-      );
-
-      const responseTicket =
-        response.data &&
-        typeof response.data === "object"
-          ? response.data
-          : {};
-
-      const updatedAt =
-        responseTicket.updatedAt ||
-        new Date().toISOString();
-
-      const updatedTicket = {
-        ...ticket,
-        ...responseTicket,
-        ...updatePayload,
-        updatedAt
-      };
-
-      setTicket(updatedTicket);
-      setFormData(updatePayload);
-      setSavedFormData(updatePayload);
-
-      success(
-        "Request was updated successfully."
-      );
-
-      await loadActivities();
-    } catch (requestError) {
-      console.error(
-        "Request could not be updated:",
-        requestError
-      );
-
-      const status =
-        requestError.response?.status;
-
-      if (status === 401) {
-        showError(
-          "Your session has expired. Please sign in again."
-        );
-      } else if (status === 403) {
-        showError(
-          "You do not have permission to update this request."
-        );
-      } else if (status === 404) {
-        showError(
-          "The request could not be found."
-        );
-      } else {
-        showError(
-          requestError.response?.data
-            ?.message ||
-            "Request could not be updated."
-        );
-      }
-    } finally {
-      setIsSaving(false);
-    }
+    await saveChanges(formData, {
+      showSuccessToast: true
+    });
   };
 
   const handleDelete = async () => {
-    const confirmed = await confirm({
-      title:
-        "Delete this request?",
+    setDeleteError("");
+    setIsDeleteConfirmOpen(true);
 
-      message: ticket?.title
-        ? `"${ticket.title}" will be permanently deleted. This action cannot be undone.`
-        : "This request will be permanently deleted. This action cannot be undone.",
+    let confirmed;
 
-      confirmText:
-        "Delete Request",
+    try {
+      confirmed = await confirm({
+        title:
+          "Delete this request?",
 
-      cancelText:
-        "Cancel",
+        message: ticket?.title
+          ? `"${ticket.title}" will be permanently deleted. This action cannot be undone.`
+          : "This request will be permanently deleted. This action cannot be undone.",
 
-      variant: "danger"
-    });
+        confirmText:
+          "Delete Request",
+
+        cancelText:
+          "Cancel",
+
+        variant: "danger"
+      });
+    } finally {
+      setIsDeleteConfirmOpen(false);
+    }
 
     if (!confirmed) {
       return;
@@ -752,28 +865,16 @@ function EditRequest() {
         requestError
       );
 
-      const status =
-        requestError.response?.status;
+      const errorMessage =
+        getDeleteErrorMessage(
+          requestError
+        );
 
-      if (status === 401) {
-        showError(
-          "Your session has expired. Please sign in again."
-        );
-      } else if (status === 403) {
-        showError(
-          "You do not have permission to delete this request."
-        );
-      } else if (status === 404) {
-        showError(
-          "The request could not be found."
-        );
-      } else {
-        showError(
-          requestError.response?.data
-            ?.message ||
-            "Request could not be deleted."
-        );
-      }
+      setDeleteError(errorMessage);
+
+      showError(errorMessage, {
+        duration: 7000
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -898,12 +999,11 @@ function EditRequest() {
             status and staff assignment.
           </p>
 
-          {hasUnsavedChanges && (
-            <span className="edit-request-unsaved-badge">
-              <AlertCircle size={14} />
-              Unsaved changes
-            </span>
-          )}
+          <AutoSaveStatus
+            status={autoSaveStatus}
+            hasUnsavedChanges={hasUnsavedChanges}
+            lastSavedAt={lastSavedAt}
+          />
         </div>
 
         <div className="edit-request-header-actions">
@@ -927,7 +1027,8 @@ function EditRequest() {
               onClick={handleDelete}
               disabled={
                 isDeleting ||
-                isSaving
+                isSaving ||
+                isDeleteConfirmOpen
               }
             >
               {isDeleting ? (
@@ -946,6 +1047,19 @@ function EditRequest() {
           )}
         </div>
       </header>
+
+      {deleteError && (
+        <div
+          className="edit-request-delete-error"
+          role="alert"
+        >
+          <AlertCircle size={18} />
+
+          <span>
+            {deleteError}
+          </span>
+        </div>
+      )}
 
       <div className="edit-request-layout">
         <div className="edit-request-main-column">
@@ -1166,7 +1280,8 @@ function EditRequest() {
                 }
                 disabled={
                   isSaving ||
-                  isDeleting
+                  isDeleting ||
+                  isDeleteConfirmOpen
                 }
               >
                 Cancel
@@ -1178,6 +1293,7 @@ function EditRequest() {
                 disabled={
                   isSaving ||
                   isDeleting ||
+                  isDeleteConfirmOpen ||
                   !hasUnsavedChanges
                 }
               >
@@ -1568,6 +1684,65 @@ function SummaryRow({
   );
 }
 
+function AutoSaveStatus({
+  status,
+  hasUnsavedChanges,
+  lastSavedAt
+}) {
+  let Icon = CheckCircle2;
+  let label = "All changes saved";
+  let state = "saved";
+
+  if (status === "saving") {
+    Icon = LoaderCircle;
+    label = "Saving changes...";
+    state = "saving";
+  } else if (status === "error") {
+    Icon = AlertCircle;
+    label =
+      "Autosave failed. Use Update Request to retry.";
+    state = "error";
+  } else if (status === "waiting") {
+    Icon = AlertCircle;
+    label =
+      "Complete required fields to autosave.";
+    state = "waiting";
+  } else if (
+    status === "pending" ||
+    hasUnsavedChanges
+  ) {
+    Icon = Clock3;
+    label = "Autosave pending...";
+    state = "pending";
+  } else if (lastSavedAt) {
+    label = `Saved at ${lastSavedAt.toLocaleTimeString(
+      "en-US",
+      {
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    )}`;
+  }
+
+  return (
+    <span
+      className={`edit-request-save-status ${state}`}
+      role={state === "error" ? "alert" : "status"}
+    >
+      <Icon
+        className={
+          state === "saving"
+            ? "edit-request-spinner"
+            : undefined
+        }
+        size={14}
+      />
+
+      {label}
+    </span>
+  );
+}
+
 function getActivityIcon(type) {
   const normalizedType =
     String(type || "")
@@ -1641,6 +1816,66 @@ function normalizeFormData(form) {
         form?.description || ""
       ).trim()
   };
+}
+
+function getFormValidationMessage(form) {
+  if (!String(form?.title || "").trim()) {
+    return "Request title is required.";
+  }
+
+  if (!String(form?.category || "").trim()) {
+    return "Please select a request category.";
+  }
+
+  if (!String(form?.description || "").trim()) {
+    return "Request description is required.";
+  }
+
+  return "";
+}
+
+function getUpdateErrorMessage(error) {
+  const status = error?.response?.status;
+
+  if (status === 401) {
+    return "Your session has expired. Please sign in again.";
+  }
+
+  if (status === 403) {
+    return "You do not have permission to update this request.";
+  }
+
+  if (status === 404) {
+    return "This request no longer exists.";
+  }
+
+  return (
+    error?.response?.data?.message ||
+    error?.response?.data?.detail ||
+    "Request changes could not be saved. Please try again."
+  );
+}
+
+function getDeleteErrorMessage(error) {
+  const status = error?.response?.status;
+
+  if (status === 401) {
+    return "Your session has expired. Please sign in again.";
+  }
+
+  if (status === 403) {
+    return "You do not have permission to delete this request.";
+  }
+
+  if (status === 404) {
+    return "This request has already been deleted.";
+  }
+
+  return (
+    error?.response?.data?.message ||
+    error?.response?.data?.detail ||
+    "Request could not be deleted. Please try again."
+  );
 }
 
 function getOwnerName(ticket) {
