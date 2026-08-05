@@ -162,12 +162,22 @@ function Dashboard() {
   }, [loadTickets]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setCurrentDate(new Date());
-    }, 30000);
+    let timer;
+
+    const scheduleNextUpdate = () => {
+      const millisecondsUntilNextMinute =
+        60000 - (Date.now() % 60000);
+
+      timer = window.setTimeout(() => {
+        setCurrentDate(new Date());
+        scheduleNextUpdate();
+      }, millisecondsUntilNextMinute);
+    };
+
+    scheduleNextUpdate();
 
     return () => {
-      window.clearInterval(timer);
+      window.clearTimeout(timer);
     };
   }, []);
 
@@ -553,7 +563,7 @@ function Dashboard() {
       .split(/\s+/)[0] ||
     "User";
 
-  const greeting = getGreeting(
+  const { message, emoji } = getGreeting(
     currentDate.getHours()
   );
 
@@ -567,7 +577,7 @@ function Dashboard() {
             </span>
 
             <h1>
-              {greeting}, {firstName} 👋
+              {message}, {firstName} {emoji}
             </h1>
 
             <p>
@@ -610,7 +620,7 @@ function Dashboard() {
           </span>
 
           <h1>
-            {greeting}, {firstName} 👋
+            {message}, {firstName} {emoji}
           </h1>
 
           <p>
@@ -1622,15 +1632,38 @@ function getInitials(name) {
 }
 
 function getGreeting(hour) {
+  if (hour < 5) {
+    return {
+      message: "Good Night",
+      emoji: "🌙"
+    };
+  }
+
   if (hour < 12) {
-    return "Good Morning";
+    return {
+      message: "Good Morning",
+      emoji: "👋"
+    };
   }
 
-  if (hour < 18) {
-    return "Good Afternoon";
+  if (hour < 17) {
+    return {
+      message: "Good Afternoon",
+      emoji: "☀️"
+    };
   }
 
-  return "Good Evening";
+  if (hour < 21) {
+    return {
+      message: "Good Evening",
+      emoji: "🌆"
+    };
+  }
+
+  return {
+    message: "Good Night",
+    emoji: "🌙"
+  };
 }
 
 function formatCurrentDate(date) {
