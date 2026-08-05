@@ -22204,8 +22204,6 @@ html[data-theme="dark"]
   overflow: visible;
   overflow-wrap: anywhere;
   text-overflow: clip;
-  -webkit-line-clamp: unset;
-  -webkit-box-orient: initial;
 }
 
 .rf-navbar-notification-content > span {
@@ -22674,8 +22672,6 @@ html[data-theme="dark"]
   overflow: visible !important;
   overflow-wrap: anywhere;
   text-overflow: unset !important;
-  -webkit-line-clamp: unset !important;
-  -webkit-box-orient: unset !important;
 }
 
 .rf-navbar-notification-content > span {
