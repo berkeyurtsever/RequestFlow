@@ -12,6 +12,6 @@ Do not open a public issue for a suspected vulnerability. Contact the repository
 
 ## Dependency review
 
-Backend packages are checked with `dotnet list package --vulnerable`. Frontend packages are checked with `npm audit` and GitHub dependency review.
+Backend packages are checked with `dotnet list package --vulnerable`. Frontend production packages are checked with `npm run audit:production`. The audit fails when any vulnerability outside the documented React Router advisory appears.
 
 The current React Router advisory `GHSA-qwww-vcr4-c8h2` affects React Server Components action handling. RequestFlow is a client-side `BrowserRouter` application and does not enable React Server Components. The repository uses the latest available stable `react-router-dom` release; this note should be removed once a stable patched release is available and installed.
