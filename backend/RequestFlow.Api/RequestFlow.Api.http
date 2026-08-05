@@ -1,0 +1,6 @@
+@RequestFlow.Api_HostAddress = http://localhost:5131
+
+GET {{RequestFlow.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

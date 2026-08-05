@@ -1,0 +1,59 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE and editor settings
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.ntvs*
+*.njsproj
+*.sw?
+
+# .NET build output
+**/bin/
+**/obj/
+
+# Frontend dependencies and build output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/.vite/
+**/.vite-temp/
+
+# Logs and generated reports
+logs/
+*.log
+build-error.txt
+lint-report.txt
+
+# Local environment files and secrets
+**/.env
+**/.env.*
+!**/.env.example
+**/appsettings.Development.json
+**/appsettings.Local.json
+*.pem
+*.p12
+*.pfx
+*.key
+
+# Local SQLite databases and working files
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.sqlite
+**/*.sqlite3
+
+# User-uploaded application data
+/backend/RequestFlow.Api/Uploads/
+
+# Archives, backups, and temporary files
+*.zip
+*.bak
+*.backup
+*_backup.*
+*~
+*.tmp
