@@ -4,7 +4,7 @@
 
 RequestFlow is a full-stack, role-based request management system developed during an internship. Employees can create requests, follow their progress, communicate through comments, upload attachments, and receive in-app notifications. Admin, Supervisor, Staff, and User roles have separate permissions and interfaces.
 
-![RequestFlow dashboard](docs/screenshots/day-15/01_final_dashboard.png)
+![RequestFlow dashboard](docs/screenshots/readme/02-dashboard.png)
 
 ## Features
 
@@ -22,15 +22,31 @@ RequestFlow is a full-stack, role-based request management system developed duri
 
 ## Screenshots
 
-| Dashboard | Create Request |
-| --- | --- |
-| ![Dashboard](docs/screenshots/day-11/01_dashboard_final.png) | ![Create request](docs/screenshots/day-11/03_create_request_form.png) |
+The gallery below uses local demo data and reflects the current application interface.
 
-| Reports | Mobile Layout |
+| Sign In | All Requests |
 | --- | --- |
-| ![Reports](docs/screenshots/day-11/13_reports_page.png) | ![Mobile layout](docs/screenshots/day-15/02_mobile_responsive_test.png) |
+| ![RequestFlow sign in](docs/screenshots/readme/01-login.png) | ![All requests](docs/screenshots/readme/03-all-requests.png) |
 
-The complete development timeline is available in [`docs/screenshots`](docs/screenshots).
+| Create Request | Edit Request and Autosave |
+| --- | --- |
+| ![Create request](docs/screenshots/readme/04-create-request.png) | ![Edit request autosave](docs/screenshots/readme/05-edit-autosave.png) |
+
+| Attachments and Activity | Employee Management |
+| --- | --- |
+| ![Request attachments and activity](docs/screenshots/readme/06-request-details.png) | ![Employee role management](docs/screenshots/readme/07-admin-management.png) |
+
+### Reports and Analytics
+
+![Reports and analytics](docs/screenshots/readme/08-reports.png)
+
+### Mobile Navigation
+
+<p align="center">
+  <img src="docs/screenshots/readme/09-mobile.png" alt="RequestFlow mobile navigation" width="320">
+</p>
+
+The complete day-by-day development timeline remains available in [`docs/screenshots`](docs/screenshots).
 
 ## Technology Stack
 
