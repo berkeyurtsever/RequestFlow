@@ -159,6 +159,7 @@ function Sidebar({
 
   return (
     <aside
+      id="rf-sidebar-navigation"
       className={`rf-sidebar ${
         isOpen
           ? "rf-sidebar-mobile-open"

@@ -16,6 +16,8 @@ RequestFlow is a full-stack, role-based request management system developed duri
 - Dashboard charts, reports, and CSV export
 - Light and dark themes
 - Responsive desktop, tablet, and mobile layouts
+- Automated API integration and frontend route/layout tests
+- Docker Compose development and production-like environment
 - Loading, empty, error, confirmation, and toast states
 
 ## Screenshots
@@ -57,6 +59,7 @@ The complete development timeline is available in [`docs/screenshots`](docs/scre
 - npm
 - Git
 - Optional: the `sqlite3` command-line tool for promoting the first local user to Admin
+- Optional: Docker Desktop for the container setup
 
 ## Local Setup
 
@@ -127,6 +130,18 @@ Open <http://localhost:5173>.
 | Swagger | <http://localhost:5131/swagger> |
 | SQLite database | `backend/RequestFlow.Api/requestflow.db` |
 
+## Docker Setup
+
+Run the complete application with the API, frontend, persistent SQLite database, and persistent upload storage:
+
+```bash
+cp .env.docker.example .env.docker
+# Replace JWT_KEY in .env.docker with a long random value.
+docker compose --env-file .env.docker up --build
+```
+
+Open <http://localhost:5173>. See [DEPLOYMENT.md](DEPLOYMENT.md) before publishing a demo.
+
 ## User Roles
 
 | Role | Main permissions |
@@ -152,10 +167,8 @@ Run the same checks used by GitHub Actions before opening a pull request.
 Backend:
 
 ```bash
-dotnet restore backend/RequestFlow.Api/RequestFlow.Api.csproj
-dotnet build backend/RequestFlow.Api/RequestFlow.Api.csproj \
-  --configuration Release \
-  --no-restore
+dotnet test backend/RequestFlow.Api.Tests/RequestFlow.Api.Tests.csproj \
+  --configuration Release
 ```
 
 Frontend:
@@ -164,6 +177,7 @@ Frontend:
 cd backend/RequestFlow.Api/frontend/requestflow-ui
 npm ci
 npm run lint
+npm run test
 npm run build
 ```
 
@@ -175,6 +189,7 @@ RequestFlow/
 │   ├── ISSUE_TEMPLATE/
 │   └── workflows/
 ├── backend/
+│   ├── RequestFlow.Api.Tests/
 │   └── RequestFlow.Api/
 │       ├── Controllers/
 │       ├── Data/
@@ -185,6 +200,9 @@ RequestFlow/
 │       ├── Program.cs
 │       └── RequestFlow.Api.csproj
 ├── docs/screenshots/
+├── DEPLOYMENT.md
+├── SECURITY.md
+├── docker-compose.yml
 ├── CONTRIBUTING.md
 └── README.md
 ```

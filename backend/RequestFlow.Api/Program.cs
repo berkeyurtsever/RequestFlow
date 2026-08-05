@@ -35,6 +35,12 @@ builder.Services.AddDbContext<AppDbContext>(
     }
 );
 
+var allowedOrigins =
+    builder.Configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>() ??
+    ["http://localhost:5173"];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
@@ -42,9 +48,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins(
-                    "http://localhost:5173"
-                )
+                .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         }
@@ -59,6 +63,19 @@ var jwtKey =
     throw new InvalidOperationException(
         "JWT Key is missing from appsettings.json."
     );
+
+if (
+    builder.Environment.IsProduction() &&
+    jwtKey.StartsWith(
+        "CHANGE_ME",
+        StringComparison.Ordinal
+    )
+)
+{
+    throw new InvalidOperationException(
+        "Set Jwt__Key to a strong secret before starting in Production."
+    );
+}
 
 var jwtIssuer =
     jwtSection["Issuer"] ??
@@ -180,18 +197,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-using (var scope = app.Services.CreateScope())
+app.MapGet("/health", () => Results.Ok(new
 {
-    var context =
-        scope.ServiceProvider
-            .GetRequiredService<AppDbContext>();
+    status = "healthy"
+}));
+
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider
+        .GetRequiredService<AppDbContext>();
 
     await context.Database.MigrateAsync();
-
-    await CategorySeeder.SeedAsync(
-        context
-    );
+    await CategorySeeder.SeedAsync(context);
 }
 
-app.Run();
+await app.RunAsync();
+
+public partial class Program;

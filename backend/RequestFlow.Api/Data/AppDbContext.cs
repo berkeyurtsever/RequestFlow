@@ -126,7 +126,7 @@ public class AppDbContext : DbContext
 
         ticketEntity
             .HasOne(ticket => ticket.CreatedByUser)
-            .WithMany()
+            .WithMany(user => user.CreatedTickets)
             .HasForeignKey(
                 ticket => ticket.CreatedByUserId
             )
@@ -134,7 +134,7 @@ public class AppDbContext : DbContext
 
         ticketEntity
             .HasOne(ticket => ticket.AssignedToUser)
-            .WithMany()
+            .WithMany(user => user.AssignedTickets)
             .HasForeignKey(
                 ticket => ticket.AssignedToUserId
             )
