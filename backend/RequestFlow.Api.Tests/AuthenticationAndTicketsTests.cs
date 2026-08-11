@@ -3,7 +3,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RequestFlow.Api.Data;
 using RequestFlow.Api.DTOs;
@@ -44,22 +43,16 @@ public sealed class AuthenticationAndTicketsTests :
     public async Task DemoLogin_ReturnsSeededSupervisorToken()
     {
         using var demoFactory =
-            _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration(
-                    (_, configuration) =>
-                    {
-                        configuration.AddInMemoryCollection(
-                            new Dictionary<string, string?>
-                            {
-                                ["Demo:Enabled"] = "true",
-                                ["Demo:SupervisorEmail"] =
-                                    DemoDataSeeder.DefaultSupervisorEmail
-                            }
-                        );
-                    }
-                );
-            });
+            new RequestFlowWebApplicationFactory(
+                new Dictionary<string, string?>
+                {
+                    ["Demo:Enabled"] = "true",
+                    ["Demo:SupervisorEmail"] =
+                        DemoDataSeeder.DefaultSupervisorEmail
+                }
+            );
+
+        await demoFactory.InitializeDatabaseAsync();
 
         using (var scope = demoFactory.Services.CreateScope())
         {
@@ -267,6 +260,139 @@ public sealed class AuthenticationAndTicketsTests :
         Assert.False(await verificationContext.Notifications.AnyAsync(
             notification => notification.TicketId == ticket.Id
         ));
+    }
+
+    [Fact]
+    public async Task RegularUser_CannotDeleteTicket()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var createResponse = await _client.PostAsJsonAsync(
+            "/api/Tickets",
+            new Ticket
+            {
+                Title = "Protected request",
+                Description = "Regular users must not permanently delete requests.",
+                Category = "General Request",
+                Priority = "Medium"
+            }
+        );
+
+        createResponse.EnsureSuccessStatusCode();
+
+        var ticket = await createResponse.Content
+            .ReadFromJsonAsync<Ticket>();
+
+        Assert.NotNull(ticket);
+
+        var deleteResponse = await _client.DeleteAsync(
+            $"/api/Tickets/{ticket.Id}"
+        );
+
+        Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+
+        using var scope = _factory.Services.CreateScope();
+
+        var context = scope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        Assert.True(await context.Tickets.AnyAsync(
+            item => item.Id == ticket.Id
+        ));
+    }
+
+    [Fact]
+    public async Task RegularUser_CannotReadOrUpdateAnotherUsersTicket()
+    {
+        var owner = await RegisterUserAsync();
+        UseBearerToken(owner.Token);
+
+        var createResponse = await _client.PostAsJsonAsync(
+            "/api/Tickets",
+            new Ticket
+            {
+                Title = "Owner-only request",
+                Description = "Another regular user must not access this request.",
+                Category = "Information Technology",
+                Priority = "High"
+            }
+        );
+
+        createResponse.EnsureSuccessStatusCode();
+
+        var ticket = await createResponse.Content
+            .ReadFromJsonAsync<Ticket>();
+
+        Assert.NotNull(ticket);
+
+        var otherUser = await RegisterUserAsync();
+        UseBearerToken(otherUser.Token);
+
+        var readResponse = await _client.GetAsync(
+            $"/api/Tickets/{ticket.Id}"
+        );
+
+        var updateResponse = await _client.PutAsJsonAsync(
+            $"/api/Tickets/{ticket.Id}",
+            new Ticket
+            {
+                Title = "Unauthorized update",
+                Description = "This update must be rejected.",
+                Category = "General Request",
+                Priority = "Low",
+                Status = "Resolved"
+            }
+        );
+
+        Assert.Equal(HttpStatusCode.Forbidden, readResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, updateResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task RegularUser_UpdateKeepsManagementControlledStatus()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var createResponse = await _client.PostAsJsonAsync(
+            "/api/Tickets",
+            new Ticket
+            {
+                Title = "Status protected request",
+                Description = "The owner may edit details but not workflow status.",
+                Category = "General Request",
+                Priority = "Medium"
+            }
+        );
+
+        createResponse.EnsureSuccessStatusCode();
+
+        var ticket = await createResponse.Content
+            .ReadFromJsonAsync<Ticket>();
+
+        Assert.NotNull(ticket);
+
+        var updateResponse = await _client.PutAsJsonAsync(
+            $"/api/Tickets/{ticket.Id}",
+            new Ticket
+            {
+                Title = "Updated request details",
+                Description = "The details were changed by the request owner.",
+                Category = "General Request",
+                Priority = "Medium",
+                Status = "Resolved"
+            }
+        );
+
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+
+        var updatedTicket = await updateResponse.Content
+            .ReadFromJsonAsync<Ticket>();
+
+        Assert.NotNull(updatedTicket);
+        Assert.Equal("Updated request details", updatedTicket.Title);
+        Assert.Equal("Open", updatedTicket.Status);
     }
 
     private async Task<AuthResponseDto> RegisterUserAsync()
