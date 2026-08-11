@@ -847,8 +847,23 @@ html[data-theme="dark"]
 
 html[data-theme="dark"]
 .dashboard-recent-card
-.requests-title-button {
+.dashboard-request-title {
+  color: var(--dark-title) !important;
+}
+
+html[data-theme="dark"]
+.dashboard-recent-card
+.dashboard-request-title:hover {
   color: #60a5fa !important;
+}
+
+html[data-theme="dark"]
+.dashboard-recent-card
+:is(
+  .dashboard-request-id,
+  .dashboard-request-date
+) {
+  color: var(--dark-text) !important;
 }
 
 html[data-theme="dark"]
