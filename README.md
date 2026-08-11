@@ -247,9 +247,10 @@ Use a short-lived branch for each change, such as `feature/docker-support` or `f
 
 - Do not commit `.env` files, JWT keys, local databases, uploads, or real credentials.
 - `appsettings.json` contains development placeholders only; override secrets locally with environment variables.
+- Treat every example or historical development key as compromised and never reuse it.
 - Uploaded files and SQLite working files are intentionally excluded by `.gitignore`.
 - The forgot-password endpoint currently returns a safe generic response but does not send email.
 
 ## License
 
-This is currently a private portfolio and internship repository. No open-source license has been granted.
+This is a public portfolio and internship project. No open-source license has been granted, so public access does not grant permission to copy, modify, or redistribute the source code.

@@ -64,16 +64,29 @@ var jwtKey =
         "JWT Key is missing from appsettings.json."
     );
 
+var normalizedJwtKey = jwtKey.Trim();
+var usesUnsafeJwtKey =
+    normalizedJwtKey.Length < 32 ||
+    normalizedJwtKey.StartsWith(
+        "CHANGE_ME",
+        StringComparison.OrdinalIgnoreCase
+    ) ||
+    normalizedJwtKey.Contains(
+        "CHANGE-THIS",
+        StringComparison.OrdinalIgnoreCase
+    ) ||
+    normalizedJwtKey.Contains(
+        "REPLACE-WITH",
+        StringComparison.OrdinalIgnoreCase
+    );
+
 if (
     builder.Environment.IsProduction() &&
-    jwtKey.StartsWith(
-        "CHANGE_ME",
-        StringComparison.Ordinal
-    )
+    usesUnsafeJwtKey
 )
 {
     throw new InvalidOperationException(
-        "Set Jwt__Key to a strong secret before starting in Production."
+        "Set Jwt__Key to a unique secret of at least 32 characters before starting in Production."
     );
 }
 
