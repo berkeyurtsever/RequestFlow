@@ -8,7 +8,7 @@ RequestFlow is a full-stack, role-based request management system developed duri
 
 [Open the live RequestFlow demo](https://requestflow-demo.onrender.com) and select **Explore Demo** to start a safe Supervisor session without creating an account.
 
-> The free demo service may take 50 seconds or more to wake after inactivity. Demo data can reset after a deployment or restart. Registration, password changes, and uploads are disabled in the public demo.
+> The free demo service may take 50 seconds or more to wake after inactivity. Demo data can reset after a deployment or restart. Registration, password changes, password reset email delivery, and uploads are disabled in the public demo.
 
 ![RequestFlow dashboard](docs/screenshots/readme/02-dashboard-light-admin.jpg)
 
@@ -107,7 +107,7 @@ git clone https://github.com/berkeyurtsever/RequestFlow.git
 cd RequestFlow
 ```
 
-Because the repository is private, the GitHub account cloning it must have access.
+The repository is public and can be cloned without collaborator access.
 
 ### 2. Configure and start the backend
 
@@ -254,7 +254,8 @@ Use a short-lived branch for each change, such as `feature/docker-support` or `f
 - `appsettings.json` contains development placeholders only; override secrets locally with environment variables.
 - Treat every example or historical development key as compromised and never reuse it.
 - Uploaded files and SQLite working files are intentionally excluded by `.gitignore`.
-- The forgot-password endpoint currently returns a safe generic response but does not send email.
+- Password reset requests always return the same generic response to prevent account discovery.
+- Outside demo mode, password reset emails are sent only when SMTP delivery is enabled with hosting secrets. See [DEPLOYMENT.md](DEPLOYMENT.md) for configuration details.
 
 ## License
 
