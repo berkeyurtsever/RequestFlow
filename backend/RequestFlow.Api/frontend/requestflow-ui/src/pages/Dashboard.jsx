@@ -975,7 +975,9 @@ function Dashboard() {
                     ticket => (
                       <tr key={ticket.id}>
                         <td>
-                          #{ticket.id}
+                          <span className="dashboard-request-id">
+                            #{ticket.id}
+                          </span>
                         </td>
 
                         <td>
