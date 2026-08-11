@@ -28,8 +28,8 @@ EXPOSE 8080
 COPY --from=backend-build /app/publish ./
 COPY --from=frontend-build /src/frontend/dist ./wwwroot
 
-RUN mkdir -p /tmp/requestflow /app/Uploads && \
-    chown -R "$APP_UID:$APP_UID" /tmp/requestflow /app/Uploads
+RUN mkdir -p /app/data /app/Uploads && \
+    chown -R "$APP_UID:$APP_UID" /app/data /app/Uploads
 
 USER $APP_UID
 
