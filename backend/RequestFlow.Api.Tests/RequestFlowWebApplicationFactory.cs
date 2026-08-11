@@ -24,6 +24,23 @@ public sealed class RequestFlowWebApplicationFactory :
     private readonly SqliteConnection _connection =
         new("Data Source=:memory:");
 
+    private readonly IReadOnlyDictionary<string, string?>
+        _configurationOverrides;
+
+    public RequestFlowWebApplicationFactory()
+        : this(null)
+    {
+    }
+
+    internal RequestFlowWebApplicationFactory(
+        IReadOnlyDictionary<string, string?>?
+            configurationOverrides)
+    {
+        _configurationOverrides =
+            configurationOverrides ??
+            new Dictionary<string, string?>();
+    }
+
     protected override void ConfigureWebHost(
         IWebHostBuilder builder
     )
@@ -34,7 +51,7 @@ public sealed class RequestFlowWebApplicationFactory :
 
         builder.ConfigureAppConfiguration((_, configuration) =>
         {
-            configuration.AddInMemoryCollection(
+            var configurationValues =
                 new Dictionary<string, string?>
                 {
                     ["Jwt:Key"] =
@@ -42,7 +59,18 @@ public sealed class RequestFlowWebApplicationFactory :
                     ["Jwt:Issuer"] = TestJwtIssuer,
                     ["Jwt:Audience"] = TestJwtAudience,
                     ["Jwt:ExpirationMinutes"] = "30"
-                }
+                };
+
+            foreach (var configurationOverride in
+                     _configurationOverrides)
+            {
+                configurationValues[
+                    configurationOverride.Key
+                ] = configurationOverride.Value;
+            }
+
+            configuration.AddInMemoryCollection(
+                configurationValues
             );
         });
 
