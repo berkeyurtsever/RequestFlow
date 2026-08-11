@@ -10,7 +10,7 @@ RequestFlow is a full-stack, role-based request management system developed duri
 
 > The free demo service may take 50 seconds or more to wake after inactivity. Demo data can reset after a deployment or restart. Registration, password changes, and uploads are disabled in the public demo.
 
-![RequestFlow dashboard](docs/screenshots/readme/02-dashboard.jpg)
+![RequestFlow dashboard](docs/screenshots/readme/02-dashboard-light-admin.jpg)
 
 ## Features
 
@@ -32,7 +32,7 @@ The gallery below was captured from the local Administrator interface in light m
 
 ### Dashboard
 
-![RequestFlow dashboard](docs/screenshots/readme/02-dashboard.jpg)
+![RequestFlow dashboard](docs/screenshots/readme/02-dashboard-light-admin.jpg)
 
 ### All Requests
 
