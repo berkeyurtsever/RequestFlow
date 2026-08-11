@@ -1021,10 +1021,19 @@ function Dashboard() {
                         </td>
 
                         <td>
-                          {formatTicketDate(
-                            ticket.updatedAt ||
-                              ticket.createdAt
-                          )}
+                          <time
+                            className="dashboard-request-date"
+                            dateTime={
+                              ticket.updatedAt ||
+                              ticket.createdAt ||
+                              undefined
+                            }
+                          >
+                            {formatTicketDate(
+                              ticket.updatedAt ||
+                                ticket.createdAt
+                            )}
+                          </time>
                         </td>
                       </tr>
                     )
