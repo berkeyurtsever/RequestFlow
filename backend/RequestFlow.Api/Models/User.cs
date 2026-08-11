@@ -29,6 +29,8 @@ public class User
     public DateTime CreatedAt { get; set; } =
         DateTime.UtcNow;
 
+    public int SecurityVersion { get; set; }
+
     [JsonIgnore]
     public ICollection<Ticket> CreatedTickets
     {
@@ -42,4 +44,12 @@ public class User
         get;
         set;
     } = new List<Ticket>();
+
+    [JsonIgnore]
+    public ICollection<PasswordResetToken>
+        PasswordResetTokens
+    {
+        get;
+        set;
+    } = new List<PasswordResetToken>();
 }

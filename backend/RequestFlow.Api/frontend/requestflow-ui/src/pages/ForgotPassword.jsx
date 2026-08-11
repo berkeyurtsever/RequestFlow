@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import AuthBrandLogo from "../components/AuthBrandLogo";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -99,7 +100,7 @@ function ForgotPassword() {
       <section className="forgot-password-brand-panel">
         <div className="forgot-password-brand-content">
           <div className="forgot-password-brand">
-            <RequestFlowLogo />
+            <AuthBrandLogo />
 
             <div>
               <div className="forgot-password-brand-name">
@@ -215,11 +216,23 @@ function ForgotPassword() {
                   }}
                   autoComplete="email"
                   disabled={isSubmitting}
+                  aria-invalid={Boolean(
+                    emailError
+                  )}
+                  aria-describedby={
+                    emailError
+                      ? "forgot-email-error"
+                      : undefined
+                  }
                 />
               </div>
 
               {emailError && (
-                <span className="forgot-password-field-error">
+                <span
+                  id="forgot-email-error"
+                  className="forgot-password-field-error"
+                  role="alert"
+                >
                   {emailError}
                 </span>
               )}
@@ -258,43 +271,6 @@ function ForgotPassword() {
         </div>
       </section>
     </main>
-  );
-}
-
-function RequestFlowLogo() {
-  return (
-    <svg
-      className="forgot-password-logo"
-      viewBox="0 0 64 64"
-      aria-hidden="true"
-    >
-      <path
-        d="
-          M9 17
-          C20 6 44 6 55 17
-          L45 27
-          C38 20 26 20 19 27
-          Z
-        "
-      />
-
-      <circle
-        cx="32"
-        cy="31"
-        r="8"
-      />
-
-      <path
-        d="
-          M14 40
-          L23 32
-          C28 37 36 37 41 32
-          L50 40
-          L32 58
-          Z
-        "
-      />
-    </svg>
   );
 }
 

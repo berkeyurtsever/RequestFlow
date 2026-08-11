@@ -25,3 +25,9 @@ services:
         value: "true"
       - key: Demo__SupervisorEmail
         value: demo.supervisor@requestflow.example
+      - key: Frontend__BaseUrl
+        value: https://requestflow-demo.onrender.com
+      - key: PasswordReset__ExpirationMinutes
+        value: "30"
+      - key: Email__Enabled
+        value: "false"

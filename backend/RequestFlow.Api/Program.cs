@@ -10,6 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using RequestFlow.Api.Data;
 using RequestFlow.Api.Models;
+using RequestFlow.Api.Options;
+using RequestFlow.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,34 @@ builder.Services
 builder.Services.AddScoped<
     IPasswordHasher<User>,
     PasswordHasher<User>
+>();
+
+builder.Services
+    .AddOptions<EmailOptions>()
+    .Bind(
+        builder.Configuration.GetSection(
+            EmailOptions.SectionName
+        )
+    )
+    .Validate(
+        options =>
+            !options.Enabled ||
+            (
+                !string.IsNullOrWhiteSpace(
+                    options.Host
+                ) &&
+                options.Port > 0 &&
+                !string.IsNullOrWhiteSpace(
+                    options.FromAddress
+                )
+            ),
+        "Enabled email delivery requires a host, port and sender address."
+    )
+    .ValidateOnStart();
+
+builder.Services.AddSingleton<
+    IEmailSender,
+    SmtpEmailSender
 >();
 
 var connectionString =
@@ -211,6 +241,67 @@ builder.Services
                 NameClaimType = "name",
                 RoleClaimType = "role"
             };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var userIdValue = context.Principal?
+                    .FindFirst("sub")?.Value;
+
+                var securityVersionValue =
+                    context.Principal?
+                        .FindFirst(
+                            "security_version"
+                        )?.Value;
+
+                if (
+                    !int.TryParse(
+                        userIdValue,
+                        out var userId
+                    ) ||
+                    !int.TryParse(
+                        securityVersionValue,
+                        out var tokenSecurityVersion
+                    )
+                )
+                {
+                    context.Fail(
+                        "The session security version is invalid."
+                    );
+                    return;
+                }
+
+                var database = context.HttpContext
+                    .RequestServices
+                    .GetRequiredService<AppDbContext>();
+
+                var currentSecurityVersion =
+                    await database.Users
+                        .AsNoTracking()
+                        .Where(user =>
+                            user.Id == userId
+                        )
+                        .Select(user =>
+                            (int?)user.SecurityVersion
+                        )
+                        .SingleOrDefaultAsync(
+                            context.HttpContext
+                                .RequestAborted
+                        );
+
+                if (
+                    currentSecurityVersion is null ||
+                    currentSecurityVersion.Value !=
+                    tokenSecurityVersion
+                )
+                {
+                    context.Fail(
+                        "The session is no longer valid."
+                    );
+                }
+            }
+        };
     });
 
 builder.Services.AddAuthorization(options =>

@@ -73,9 +73,9 @@ function ChangePassword() {
     if (!formData.newPassword) {
       errors.newPassword =
         "New password is required.";
-    } else if (formData.newPassword.length < 6) {
+    } else if (formData.newPassword.length < 8) {
       errors.newPassword =
-        "New password must contain at least 6 characters.";
+        "New password must contain at least 8 characters.";
     } else if (
       formData.newPassword ===
       formData.currentPassword
@@ -307,7 +307,7 @@ function ChangePassword() {
               <strong>Password requirements</strong>
 
               <span>
-                Use at least 6 characters and choose
+                Use at least 8 characters and choose
                 a password different from your
                 current password.
               </span>

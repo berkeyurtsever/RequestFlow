@@ -2,10 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RequestFlow.Api.DTOs;
 
-public class ChangePasswordDto
+public class ResetPasswordDto
 {
     [Required]
-    public string CurrentPassword { get; set; } = string.Empty;
+    [MaxLength(512)]
+    public string Token { get; set; } = string.Empty;
 
     [Required]
     [MinLength(8)]
