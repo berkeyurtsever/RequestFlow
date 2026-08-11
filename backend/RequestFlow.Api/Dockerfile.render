@@ -22,8 +22,8 @@ RUN dotnet publish --configuration Release --no-restore --output /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:10000
+EXPOSE 10000
 
 COPY --from=backend-build /app/publish ./
 COPY --from=frontend-build /src/frontend/dist ./wwwroot
