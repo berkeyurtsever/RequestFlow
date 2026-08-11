@@ -15,6 +15,8 @@ RequestFlow is a full-stack, role-based request management system developed duri
 ## Features
 
 - JWT-based authentication and role-based authorization
+- Secure, expiring, single-use email password reset links
+- Session invalidation after password changes and resets
 - Request creation, editing, deletion, assignment, and status tracking
 - Priority management, advanced filtering, sorting, and pagination
 - Comments, attachments, permanent activity history, and notifications
@@ -22,6 +24,7 @@ RequestFlow is a full-stack, role-based request management system developed duri
 - Dashboard charts, reports, and CSV export
 - Light and dark themes
 - Responsive desktop, tablet, and mobile layouts
+- Route-level loading so screens download only when opened
 - Automated API integration and frontend route/layout tests
 - Docker Compose development and production-like environment
 - Loading, empty, error, confirmation, and toast states

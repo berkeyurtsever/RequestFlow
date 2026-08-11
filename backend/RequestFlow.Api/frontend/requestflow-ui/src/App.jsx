@@ -1,3 +1,7 @@
+import {
+  lazy,
+  Suspense
+} from "react";
 import { LoaderCircle } from "lucide-react";
 import {
   Navigate,
@@ -6,26 +10,65 @@ import {
   useLocation
 } from "react-router-dom";
 
-import MainLayout from "./layouts/MainLayout";
+const MainLayout = lazy(() =>
+  import("./layouts/MainLayout")
+);
 
-import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import AccessDenied from "./pages/AccessDenied";
-import NotFound from "./pages/NotFound";
+const Login = lazy(() =>
+  import("./pages/Login")
+);
+const ForgotPassword = lazy(() =>
+  import("./pages/ForgotPassword")
+);
+const ResetPassword = lazy(() =>
+  import("./pages/ResetPassword")
+);
+const AccessDenied = lazy(() =>
+  import("./pages/AccessDenied")
+);
+const NotFound = lazy(() =>
+  import("./pages/NotFound")
+);
 
-import Dashboard from "./pages/Dashboard";
-import Requests from "./pages/Requests";
-import CreateRequest from "./pages/CreateRequest";
-import EditRequest from "./pages/EditRequest";
-import Notifications from "./pages/Notifications";
-import AssignedTasks from "./pages/AssignedTasks";
-import Employees from "./pages/Employees";
-import Categories from "./pages/Categories";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import DemoSettings from "./pages/DemoSettings";
-import Profile from "./pages/Profile";
-import ChangePassword from "./pages/ChangePassword";
+const Dashboard = lazy(() =>
+  import("./pages/Dashboard")
+);
+const Requests = lazy(() =>
+  import("./pages/Requests")
+);
+const CreateRequest = lazy(() =>
+  import("./pages/CreateRequest")
+);
+const EditRequest = lazy(() =>
+  import("./pages/EditRequest")
+);
+const Notifications = lazy(() =>
+  import("./pages/Notifications")
+);
+const AssignedTasks = lazy(() =>
+  import("./pages/AssignedTasks")
+);
+const Employees = lazy(() =>
+  import("./pages/Employees")
+);
+const Categories = lazy(() =>
+  import("./pages/Categories")
+);
+const Reports = lazy(() =>
+  import("./pages/Reports")
+);
+const Settings = lazy(() =>
+  import("./pages/Settings")
+);
+const DemoSettings = lazy(() =>
+  import("./pages/DemoSettings")
+);
+const Profile = lazy(() =>
+  import("./pages/Profile")
+);
+const ChangePassword = lazy(() =>
+  import("./pages/ChangePassword")
+);
 
 import { useAuth } from "./context/AuthContext";
 import { canUseDemoSettings } from "./utils/demoMode";
@@ -40,6 +83,24 @@ const TASK_ROLES = [
   "supervisor",
   "staff"
 ];
+
+function RouteLoadingFallback() {
+  return (
+    <div
+      className="request-page-loading"
+      role="status"
+      aria-live="polite"
+    >
+      <LoaderCircle
+        className="login-button-spinner"
+        size={30}
+        aria-hidden="true"
+      />
+
+      <span>Loading page...</span>
+    </div>
+  );
+}
 
 export function ProtectedRoute({
   children,
@@ -150,7 +211,8 @@ export function SettingsRoute() {
 
 function App() {
   return (
-    <Routes>
+    <Suspense fallback={<RouteLoadingFallback />}>
+      <Routes>
       <Route
         path="/login"
         element={<Login />}
@@ -159,6 +221,11 @@ function App() {
       <Route
         path="/forgot-password"
         element={<ForgotPassword />}
+      />
+
+      <Route
+        path="/reset-password"
+        element={<ResetPassword />}
       />
 
       <Route
@@ -316,7 +383,8 @@ function App() {
           element={<NotFound />}
         />
       </Route>
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }
 

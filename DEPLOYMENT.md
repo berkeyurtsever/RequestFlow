@@ -8,6 +8,7 @@ RequestFlow is prepared for container-based deployment. The API, frontend, SQLit
 - A public HTTPS domain
 - Persistent storage for `/data` and `/app/Uploads`
 - A backup plan for the SQLite database and uploads
+- SMTP credentials for password reset email delivery
 
 ## Local production check
 
@@ -18,6 +19,27 @@ docker compose --env-file .env.docker up --build
 ```
 
 Open <http://localhost:5173>. The API health check is available at <http://localhost:5173/health>.
+
+## Password reset email
+
+Password reset links are random, single-use, stored only as SHA-256 hashes, and expire after 30 minutes by default. Configure these values as hosting secrets; never commit real SMTP credentials to the repository:
+
+```dotenv
+FRONTEND_BASE_URL=https://your-requestflow-domain.example
+EMAIL_ENABLED=true
+SMTP_HOST=smtp.your-provider.example
+SMTP_PORT=587
+SMTP_USE_SSL=true
+SMTP_USERNAME=your-smtp-username
+SMTP_PASSWORD=your-smtp-password
+SMTP_FROM_ADDRESS=no-reply@your-domain.example
+SMTP_FROM_NAME=RequestFlow
+PASSWORD_RESET_EXPIRATION_MINUTES=30
+```
+
+Use the SMTP values supplied by your email provider. `FRONTEND_BASE_URL` must be the public address users open in their browser, without a trailing slash. Restart the service after changing the variables, then request one reset email and verify that the link opens `/reset-password`, works once, expires correctly, and does not reveal whether an address is registered.
+
+If `EMAIL_ENABLED=false` or the SMTP settings are incomplete, the API deliberately returns the same generic response but sends no email. This avoids account discovery while keeping an unconfigured deployment safe.
 
 ## Hosting requirements
 
@@ -39,5 +61,6 @@ When `Demo__Enabled=true`:
 - file uploads are disabled;
 - request rate limits are enforced;
 - only generated sample names, emails and requests are seeded.
+- password reset email delivery remains disabled.
 
 Render generates the JWT signing key from `render.yaml`. Never replace it with an example value or reuse it outside that service.

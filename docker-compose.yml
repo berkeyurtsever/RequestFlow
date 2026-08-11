@@ -10,6 +10,16 @@ services:
       Jwt__Issuer: RequestFlow.Api
       Jwt__Audience: RequestFlow.Client
       Cors__AllowedOrigins__0: http://localhost:5173
+      Frontend__BaseUrl: ${FRONTEND_BASE_URL:-http://localhost:5173}
+      PasswordReset__ExpirationMinutes: ${PASSWORD_RESET_EXPIRATION_MINUTES:-30}
+      Email__Enabled: ${EMAIL_ENABLED:-false}
+      Email__Host: ${SMTP_HOST:-}
+      Email__Port: ${SMTP_PORT:-587}
+      Email__UseSsl: ${SMTP_USE_SSL:-true}
+      Email__Username: ${SMTP_USERNAME:-}
+      Email__Password: ${SMTP_PASSWORD:-}
+      Email__FromAddress: ${SMTP_FROM_ADDRESS:-}
+      Email__FromName: ${SMTP_FROM_NAME:-RequestFlow}
     ports:
       - "5131:8080"
     volumes:

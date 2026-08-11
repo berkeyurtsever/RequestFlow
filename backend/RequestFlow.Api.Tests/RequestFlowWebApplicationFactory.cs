@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using RequestFlow.Api.Data;
+using RequestFlow.Api.Services;
 
 namespace RequestFlow.Api.Tests;
 
@@ -58,7 +59,9 @@ public sealed class RequestFlowWebApplicationFactory :
                         TestJwtKey,
                     ["Jwt:Issuer"] = TestJwtIssuer,
                     ["Jwt:Audience"] = TestJwtAudience,
-                    ["Jwt:ExpirationMinutes"] = "30"
+                    ["Jwt:ExpirationMinutes"] = "30",
+                    ["Frontend:BaseUrl"] =
+                        "https://requestflow.test"
                 };
 
             foreach (var configurationOverride in
@@ -83,6 +86,16 @@ public sealed class RequestFlowWebApplicationFactory :
             {
                 options.UseSqlite(_connection);
             });
+
+            services.RemoveAll<IEmailSender>();
+            services.AddSingleton<TestEmailSender>();
+            services.AddSingleton<IEmailSender>(
+                serviceProvider =>
+                    serviceProvider
+                        .GetRequiredService<
+                            TestEmailSender
+                        >()
+            );
 
             services.PostConfigure<JwtBearerOptions>(
                 JwtBearerDefaults.AuthenticationScheme,

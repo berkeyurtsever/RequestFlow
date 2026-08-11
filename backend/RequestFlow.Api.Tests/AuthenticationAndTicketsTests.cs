@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using RequestFlow.Api.Data;
 using RequestFlow.Api.DTOs;
@@ -393,6 +394,125 @@ public sealed class AuthenticationAndTicketsTests :
         Assert.NotNull(updatedTicket);
         Assert.Equal("Updated request details", updatedTicket.Title);
         Assert.Equal("Open", updatedTicket.Status);
+    }
+
+    [Fact]
+    public async Task PasswordReset_UsesSingleUseTokenAndInvalidatesSessions()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var forgotResponse = await _client.PostAsJsonAsync(
+            "/api/Auth/forgot-password",
+            new ForgotPasswordDto
+            {
+                Email = auth.Email
+            }
+        );
+
+        Assert.Equal(HttpStatusCode.OK, forgotResponse.StatusCode);
+
+        var emailSender = _factory.Services
+            .GetRequiredService<TestEmailSender>();
+
+        var resetEmail = emailSender.Messages
+            .Last(message =>
+                message.RecipientEmail == auth.Email
+            );
+
+        var resetUri = new Uri(resetEmail.ResetUrl);
+        var resetToken = QueryHelpers
+            .ParseQuery(resetUri.Query)["token"]
+            .ToString();
+
+        Assert.False(string.IsNullOrWhiteSpace(resetToken));
+        Assert.True(
+            resetEmail.ExpiresAtUtc > DateTime.UtcNow
+        );
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+
+            var storedToken = await context
+                .PasswordResetTokens
+                .SingleAsync(token =>
+                    token.UserId == auth.UserId &&
+                    token.UsedAtUtc == null
+                );
+
+            Assert.NotEqual(resetToken, storedToken.TokenHash);
+            Assert.Equal(64, storedToken.TokenHash.Length);
+        }
+
+        const string newPassword =
+            "NewSafePassword456!";
+
+        var resetResponse = await _client.PostAsJsonAsync(
+            "/api/Auth/reset-password",
+            new ResetPasswordDto
+            {
+                Token = resetToken,
+                NewPassword = newPassword,
+                ConfirmPassword = newPassword
+            }
+        );
+
+        Assert.Equal(HttpStatusCode.OK, resetResponse.StatusCode);
+
+        var oldSessionResponse = await _client.GetAsync(
+            "/api/Auth/me"
+        );
+
+        Assert.Equal(
+            HttpStatusCode.Unauthorized,
+            oldSessionResponse.StatusCode
+        );
+
+        var oldPasswordLogin = await _client.PostAsJsonAsync(
+            "/api/Auth/login",
+            new LoginDto
+            {
+                Email = auth.Email,
+                Password = "SafePassword123!"
+            }
+        );
+
+        Assert.Equal(
+            HttpStatusCode.Unauthorized,
+            oldPasswordLogin.StatusCode
+        );
+
+        var newPasswordLogin = await _client.PostAsJsonAsync(
+            "/api/Auth/login",
+            new LoginDto
+            {
+                Email = auth.Email,
+                Password = newPassword
+            }
+        );
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            newPasswordLogin.StatusCode
+        );
+
+        var reusedTokenResponse = await _client.PostAsJsonAsync(
+            "/api/Auth/reset-password",
+            new ResetPasswordDto
+            {
+                Token = resetToken,
+                NewPassword = "AnotherSafePassword789!",
+                ConfirmPassword =
+                    "AnotherSafePassword789!"
+            }
+        );
+
+        Assert.Equal(
+            HttpStatusCode.BadRequest,
+            reusedTokenResponse.StatusCode
+        );
     }
 
     private async Task<AuthResponseDto> RegisterUserAsync()

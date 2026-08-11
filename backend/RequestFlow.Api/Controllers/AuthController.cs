@@ -1,15 +1,18 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RequestFlow.Api.Data;
 using RequestFlow.Api.DTOs;
 using RequestFlow.Api.Models;
+using RequestFlow.Api.Services;
 
 namespace RequestFlow.Api.Controllers;
 
@@ -17,19 +20,28 @@ namespace RequestFlow.Api.Controllers;
 [ApiController]
 public class AuthController : ControllerBase
 {
+    private const string ForgotPasswordResponse =
+        "If an account exists with this email, password reset instructions will be sent.";
+
     private readonly AppDbContext _context;
     private readonly IConfiguration _configuration;
     private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IEmailSender _emailSender;
+    private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         AppDbContext context,
         IConfiguration configuration,
-        IPasswordHasher<User> passwordHasher
+        IPasswordHasher<User> passwordHasher,
+        IEmailSender emailSender,
+        ILogger<AuthController> logger
     )
     {
         _context = context;
         _configuration = configuration;
         _passwordHasher = passwordHasher;
+        _emailSender = emailSender;
+        _logger = logger;
     }
 
     [AllowAnonymous]
@@ -201,28 +213,280 @@ public class AuthController : ControllerBase
     [HttpPost("forgot-password")]
     [EnableRateLimiting("authentication")]
     public async Task<IActionResult> ForgotPassword(
-        ForgotPasswordDto forgotPasswordDto
+        ForgotPasswordDto forgotPasswordDto,
+        CancellationToken cancellationToken
     )
     {
         var normalizedEmail = forgotPasswordDto.Email
             .Trim()
             .ToLowerInvariant();
 
-        var userExists = await _context.Users.AnyAsync(
-            user => user.Email == normalizedEmail
+        if (IsDemoMode())
+        {
+            return Ok(new
+            {
+                message = ForgotPasswordResponse
+            });
+        }
+
+        var user = await _context.Users
+            .SingleOrDefaultAsync(
+                databaseUser =>
+                    databaseUser.Email ==
+                    normalizedEmail,
+                cancellationToken
+            );
+
+        if (user == null)
+        {
+            return Ok(new
+            {
+                message = ForgotPasswordResponse
+            });
+        }
+
+        if (!_emailSender.IsConfigured)
+        {
+            _logger.LogWarning(
+                "Password reset email was not sent because email delivery is not configured."
+            );
+
+            return Ok(new
+            {
+                message = ForgotPasswordResponse
+            });
+        }
+
+        var now = DateTime.UtcNow;
+        var expirationMinutes = Math.Clamp(
+            _configuration.GetValue<int>(
+                "PasswordReset:ExpirationMinutes",
+                30
+            ),
+            5,
+            120
         );
 
-        if (userExists)
+        var retentionCutoff = now.AddDays(-1);
+
+        await _context.PasswordResetTokens
+            .Where(token =>
+                token.UserId == user.Id &&
+                (
+                    token.ExpiresAtUtc <
+                        retentionCutoff ||
+                    (
+                        token.UsedAtUtc != null &&
+                        token.UsedAtUtc <
+                            retentionCutoff
+                    )
+                )
+            )
+            .ExecuteDeleteAsync(cancellationToken);
+
+        var previousTokens = await _context
+            .PasswordResetTokens
+            .Where(token =>
+                token.UserId == user.Id &&
+                token.UsedAtUtc == null
+            )
+            .ToListAsync(cancellationToken);
+
+        foreach (var previousToken in previousTokens)
         {
-            Console.WriteLine(
-                $"Password reset requested for: {normalizedEmail}"
+            previousToken.UsedAtUtc = now;
+        }
+
+        var rawToken = WebEncoders.Base64UrlEncode(
+            RandomNumberGenerator.GetBytes(32)
+        );
+
+        var resetToken = new PasswordResetToken
+        {
+            UserId = user.Id,
+            TokenHash = HashResetToken(rawToken),
+            CreatedAtUtc = now,
+            ExpiresAtUtc = now.AddMinutes(
+                expirationMinutes
+            )
+        };
+
+        _context.PasswordResetTokens.Add(resetToken);
+        await _context.SaveChangesAsync(
+            cancellationToken
+        );
+
+        try
+        {
+            await _emailSender.SendPasswordResetAsync(
+                user.FullName,
+                user.Email,
+                BuildPasswordResetUrl(rawToken),
+                resetToken.ExpiresAtUtc,
+                cancellationToken
+            );
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(
+                exception,
+                "Password reset email delivery failed."
+            );
+
+            _context.PasswordResetTokens.Remove(
+                resetToken
+            );
+
+            await _context.SaveChangesAsync(
+                cancellationToken
             );
         }
 
         return Ok(new
         {
+            message = ForgotPasswordResponse
+        });
+    }
+
+    [AllowAnonymous]
+    [HttpPost("reset-password")]
+    [EnableRateLimiting("authentication")]
+    public async Task<IActionResult> ResetPassword(
+        ResetPasswordDto resetPasswordDto,
+        CancellationToken cancellationToken
+    )
+    {
+        if (IsDemoMode())
+        {
+            return StatusCode(
+                StatusCodes.Status403Forbidden,
+                new
+                {
+                    message =
+                        "Password resets are disabled in the public demo."
+                }
+            );
+        }
+
+        if (
+            resetPasswordDto.NewPassword !=
+            resetPasswordDto.ConfirmPassword
+        )
+        {
+            return BadRequest(new
+            {
+                message = "New passwords do not match."
+            });
+        }
+
+        var tokenHash = HashResetToken(
+            resetPasswordDto.Token.Trim()
+        );
+
+        var now = DateTime.UtcNow;
+
+        await using var transaction =
+            await _context.Database
+                .BeginTransactionAsync(
+                    cancellationToken
+                );
+
+        var passwordResetToken = await _context
+            .PasswordResetTokens
+            .Include(token => token.User)
+            .SingleOrDefaultAsync(
+                token =>
+                    token.TokenHash == tokenHash &&
+                    token.UsedAtUtc == null &&
+                    token.ExpiresAtUtc > now,
+                cancellationToken
+            );
+
+        if (passwordResetToken == null)
+        {
+            return BadRequest(new
+            {
+                message =
+                    "This password reset link is invalid or has expired. Request a new link."
+            });
+        }
+
+        var samePasswordResult =
+            _passwordHasher.VerifyHashedPassword(
+                passwordResetToken.User,
+                passwordResetToken.User.PasswordHash,
+                resetPasswordDto.NewPassword
+            );
+
+        if (samePasswordResult !=
+            PasswordVerificationResult.Failed)
+        {
+            return BadRequest(new
+            {
+                message =
+                    "New password must be different from the current password."
+            });
+        }
+
+        var consumedTokenCount = await _context
+            .PasswordResetTokens
+            .Where(token =>
+                token.Id == passwordResetToken.Id &&
+                token.UsedAtUtc == null &&
+                token.ExpiresAtUtc > now
+            )
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(
+                    token => token.UsedAtUtc,
+                    now
+                ),
+                cancellationToken
+            );
+
+        if (consumedTokenCount != 1)
+        {
+            return BadRequest(new
+            {
+                message =
+                    "This password reset link is invalid or has expired. Request a new link."
+            });
+        }
+
+        passwordResetToken.User.PasswordHash =
+            _passwordHasher.HashPassword(
+                passwordResetToken.User,
+                resetPasswordDto.NewPassword
+            );
+
+        passwordResetToken.User.SecurityVersion += 1;
+
+        var otherActiveTokens = await _context
+            .PasswordResetTokens
+            .Where(token =>
+                token.UserId ==
+                    passwordResetToken.UserId &&
+                token.Id != passwordResetToken.Id &&
+                token.UsedAtUtc == null
+            )
+            .ToListAsync(cancellationToken);
+
+        foreach (var otherToken in otherActiveTokens)
+        {
+            otherToken.UsedAtUtc = now;
+        }
+
+        await _context.SaveChangesAsync(
+            cancellationToken
+        );
+
+        await transaction.CommitAsync(
+            cancellationToken
+        );
+
+        return Ok(new
+        {
             message =
-                "If an account exists with this email, password reset instructions will be sent."
+                "Your password has been reset successfully. Sign in with your new password."
         });
     }
 
@@ -312,6 +576,8 @@ public class AuthController : ControllerBase
                 changePasswordDto.NewPassword
             );
 
+        user.SecurityVersion += 1;
+
         await _context.SaveChangesAsync();
 
         return Ok(new
@@ -387,6 +653,10 @@ public class AuthController : ControllerBase
                 role
             ),
             new(
+                "security_version",
+                user.SecurityVersion.ToString()
+            ),
+            new(
                 JwtRegisteredClaimNames.Iat,
                 new DateTimeOffset(now)
                     .ToUnixTimeSeconds()
@@ -435,6 +705,38 @@ public class AuthController : ControllerBase
         _configuration.GetValue<bool>(
             "Demo:Enabled"
         );
+
+    private string BuildPasswordResetUrl(
+        string rawToken
+    )
+    {
+        var frontendBaseUrl =
+            _configuration[
+                "Frontend:BaseUrl"
+            ] ?? "http://localhost:5173";
+
+        var resetPageUrl =
+            $"{frontendBaseUrl.TrimEnd('/')}/reset-password";
+
+        return QueryHelpers.AddQueryString(
+            resetPageUrl,
+            "token",
+            rawToken
+        );
+    }
+
+    private static string HashResetToken(
+        string rawToken
+    )
+    {
+        var tokenBytes = Encoding.UTF8.GetBytes(
+            rawToken
+        );
+
+        return Convert.ToHexString(
+            SHA256.HashData(tokenBytes)
+        );
+    }
 
     private static string NormalizeRole(string? role)
     {

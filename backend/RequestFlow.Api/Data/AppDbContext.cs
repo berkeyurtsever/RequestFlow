@@ -35,6 +35,10 @@ public class AppDbContext : DbContext
     public DbSet<SystemSetting> SystemSettings =>
         Set<SystemSetting>();
 
+    public DbSet<PasswordResetToken>
+        PasswordResetTokens =>
+        Set<PasswordResetToken>();
+
     protected override void OnModelCreating(
         ModelBuilder modelBuilder
     )
@@ -48,6 +52,7 @@ public class AppDbContext : DbContext
         ConfigureTicketAttachment(modelBuilder);
         ConfigureTicketActivity(modelBuilder);
         ConfigureNotification(modelBuilder);
+        ConfigurePasswordResetToken(modelBuilder);
     }
 
     private static void ConfigureUser(
@@ -83,6 +88,42 @@ public class AppDbContext : DbContext
             .Property(user => user.Role)
             .IsRequired()
             .HasMaxLength(30);
+
+        userEntity
+            .Property(user => user.SecurityVersion)
+            .HasDefaultValue(0);
+    }
+
+    private static void ConfigurePasswordResetToken(
+        ModelBuilder modelBuilder
+    )
+    {
+        var tokenEntity =
+            modelBuilder.Entity<PasswordResetToken>();
+
+        tokenEntity.HasKey(token => token.Id);
+
+        tokenEntity
+            .Property(token => token.TokenHash)
+            .IsRequired()
+            .HasMaxLength(64);
+
+        tokenEntity
+            .HasIndex(token => token.TokenHash)
+            .IsUnique();
+
+        tokenEntity
+            .HasIndex(token => new
+            {
+                token.UserId,
+                token.ExpiresAtUtc
+            });
+
+        tokenEntity
+            .HasOne(token => token.User)
+            .WithMany(user => user.PasswordResetTokens)
+            .HasForeignKey(token => token.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     private static void ConfigureTicket(

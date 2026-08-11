@@ -1268,6 +1268,18 @@
   line-height: 1.55;
 }
 
+.reset-password-requirement {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.reset-password-login-link {
+  text-decoration: none;
+}
+
 @media (max-width: 960px) {
   .forgot-password-page {
     grid-template-columns:
