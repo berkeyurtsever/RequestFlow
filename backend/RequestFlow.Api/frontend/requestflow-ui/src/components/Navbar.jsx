@@ -24,9 +24,11 @@ import {
 } from "react-router-dom";
 
 import api from "../services/api";
+import DemoThemeToggle from "./DemoThemeToggle";
 import { useAuth } from "../context/AuthContext";
 import { useConfirm } from "../context/ConfirmContext";
 import { useToast } from "../context/ToastContext";
+import { isDemoModeEnabled } from "../utils/demoMode";
 
 const NOTIFICATION_REFRESH_TIME = 30000;
 
@@ -873,6 +875,10 @@ function Navbar({
       </div>
 
       <div className="rf-navbar-actions">
+        {isDemoModeEnabled() && (
+          <DemoThemeToggle />
+        )}
+
         <div
           ref={notificationRef}
           className="rf-navbar-notification-wrapper"

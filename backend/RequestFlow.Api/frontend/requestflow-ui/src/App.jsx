@@ -23,10 +23,12 @@ import Employees from "./pages/Employees";
 import Categories from "./pages/Categories";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import DemoSettings from "./pages/DemoSettings";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 
 import { useAuth } from "./context/AuthContext";
+import { canUseDemoSettings } from "./utils/demoMode";
 
 const MANAGEMENT_ROLES = [
   "admin",
@@ -116,6 +118,34 @@ export function ProtectedRoute({
   }
 
   return children;
+}
+
+export function SettingsRoute() {
+  const { user } = useAuth();
+
+  const normalizedRole = String(
+    user?.role || ""
+  )
+    .trim()
+    .toLowerCase();
+
+  if (normalizedRole === "admin") {
+    return <Settings />;
+  }
+
+  if (canUseDemoSettings(user)) {
+    return <DemoSettings />;
+  }
+
+  return (
+    <Navigate
+      to="/access-denied"
+      replace
+      state={{
+        attemptedPath: "/settings"
+      }}
+    />
+  );
 }
 
 function App() {
@@ -233,13 +263,7 @@ function App() {
 
         <Route
           path="settings"
-          element={
-            <ProtectedRoute
-              allowedRoles={["admin"]}
-            >
-              <Settings />
-            </ProtectedRoute>
-          }
+          element={<SettingsRoute />}
         />
 
         <Route

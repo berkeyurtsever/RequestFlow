@@ -1329,9 +1329,17 @@ function Requests() {
                             </td>
 
                             <td>
-                              {formatDate(
-                                ticket.createdAt
-                              )}
+                              <time
+                                className="requests-date"
+                                dateTime={
+                                  ticket.createdAt ||
+                                  undefined
+                                }
+                              >
+                                {formatDate(
+                                  ticket.createdAt
+                                )}
+                              </time>
                             </td>
 
                             <td>
