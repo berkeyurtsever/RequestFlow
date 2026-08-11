@@ -16,6 +16,7 @@ import {
   useNavigate
 } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { canUseDemoSettings } from "../utils/demoMode";
 
 function Sidebar({
   isOpen = false,
@@ -41,6 +42,9 @@ function Sidebar({
 
   const isManagement =
     isAdmin || isSupervisor;
+
+  const hasSettingsAccess =
+    isAdmin || canUseDemoSettings(user);
 
   const fullName =
     user?.fullName ||
@@ -121,7 +125,7 @@ function Sidebar({
       });
     }
 
-    if (isAdmin) {
+    if (hasSettingsAccess) {
       items.push({
         label: "Settings",
         path: "/settings",
@@ -130,7 +134,11 @@ function Sidebar({
     }
 
     return items;
-  }, [isAdmin, isManagement]);
+  }, [
+    hasSettingsAccess,
+    isAdmin,
+    isManagement
+  ]);
 
   const getInitials = name => {
     if (!name) {

@@ -536,6 +536,20 @@ html[data-theme="dark"]
 }
 
 html[data-theme="dark"]
+.rf-navbar-theme-button {
+  border-color: var(--dark-border) !important;
+  background: var(--dark-card-soft) !important;
+  color: var(--dark-title) !important;
+}
+
+html[data-theme="dark"]
+.rf-navbar-theme-button:hover {
+  border-color: #60a5fa !important;
+  background: var(--dark-hover) !important;
+  color: #93c5fd !important;
+}
+
+html[data-theme="dark"]
 :is(
   .navbar,
   .top-navbar,

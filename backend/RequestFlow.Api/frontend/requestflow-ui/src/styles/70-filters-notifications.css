@@ -3157,6 +3157,13 @@ html[data-theme="dark"] .settings-storage-note small {
     min-width: 44px !important;
   }
 
+  .rf-navbar-theme-button {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    flex: 0 0 44px !important;
+  }
+
   .rf-navbar-notification-button,
   .rf-navbar-user {
     display: flex !important;
