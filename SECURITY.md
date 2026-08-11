@@ -2,12 +2,13 @@
 
 ## Reporting a vulnerability
 
-Do not open a public issue for a suspected vulnerability. Contact the repository owner privately and include the affected area, reproduction steps, and possible impact.
+Do not open a public issue for a suspected vulnerability. Use GitHub's private vulnerability reporting from the repository's **Security** tab and include the affected area, reproduction steps, and possible impact.
 
 ## Secrets and local data
 
 - Keep JWT keys, `.env` files, databases, uploaded files, and real credentials out of Git.
-- Production refuses to start with the placeholder JWT key from `appsettings.json`.
+- Production refuses to start with short or recognizable placeholder JWT keys.
+- Treat every example or historical development key as compromised and never reuse it.
 - Use a unique, randomly generated `Jwt__Key` for every deployed environment.
 
 ## Dependency review
