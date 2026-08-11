@@ -27,6 +27,8 @@ const pageTitles = {
 function MainLayout() {
   const location = useLocation();
   const mainContentRef = useRef(null);
+  const menuButtonRef = useRef(null);
+  const wasMobileSidebarOpenRef = useRef(false);
 
   const [
     isMobileSidebarOpen,
@@ -80,24 +82,94 @@ function MainLayout() {
   }, [location.pathname]);
 
   useEffect(() => {
-    const handleEscapeKey = event => {
+    if (!isMobileSidebarOpen) {
+      if (wasMobileSidebarOpenRef.current) {
+        menuButtonRef.current?.focus();
+      }
+
+      wasMobileSidebarOpenRef.current = false;
+      return undefined;
+    }
+
+    wasMobileSidebarOpenRef.current = true;
+
+    const sidebar = document.getElementById(
+      "rf-sidebar-navigation"
+    );
+
+    const getFocusableElements = () =>
+      Array.from(
+        sidebar?.querySelectorAll(
+          'a[href], button:not([disabled]), select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        ) || []
+      );
+
+    const focusTimer = window.setTimeout(() => {
+      const preferredElement =
+        sidebar?.querySelector(
+          ".rf-sidebar-mobile-close"
+        );
+
+      (
+        preferredElement ||
+        getFocusableElements()[0]
+      )?.focus();
+    }, 50);
+
+    const handleSidebarKeyDown = event => {
       if (event.key === "Escape") {
+        event.preventDefault();
         closeMobileSidebar();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const focusableElements =
+        getFocusableElements();
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstElement =
+        focusableElements[0];
+      const lastElement =
+        focusableElements[
+          focusableElements.length - 1
+        ];
+
+      if (
+        event.shiftKey &&
+        document.activeElement === firstElement
+      ) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (
+        !event.shiftKey &&
+        document.activeElement === lastElement
+      ) {
+        event.preventDefault();
+        firstElement.focus();
       }
     };
 
     document.addEventListener(
       "keydown",
-      handleEscapeKey
+      handleSidebarKeyDown
     );
 
     return () => {
+      window.clearTimeout(focusTimer);
       document.removeEventListener(
         "keydown",
-        handleEscapeKey
+        handleSidebarKeyDown
       );
     };
-  }, []);
+  }, [isMobileSidebarOpen]);
 
   useEffect(() => {
     if (!isMobileSidebarOpen) {
@@ -135,16 +207,15 @@ function MainLayout() {
         }`}
         onClick={closeMobileSidebar}
         aria-label="Close navigation menu"
-        aria-hidden={!isMobileSidebarOpen}
-        tabIndex={
-          isMobileSidebarOpen ? 0 : -1
-        }
+        aria-hidden="true"
+        tabIndex={-1}
       />
 
       <div className="rf-layout-content">
         <Navbar
           onMenuClick={openMobileSidebar}
           isMenuOpen={isMobileSidebarOpen}
+          menuButtonRef={menuButtonRef}
         />
 
         <main

@@ -224,6 +224,9 @@ function CreateRequest() {
   const priorityTouchedRef =
     useRef(false);
 
+  const validationSummaryRef =
+    useRef(null);
+
   const currentUserIdentifier =
     user?.id ??
     user?.userId ??
@@ -717,6 +720,12 @@ function CreateRequest() {
 
     setFormErrors(errors);
 
+    if (Object.keys(errors).length > 0) {
+      window.setTimeout(() => {
+        validationSummaryRef.current?.focus();
+      }, 0);
+    }
+
     return (
       Object.keys(errors).length === 0
     );
@@ -1106,6 +1115,38 @@ function CreateRequest() {
         </div>
       )}
 
+      {Object.keys(formErrors).length > 0 && (
+        <section
+          ref={validationSummaryRef}
+          className="request-validation-summary"
+          role="alert"
+          aria-labelledby="request-validation-title"
+          tabIndex={-1}
+        >
+          <AlertCircle size={20} aria-hidden="true" />
+
+          <div>
+            <h2 id="request-validation-title">
+              Check the required information
+            </h2>
+
+            <ul>
+              {Object.entries(formErrors).map(
+                ([fieldName, message]) => (
+                  <li key={fieldName}>
+                    <a
+                      href={`#request-${fieldName}`}
+                    >
+                      {message}
+                    </a>
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
+        </section>
+      )}
+
       <div className="create-request-layout">
         <form
           className="request-form-card"
@@ -1172,14 +1213,30 @@ function CreateRequest() {
                     ? "request-input-error"
                     : ""
                 }
+                aria-invalid={
+                  Boolean(formErrors.title)
+                }
+                aria-describedby={
+                  formErrors.title
+                    ? "request-title-error request-title-count"
+                    : "request-title-count"
+                }
               />
 
               <div className="request-field-footer">
-                <span className="request-field-error">
+                <span
+                  id="request-title-error"
+                  className="request-field-error"
+                  role={
+                    formErrors.title
+                      ? "alert"
+                      : undefined
+                  }
+                >
                   {formErrors.title}
                 </span>
 
-                <small>
+                <small id="request-title-count">
                   {formData.title.length}
                   /150
                 </small>
@@ -1207,6 +1264,16 @@ function CreateRequest() {
                     formErrors.category
                       ? "request-input-error"
                       : ""
+                  }
+                  aria-invalid={
+                    Boolean(
+                      formErrors.category
+                    )
+                  }
+                  aria-describedby={
+                    formErrors.category
+                      ? "request-category-error"
+                      : undefined
                   }
                 >
                   <option value="">
@@ -1239,7 +1306,15 @@ function CreateRequest() {
                 </select>
 
                 <div className="request-field-footer">
-                  <span className="request-field-error">
+                  <span
+                    id="request-category-error"
+                    className="request-field-error"
+                    role={
+                      formErrors.category
+                        ? "alert"
+                        : undefined
+                    }
+                  >
                     {
                       formErrors.category
                     }
@@ -1268,6 +1343,16 @@ function CreateRequest() {
                       ? "request-input-error"
                       : ""
                   }
+                  aria-invalid={
+                    Boolean(
+                      formErrors.priority
+                    )
+                  }
+                  aria-describedby={
+                    formErrors.priority
+                      ? "request-priority-error"
+                      : undefined
+                  }
                 >
                   {priorityOptions.map(
                     priority => (
@@ -1282,7 +1367,15 @@ function CreateRequest() {
                 </select>
 
                 <div className="request-field-footer">
-                  <span className="request-field-error">
+                  <span
+                    id="request-priority-error"
+                    className="request-field-error"
+                    role={
+                      formErrors.priority
+                        ? "alert"
+                        : undefined
+                    }
+                  >
                     {
                       formErrors.priority
                     }
@@ -1314,16 +1407,34 @@ function CreateRequest() {
                     ? "request-input-error"
                     : ""
                 }
+                aria-invalid={
+                  Boolean(
+                    formErrors.description
+                  )
+                }
+                aria-describedby={
+                  formErrors.description
+                    ? "request-description-error request-description-count"
+                    : "request-description-count"
+                }
               />
 
               <div className="request-field-footer">
-                <span className="request-field-error">
+                <span
+                  id="request-description-error"
+                  className="request-field-error"
+                  role={
+                    formErrors.description
+                      ? "alert"
+                      : undefined
+                  }
+                >
                   {
                     formErrors.description
                   }
                 </span>
 
-                <small>
+                <small id="request-description-count">
                   {
                     formData.description
                       .length

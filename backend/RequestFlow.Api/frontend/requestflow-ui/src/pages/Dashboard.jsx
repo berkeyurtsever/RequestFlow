@@ -959,14 +959,18 @@ function Dashboard() {
           ) : (
             <div className="recent-requests-table-wrapper">
               <table className="recent-requests-table">
+                <caption className="rf-visually-hidden">
+                  Five most recently updated requests
+                </caption>
+
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Date</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Priority</th>
+                    <th scope="col">Date</th>
                   </tr>
                 </thead>
 
@@ -974,13 +978,13 @@ function Dashboard() {
                   {recentTickets.map(
                     ticket => (
                       <tr key={ticket.id}>
-                        <td>
+                        <td data-label="ID">
                           <span className="dashboard-request-id">
                             #{ticket.id}
                           </span>
                         </td>
 
-                        <td>
+                        <td data-label="Title">
                           <button
                             type="button"
                             className="dashboard-request-title"
@@ -995,12 +999,12 @@ function Dashboard() {
                           </button>
                         </td>
 
-                        <td>
+                        <td data-label="Category">
                           {ticket.category ||
                             "Not available"}
                         </td>
 
-                        <td>
+                        <td data-label="Status">
                           <span
                             className={`status-badge ${getStatusClass(
                               ticket.status
@@ -1011,7 +1015,7 @@ function Dashboard() {
                           </span>
                         </td>
 
-                        <td>
+                        <td data-label="Priority">
                           <span
                             className={`priority-badge ${getPriorityClass(
                               ticket.priority
@@ -1022,7 +1026,7 @@ function Dashboard() {
                           </span>
                         </td>
 
-                        <td>
+                        <td data-label="Date">
                           <time
                             className="dashboard-request-date"
                             dateTime={

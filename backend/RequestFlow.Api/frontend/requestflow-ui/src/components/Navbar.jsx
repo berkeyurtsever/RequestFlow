@@ -34,7 +34,8 @@ const NOTIFICATION_REFRESH_TIME = 30000;
 
 function Navbar({
   onMenuClick = () => {},
-  isMenuOpen = false
+  isMenuOpen = false,
+  menuButtonRef
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -698,6 +699,7 @@ function Navbar({
   return (
     <header className="rf-navbar">
       <button
+        ref={menuButtonRef}
         type="button"
         className="rf-navbar-mobile-menu"
         onClick={onMenuClick}

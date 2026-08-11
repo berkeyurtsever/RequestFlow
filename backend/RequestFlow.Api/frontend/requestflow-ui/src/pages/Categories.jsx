@@ -647,14 +647,18 @@ function Categories() {
         ) : (
           <div className="categories-table-wrapper">
             <table className="categories-table">
+              <caption className="rf-visually-hidden">
+                Request categories and their current status
+              </caption>
+
               <thead>
                 <tr>
-                  <th>Category</th>
-                  <th>Description</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Updated</th>
-                  <th>Actions</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Created</th>
+                  <th scope="col">Updated</th>
+                  <th scope="col">Actions</th>
                 </tr>
               </thead>
 
@@ -672,7 +676,7 @@ function Categories() {
 
                     return (
                       <tr key={category.id}>
-                        <td>
+                        <td data-label="Category">
                           <div className="category-name-cell">
                             <div className="category-name-icon">
                               <FolderKanban
@@ -695,14 +699,14 @@ function Categories() {
                           </div>
                         </td>
 
-                        <td>
+                        <td data-label="Description">
                           <div className="category-description-cell">
                             {category.description ||
                               "No description provided."}
                           </div>
                         </td>
 
-                        <td>
+                        <td data-label="Status">
                           <span
                             className={`category-status-badge ${
                               isActive
@@ -716,19 +720,19 @@ function Categories() {
                           </span>
                         </td>
 
-                        <td>
+                        <td data-label="Created">
                           {formatDate(
                             category.createdAt
                           )}
                         </td>
 
-                        <td>
+                        <td data-label="Updated">
                           {formatDate(
                             category.updatedAt
                           )}
                         </td>
 
-                        <td>
+                        <td data-label="Actions">
                           <div className="category-actions">
                             <button
                               type="button"
@@ -741,6 +745,9 @@ function Categories() {
                               disabled={
                                 isDeleting
                               }
+                              aria-label={`Edit ${getCategoryName(
+                                category
+                              )}`}
                             >
                               <Pencil
                                 size={14}
@@ -756,6 +763,9 @@ function Categories() {
                                   category
                                 )
                               }
+                              aria-label={`Delete ${getCategoryName(
+                                category
+                              )}`}
                               disabled={
                                 isDeleting
                               }
