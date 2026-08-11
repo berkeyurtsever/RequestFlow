@@ -1,0 +1,36 @@
+FROM node:22-alpine AS frontend-build
+WORKDIR /src/frontend
+
+COPY backend/RequestFlow.Api/frontend/requestflow-ui/package.json ./
+COPY backend/RequestFlow.Api/frontend/requestflow-ui/package-lock.json ./
+RUN npm ci
+
+COPY backend/RequestFlow.Api/frontend/requestflow-ui/ ./
+ENV VITE_API_BASE_URL=/api
+ENV VITE_DEMO_MODE=true
+RUN npm run build
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS backend-build
+WORKDIR /src
+
+COPY backend/RequestFlow.Api/RequestFlow.Api.csproj backend/RequestFlow.Api/
+RUN dotnet restore backend/RequestFlow.Api/RequestFlow.Api.csproj
+
+COPY backend/RequestFlow.Api/ backend/RequestFlow.Api/
+WORKDIR /src/backend/RequestFlow.Api
+RUN dotnet publish --configuration Release --no-restore --output /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+
+COPY --from=backend-build /app/publish ./
+COPY --from=frontend-build /src/frontend/dist ./wwwroot
+
+RUN mkdir -p /tmp/requestflow /app/Uploads && \
+    chown -R "$APP_UID:$APP_UID" /tmp/requestflow /app/Uploads
+
+USER $APP_UID
+
+ENTRYPOINT ["dotnet", "RequestFlow.Api.dll"]

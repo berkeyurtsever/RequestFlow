@@ -1,7 +1,10 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -51,6 +54,75 @@ builder.Services.AddCors(options =>
                 .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod();
+        }
+    );
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode =
+        StatusCodes.Status429TooManyRequests;
+
+    options.GlobalLimiter =
+        PartitionedRateLimiter.Create<
+            HttpContext,
+            string
+        >(context =>
+        {
+            var partitionKey =
+                context.Connection
+                    .RemoteIpAddress
+                    ?.ToString() ??
+                "unknown";
+
+            return RateLimitPartition
+                .GetFixedWindowLimiter(
+                    partitionKey,
+                    _ =>
+                        new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = 180,
+                            QueueLimit = 0,
+                            Window =
+                                TimeSpan.FromMinutes(1)
+                        }
+                );
+        });
+
+    options.AddPolicy(
+        "authentication",
+        context =>
+        {
+            var partitionKey =
+                context.Connection
+                    .RemoteIpAddress
+                    ?.ToString() ??
+                "unknown";
+
+            return RateLimitPartition
+                .GetFixedWindowLimiter(
+                    partitionKey,
+                    _ =>
+                        new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = 20,
+                            QueueLimit = 0,
+                            Window =
+                                TimeSpan.FromMinutes(1)
+                        }
+                );
         }
     );
 });
@@ -198,15 +270,21 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.UseRouting();
 app.UseCors("FrontendPolicy");
 
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();
@@ -214,6 +292,16 @@ app.MapGet("/health", () => Results.Ok(new
 {
     status = "healthy"
 }));
+
+var frontendIndexPath = Path.Combine(
+    app.Environment.WebRootPath ?? string.Empty,
+    "index.html"
+);
+
+if (File.Exists(frontendIndexPath))
+{
+    app.MapFallbackToFile("index.html");
+}
 
 if (!app.Environment.IsEnvironment("Testing"))
 {
@@ -224,6 +312,26 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     await context.Database.MigrateAsync();
     await CategorySeeder.SeedAsync(context);
+
+    if (builder.Configuration.GetValue<bool>(
+            "Demo:Enabled"
+        ))
+    {
+        var passwordHasher = scope.ServiceProvider
+            .GetRequiredService<IPasswordHasher<User>>();
+
+        var supervisorEmail =
+            builder.Configuration[
+                "Demo:SupervisorEmail"
+            ] ??
+            DemoDataSeeder.DefaultSupervisorEmail;
+
+        await DemoDataSeeder.SeedAsync(
+            context,
+            passwordHasher,
+            supervisorEmail
+        );
+    }
 }
 
 await app.RunAsync();

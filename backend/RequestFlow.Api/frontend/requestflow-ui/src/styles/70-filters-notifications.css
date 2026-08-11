@@ -1403,6 +1403,19 @@ html[data-theme="dark"]
   color: #f8fafc !important;
 }
 
+html[data-theme="dark"]
+.login-demo-button {
+  border-color: #405572 !important;
+  background: #111c2e !important;
+  color: #93c5fd !important;
+}
+
+html[data-theme="dark"]
+.login-demo-button:hover:not(:disabled) {
+  border-color: #60a5fa !important;
+  background: #172554 !important;
+}
+
 html[data-theme="dark"] .login-error-message {
   border-color: #7f1d1d !important;
   background: #3f161d !important;

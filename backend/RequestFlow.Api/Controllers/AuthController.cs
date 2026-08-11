@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RequestFlow.Api.Data;
@@ -33,10 +34,23 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("register")]
+    [EnableRateLimiting("authentication")]
     public async Task<ActionResult<AuthResponseDto>> Register(
         RegisterDto registerDto
     )
     {
+        if (IsDemoMode())
+        {
+            return StatusCode(
+                StatusCodes.Status403Forbidden,
+                new
+                {
+                    message =
+                        "Account registration is disabled in the public demo."
+                }
+            );
+        }
+
         var fullName = registerDto.FullName.Trim();
 
         var normalizedEmail = registerDto.Email
@@ -87,6 +101,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
+    [EnableRateLimiting("authentication")]
     public async Task<ActionResult<AuthResponseDto>> Login(
         LoginDto loginDto
     )
@@ -140,7 +155,51 @@ public class AuthController : ControllerBase
     }
 
     [AllowAnonymous]
+    [HttpPost("demo-login")]
+    [EnableRateLimiting("authentication")]
+    public async Task<ActionResult<AuthResponseDto>> DemoLogin()
+    {
+        if (!IsDemoMode())
+        {
+            return NotFound(new
+            {
+                message = "The public demo is not enabled."
+            });
+        }
+
+        var supervisorEmail =
+            _configuration[
+                "Demo:SupervisorEmail"
+            ] ??
+            DemoDataSeeder.DefaultSupervisorEmail;
+
+        var normalizedEmail = supervisorEmail
+            .Trim()
+            .ToLowerInvariant();
+
+        var user = await _context.Users
+            .SingleOrDefaultAsync(databaseUser =>
+                databaseUser.Email == normalizedEmail
+            );
+
+        if (user == null)
+        {
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new
+                {
+                    message =
+                        "The demo account is not ready yet. Please try again shortly."
+                }
+            );
+        }
+
+        return Ok(CreateAuthResponse(user));
+    }
+
+    [AllowAnonymous]
     [HttpPost("forgot-password")]
+    [EnableRateLimiting("authentication")]
     public async Task<IActionResult> ForgotPassword(
         ForgotPasswordDto forgotPasswordDto
     )
@@ -173,6 +232,18 @@ public class AuthController : ControllerBase
         ChangePasswordDto changePasswordDto
     )
     {
+        if (IsDemoMode())
+        {
+            return StatusCode(
+                StatusCodes.Status403Forbidden,
+                new
+                {
+                    message =
+                        "Password changes are disabled in the public demo."
+                }
+            );
+        }
+
         var userIdValue = User.FindFirst("sub")?.Value;
 
         if (!int.TryParse(userIdValue, out var userId))
@@ -359,6 +430,11 @@ public class AuthController : ControllerBase
             ExpiresAt = expiresAt
         };
     }
+
+    private bool IsDemoMode() =>
+        _configuration.GetValue<bool>(
+            "Demo:Enabled"
+        );
 
     private static string NormalizeRole(string? role)
     {

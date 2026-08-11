@@ -516,6 +516,72 @@ export function AuthProvider({
     [loadCurrentUser]
   );
 
+  const loginDemo = useCallback(
+    async () => {
+      try {
+        const response =
+          await api.post(
+            "/Auth/demo-login"
+          );
+
+        const responseData =
+          response.data || {};
+
+        const authToken =
+          extractToken(responseData);
+
+        if (!authToken) {
+          throw new Error(
+            "The demo login response did not include a JWT token."
+          );
+        }
+
+        let authenticatedUser =
+          normalizeUser(
+            responseData,
+            authToken
+          );
+
+        saveSession({
+          token: authToken,
+          user: authenticatedUser,
+          rememberMe: false
+        });
+
+        setToken(authToken);
+        setUser(authenticatedUser);
+
+        if (
+          !authenticatedUser.id ||
+          !authenticatedUser.email
+        ) {
+          authenticatedUser =
+            await loadCurrentUser(
+              authToken
+            );
+        }
+
+        return {
+          ...responseData,
+          token: authToken,
+          user: authenticatedUser
+        };
+      } catch (requestError) {
+        clearStoredSession();
+        setToken(null);
+        setUser(null);
+
+        throw new Error(
+          getBackendMessage(
+            requestError
+          ) ||
+          "The public demo could not be opened."
+        );
+      }
+    },
+    [loadCurrentUser]
+  );
+
   const register = useCallback(
     async registrationData => {
       try {
@@ -657,6 +723,7 @@ export function AuthProvider({
           "supervisor",
 
       login,
+      loginDemo,
       register,
       logout,
       forgotPassword,
@@ -669,6 +736,7 @@ export function AuthProvider({
       isAuthLoading,
       normalizedRole,
       login,
+      loginDemo,
       register,
       logout,
       forgotPassword,
