@@ -11,7 +11,8 @@ import {
   LoaderCircle,
   LockKeyhole,
   Mail,
-  ShieldCheck
+  ShieldCheck,
+  Sparkles
 } from "lucide-react";
 import {
   Link,
@@ -24,8 +25,13 @@ function Login() {
 
   const {
     login,
+    loginDemo,
     isAuthenticated
   } = useAuth();
+
+  const isDemoMode =
+    import.meta.env.VITE_DEMO_MODE ===
+    "true";
 
   const [formData, setFormData] = useState({
     email: "",
@@ -47,6 +53,11 @@ function Login() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] =
     useState(false);
+
+  const [
+    isDemoSubmitting,
+    setIsDemoSubmitting
+  ] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -158,6 +169,26 @@ function Login() {
       }
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setIsDemoSubmitting(true);
+    setError("");
+
+    try {
+      await loginDemo();
+
+      navigate("/overview", {
+        replace: true
+      });
+    } catch (demoError) {
+      setError(
+        demoError.message ||
+          "The public demo could not be opened."
+      );
+    } finally {
+      setIsDemoSubmitting(false);
     }
   };
 
@@ -422,16 +453,57 @@ function Login() {
             </button>
           </form>
 
-          <div className="login-development-account">
-            <div className="login-development-icon">
-              <CheckCircle2 size={18} />
-            </div>
+          {isDemoMode ? (
+            <div className="login-development-account login-demo-account">
+              <div className="login-development-icon">
+                <Sparkles size={18} />
+              </div>
 
-            <div>
-              <span>Development account</span>
-              <strong>berke@example.com</strong>
+              <div className="login-demo-copy">
+                <span>PUBLIC DEMO</span>
+                <strong>
+                  Explore with safe demo data
+                </strong>
+
+                <button
+                  type="button"
+                  className="login-demo-button"
+                  onClick={handleDemoLogin}
+                  disabled={
+                    isSubmitting ||
+                    isDemoSubmitting
+                  }
+                >
+                  {isDemoSubmitting ? (
+                    <>
+                      <LoaderCircle
+                        className="login-button-spinner"
+                        size={16}
+                      />
+                      Opening demo...
+                    </>
+                  ) : (
+                    "Explore Demo"
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            import.meta.env.DEV && (
+              <div className="login-development-account">
+                <div className="login-development-icon">
+                  <CheckCircle2 size={18} />
+                </div>
+
+                <div>
+                  <span>Development environment</span>
+                  <strong>
+                    Use your local account
+                  </strong>
+                </div>
+              </div>
+            )
+          )}
         </div>
       </section>
     </main>

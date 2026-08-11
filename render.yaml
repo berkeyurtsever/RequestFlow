@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: requestflow-demo
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerContext: .
+    dockerfilePath: ./backend/RequestFlow.Api/Dockerfile.render
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        value: Data Source=/tmp/requestflow/requestflow-demo.db
+      - key: Jwt__Key
+        generateValue: true
+      - key: Jwt__Issuer
+        value: RequestFlow.Api
+      - key: Jwt__Audience
+        value: RequestFlow.Client
+      - key: Jwt__ExpirationMinutes
+        value: "60"
+      - key: Demo__Enabled
+        value: "true"
+      - key: Demo__SupervisorEmail
+        value: demo.supervisor@requestflow.example

@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RequestFlow.Api.Data;
 using RequestFlow.Api.DTOs;
@@ -36,6 +38,64 @@ public sealed class AuthenticationAndTicketsTests :
         var response = await _client.GetAsync("/health");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task DemoLogin_ReturnsSeededSupervisorToken()
+    {
+        using var demoFactory =
+            _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureAppConfiguration(
+                    (_, configuration) =>
+                    {
+                        configuration.AddInMemoryCollection(
+                            new Dictionary<string, string?>
+                            {
+                                ["Demo:Enabled"] = "true",
+                                ["Demo:SupervisorEmail"] =
+                                    DemoDataSeeder.DefaultSupervisorEmail
+                            }
+                        );
+                    }
+                );
+            });
+
+        using (var scope = demoFactory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+
+            await context.Database.EnsureCreatedAsync();
+
+            var passwordHasher = scope.ServiceProvider
+                .GetRequiredService<IPasswordHasher<User>>();
+
+            await DemoDataSeeder.SeedAsync(
+                context,
+                passwordHasher
+            );
+        }
+
+        using var demoClient = demoFactory.CreateClient();
+
+        var response = await demoClient.PostAsync(
+            "/api/Auth/demo-login",
+            content: null
+        );
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var auth = await response.Content
+            .ReadFromJsonAsync<AuthResponseDto>();
+
+        Assert.NotNull(auth);
+        Assert.Equal("Supervisor", auth.Role);
+        Assert.Equal(
+            DemoDataSeeder.DefaultSupervisorEmail,
+            auth.Email
+        );
+        Assert.False(string.IsNullOrWhiteSpace(auth.Token));
     }
 
     [Fact]

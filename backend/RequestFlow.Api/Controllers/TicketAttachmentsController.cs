@@ -42,17 +42,20 @@ public class TicketAttachmentsController : ControllerBase
 
     private readonly AppDbContext _context;
     private readonly IWebHostEnvironment _environment;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<TicketAttachmentsController>
         _logger;
 
     public TicketAttachmentsController(
         AppDbContext context,
         IWebHostEnvironment environment,
+        IConfiguration configuration,
         ILogger<TicketAttachmentsController> logger
     )
     {
         _context = context;
         _environment = environment;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -149,6 +152,20 @@ public class TicketAttachmentsController : ControllerBase
         [FromForm] UploadTicketAttachmentDto request
     )
     {
+        if (_configuration.GetValue<bool>(
+                "Demo:Enabled"
+            ))
+        {
+            return StatusCode(
+                StatusCodes.Status403Forbidden,
+                new
+                {
+                    message =
+                        "File uploads are disabled in the public demo."
+                }
+            );
+        }
+
         if (!TryGetCurrentUserId(
                 out var currentUserId
             ))
