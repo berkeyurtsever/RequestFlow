@@ -10,7 +10,7 @@ RequestFlow is a full-stack, role-based request management system developed duri
 
 > The free demo service may take 50 seconds or more to wake after inactivity. Demo data can reset after a deployment or restart. Registration, password changes, and uploads are disabled in the public demo.
 
-![RequestFlow dashboard](docs/screenshots/readme/02-dashboard.png)
+![RequestFlow dashboard](docs/screenshots/readme/02-dashboard.jpg)
 
 ## Features
 
@@ -28,44 +28,40 @@ RequestFlow is a full-stack, role-based request management system developed duri
 
 ## Screenshots
 
-The gallery below uses local demo data and reflects the current application interface.
-
-### Sign In
-
-![RequestFlow sign in](docs/screenshots/readme/01-login.png)
+The gallery below was captured from the local Administrator interface in light mode using sample records and reflects the current application.
 
 ### Dashboard
 
-![RequestFlow dashboard](docs/screenshots/readme/02-dashboard.png)
+![RequestFlow dashboard](docs/screenshots/readme/02-dashboard.jpg)
 
 ### All Requests
 
-![All requests](docs/screenshots/readme/03-all-requests.png)
+![All requests](docs/screenshots/readme/03-all-requests.jpg)
 
 ### Create Request
 
-![Create request](docs/screenshots/readme/04-create-request.png)
+![Create request](docs/screenshots/readme/04-create-request.jpg)
 
 ### Edit Request and Autosave
 
-![Edit request autosave](docs/screenshots/readme/05-edit-autosave.png)
+![Edit request autosave](docs/screenshots/readme/05-edit-autosave.jpg)
 
 ### Attachments and Activity
 
-![Request attachments and activity](docs/screenshots/readme/06-request-details.png)
+![Request attachments and activity](docs/screenshots/readme/06-request-details.jpg)
 
 ### Employee Management
 
-![Employee role management](docs/screenshots/readme/07-admin-management.png)
+![Employee role management](docs/screenshots/readme/07-admin-management.jpg)
 
 ### Reports and Analytics
 
-![Reports and analytics](docs/screenshots/readme/08-reports.png)
+![Reports and analytics](docs/screenshots/readme/08-reports.jpg)
 
 ### Mobile Navigation
 
 <p align="center">
-  <img src="docs/screenshots/readme/09-mobile.png" alt="RequestFlow mobile navigation" width="320">
+  <img src="docs/screenshots/readme/09-mobile.jpg" alt="RequestFlow mobile navigation" width="320">
 </p>
 
 The complete day-by-day development timeline remains available in [`docs/screenshots`](docs/screenshots).
