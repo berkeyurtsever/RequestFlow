@@ -1044,7 +1044,7 @@ a {
   border-bottom: 1px solid var(--rf-border);
 
   color: var(--rf-muted);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 800;
   text-align: left;
   white-space: nowrap;
@@ -1056,7 +1056,7 @@ a {
   border-bottom: 1px solid var(--rf-border);
 
   color: var(--rf-text);
-  font-size: 13px;
+  font-size: 11px;
   vertical-align: middle;
 }
 
@@ -1074,6 +1074,12 @@ a {
   white-space: nowrap;
 }
 
+.dashboard-request-id {
+  color: var(--rf-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
 .recent-requests-table tbody tr:last-child td {
   border-bottom: 0;
 }
@@ -1089,11 +1095,17 @@ a {
   background: transparent;
 
   color: var(--rf-text);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   text-align: left;
 
   cursor: pointer;
+}
+
+.recent-requests-table .status-badge,
+.recent-requests-table .priority-badge {
+  font-size: 9px;
+  line-height: 1;
 }
 
 .dashboard-request-title:hover {
