@@ -4,6 +4,12 @@
 
 RequestFlow is a full-stack, role-based request management system developed during an internship. Employees can create requests, follow their progress, communicate through comments, upload attachments, and receive in-app notifications. Admin, Supervisor, Staff, and User roles have separate permissions and interfaces.
 
+## Live Demo
+
+[Open the live RequestFlow demo](https://requestflow-demo.onrender.com) and select **Explore Demo** to start a safe Supervisor session without creating an account.
+
+> The free demo service may take 50 seconds or more to wake after inactivity. Demo data can reset after a deployment or restart. Registration, password changes, and uploads are disabled in the public demo.
+
 ![RequestFlow dashboard](docs/screenshots/readme/02-dashboard.png)
 
 ## Features
