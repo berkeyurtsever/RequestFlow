@@ -149,6 +149,9 @@ function EditRequest() {
   const [formData, setFormData] =
     useState(initialForm);
 
+  const [touchedFields, setTouchedFields] =
+    useState({});
+
   const [savedFormData, setSavedFormData] =
     useState(null);
 
@@ -613,6 +616,11 @@ function EditRequest() {
       [name]: value
     }));
 
+    setTouchedFields(previousFields => ({
+      ...previousFields,
+      [name]: true
+    }));
+
     autoSaveFailureFingerprintRef.current =
       null;
 
@@ -635,6 +643,20 @@ function EditRequest() {
         setAutoSaveStatus("waiting");
 
         if (showSuccessToast) {
+          setTouchedFields({
+            title: true,
+            category: true,
+            description: true
+          });
+
+          window.setTimeout(() => {
+            document
+              .querySelector(
+                ".edit-request-form-card [aria-invalid=\"true\"]"
+              )
+              ?.focus();
+          }, 0);
+
           showError(validationMessage);
         }
 
@@ -984,6 +1006,9 @@ function EditRequest() {
     );
   }
 
+  const validationErrors =
+    getFormValidationErrors(formData);
+
   return (
     <div className="edit-request-page">
       <header className="edit-request-header">
@@ -1102,7 +1127,30 @@ function EditRequest() {
                   placeholder="Enter request title"
                   maxLength={120}
                   required
+                  aria-invalid={
+                    Boolean(
+                      touchedFields.title &&
+                        validationErrors.title
+                    )
+                  }
+                  aria-describedby={
+                    touchedFields.title &&
+                    validationErrors.title
+                      ? "edit-title-error"
+                      : undefined
+                  }
                 />
+
+                {touchedFields.title &&
+                  validationErrors.title && (
+                    <span
+                      id="edit-title-error"
+                      className="request-field-error"
+                      role="alert"
+                    >
+                      {validationErrors.title}
+                    </span>
+                  )}
               </div>
 
               <div className="edit-request-form-group">
@@ -1121,6 +1169,18 @@ function EditRequest() {
                     handleInputChange
                   }
                   required
+                  aria-invalid={
+                    Boolean(
+                      touchedFields.category &&
+                        validationErrors.category
+                    )
+                  }
+                  aria-describedby={
+                    touchedFields.category &&
+                    validationErrors.category
+                      ? "edit-category-error"
+                      : undefined
+                  }
                 >
                   <option value="">
                     Select a category
@@ -1158,6 +1218,17 @@ function EditRequest() {
                     )
                   )}
                 </select>
+
+                {touchedFields.category &&
+                  validationErrors.category && (
+                    <span
+                      id="edit-category-error"
+                      className="request-field-error"
+                      role="alert"
+                    >
+                      {validationErrors.category}
+                    </span>
+                  )}
               </div>
 
               <div className="edit-request-form-group">
@@ -1228,11 +1299,12 @@ function EditRequest() {
               </div>
 
               <div className="edit-request-form-group">
-                <label>
+                <label htmlFor="edit-request-id">
                   Request ID
                 </label>
 
                 <input
+                  id="edit-request-id"
                   type="text"
                   value={`#${ticket.id}`}
                   disabled
@@ -1265,7 +1337,30 @@ function EditRequest() {
                   maxLength={500}
                   rows={7}
                   required
+                  aria-invalid={
+                    Boolean(
+                      touchedFields.description &&
+                        validationErrors.description
+                    )
+                  }
+                  aria-describedby={
+                    touchedFields.description &&
+                    validationErrors.description
+                      ? "edit-description-error"
+                      : undefined
+                  }
                 />
+
+                {touchedFields.description &&
+                  validationErrors.description && (
+                    <span
+                      id="edit-description-error"
+                      className="request-field-error"
+                      role="alert"
+                    >
+                      {validationErrors.description}
+                    </span>
+                  )}
               </div>
             </div>
 
@@ -1819,19 +1914,31 @@ function normalizeFormData(form) {
 }
 
 function getFormValidationMessage(form) {
+  return (
+    Object.values(
+      getFormValidationErrors(form)
+    )[0] || ""
+  );
+}
+
+function getFormValidationErrors(form) {
+  const errors = {};
+
   if (!String(form?.title || "").trim()) {
-    return "Request title is required.";
+    errors.title = "Request title is required.";
   }
 
   if (!String(form?.category || "").trim()) {
-    return "Please select a request category.";
+    errors.category =
+      "Please select a request category.";
   }
 
   if (!String(form?.description || "").trim()) {
-    return "Request description is required.";
+    errors.description =
+      "Request description is required.";
   }
 
-  return "";
+  return errors;
 }
 
 function getUpdateErrorMessage(error) {

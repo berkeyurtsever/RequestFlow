@@ -1166,9 +1166,14 @@ function Requests() {
               <>
                 <div className="requests-table-wrapper">
                   <table className="requests-table">
+                    <caption className="rf-visually-hidden">
+                      Requests matching the current search and filters
+                    </caption>
+
                     <thead>
                       <tr>
                         <th
+                          scope="col"
                           aria-sort={
                             getAriaSort("id")
                           }
@@ -1185,6 +1190,7 @@ function Requests() {
                         </th>
 
                         <th
+                          scope="col"
                           aria-sort={
                             getAriaSort("title")
                           }
@@ -1201,6 +1207,7 @@ function Requests() {
                         </th>
 
                         <th
+                          scope="col"
                           aria-sort={
                             getAriaSort(
                               "category"
@@ -1219,6 +1226,7 @@ function Requests() {
                         </th>
 
                         <th
+                          scope="col"
                           aria-sort={
                             getAriaSort(
                               "status"
@@ -1237,6 +1245,7 @@ function Requests() {
                         </th>
 
                         <th
+                          scope="col"
                           aria-sort={
                             getAriaSort(
                               "priority"
@@ -1255,6 +1264,7 @@ function Requests() {
                         </th>
 
                         <th
+                          scope="col"
                           aria-sort={
                             getAriaSort(
                               "createdAt"
@@ -1272,7 +1282,7 @@ function Requests() {
                           />
                         </th>
 
-                        <th>Actions</th>
+                        <th scope="col">Actions</th>
                       </tr>
                     </thead>
 
@@ -1280,13 +1290,13 @@ function Requests() {
                       {visibleTickets.map(
                         ticket => (
                           <tr key={ticket.id}>
-                            <td>
+                            <td data-label="ID">
                               <span className="requests-id">
                                 #{ticket.id}
                               </span>
                             </td>
 
-                            <td>
+                            <td data-label="Title">
                               <button
                                 type="button"
                                 className="requests-title-button"
@@ -1301,12 +1311,12 @@ function Requests() {
                               </button>
                             </td>
 
-                            <td>
+                            <td data-label="Category">
                               {ticket.category ||
                                 "Uncategorized"}
                             </td>
 
-                            <td>
+                            <td data-label="Status">
                               <span
                                 className={`requests-status-badge ${createClassName(
                                   ticket.status
@@ -1317,7 +1327,7 @@ function Requests() {
                               </span>
                             </td>
 
-                            <td>
+                            <td data-label="Priority">
                               <span
                                 className={`requests-priority-badge ${createClassName(
                                   ticket.priority
@@ -1328,7 +1338,7 @@ function Requests() {
                               </span>
                             </td>
 
-                            <td>
+                            <td data-label="Created At">
                               <time
                                 className="requests-date"
                                 dateTime={
@@ -1342,7 +1352,7 @@ function Requests() {
                               </time>
                             </td>
 
-                            <td>
+                            <td data-label="Actions">
                               <div className="requests-actions">
                                 <button
                                   type="button"
@@ -1612,6 +1622,11 @@ function SortButton({
         isActive ? "active" : ""
       }`}
       onClick={() => onSort(sortKey)}
+      aria-label={`Sort by ${label}${
+        isActive
+          ? `, currently ${sortConfig.direction === "asc" ? "ascending" : "descending"}`
+          : ""
+      }`}
     >
       <span>{label}</span>
       {icon}

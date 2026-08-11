@@ -19,8 +19,13 @@ import {
 import MainLayout from "../layouts/MainLayout";
 
 vi.mock("../components/Navbar", () => ({
-  default: ({ onMenuClick, isMenuOpen }) => (
+  default: ({
+    onMenuClick,
+    isMenuOpen,
+    menuButtonRef
+  }) => (
     <button
+      ref={menuButtonRef}
       type="button"
       onClick={onMenuClick}
       aria-expanded={isMenuOpen}
@@ -31,8 +36,19 @@ vi.mock("../components/Navbar", () => ({
 }));
 
 vi.mock("../components/Sidebar", () => ({
-  default: ({ isOpen }) => (
-    <aside data-testid="sidebar" data-open={isOpen} />
+  default: ({ isOpen, onClose }) => (
+    <aside
+      id="rf-sidebar-navigation"
+      data-testid="sidebar"
+      data-open={isOpen}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+      >
+        Close navigation
+      </button>
+    </aside>
   )
 }));
 
@@ -75,19 +91,62 @@ describe("MainLayout mobile navigation", () => {
   });
 
   it("closes when the backdrop is selected", () => {
-    renderLayout();
+    const { container } = renderLayout();
 
     fireEvent.click(screen.getByRole("button", {
       name: "Open navigation"
     }));
 
-    fireEvent.click(screen.getByRole("button", {
-      name: "Close navigation menu"
-    }));
+    fireEvent.click(
+      container.querySelector(
+        ".rf-sidebar-overlay"
+      )
+    );
 
     expect(screen.getByTestId("sidebar")).toHaveAttribute(
       "data-open",
       "false"
     );
+  });
+
+  it("provides a skip link and restores focus after closing the menu", async () => {
+    renderLayout();
+
+    expect(
+      screen.getByRole("link", {
+        name: "Skip to main content"
+      })
+    ).toHaveAttribute(
+      "href",
+      "#rf-main-content"
+    );
+
+    const menuButton = screen.getByRole(
+      "button",
+      {
+        name: "Open navigation"
+      }
+    );
+
+    fireEvent.click(menuButton);
+
+    const closeButton = screen.getByRole(
+      "button",
+      {
+        name: "Close navigation"
+      }
+    );
+
+    await waitFor(() => {
+      expect(closeButton).toHaveFocus();
+    });
+
+    fireEvent.keyDown(document, {
+      key: "Escape"
+    });
+
+    await waitFor(() => {
+      expect(menuButton).toHaveFocus();
+    });
   });
 });

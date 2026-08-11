@@ -701,6 +701,10 @@ function Employees() {
         ) : (
           <div className="employees-table-wrapper">
             <table className="employees-table">
+              <caption className="rf-visually-hidden">
+                Employees, account roles and status
+              </caption>
+
               <thead>
                 <tr>
                   <EmployeeSortableHeader
@@ -736,7 +740,7 @@ function Employees() {
                     }
                   />
 
-                  <th>Change Role</th>
+                  <th scope="col">Change Role</th>
 
                   <EmployeeSortableHeader
                     label="Status"
@@ -760,7 +764,7 @@ function Employees() {
                     }
                   />
 
-                  <th>Action</th>
+                  <th scope="col">Action</th>
                 </tr>
               </thead>
 
@@ -801,7 +805,7 @@ function Employees() {
 
                     return (
                       <tr key={employee.id}>
-                        <td>
+                        <td data-label="Employee">
                           <div className="employee-cell">
                             <div className="employee-avatar">
                               {getInitials(
@@ -830,12 +834,12 @@ function Employees() {
                           </div>
                         </td>
 
-                        <td>
+                        <td data-label="Email Address">
                           {employee.email ||
                             "Not available"}
                         </td>
 
-                        <td>
+                        <td data-label="Current Role">
                           <span
                             className={`role-badge ${currentRole.toLowerCase()}`}
                           >
@@ -843,10 +847,13 @@ function Employees() {
                           </span>
                         </td>
 
-                        <td>
+                        <td data-label="Change Role">
                           <div className="employee-role-control">
                             <select
                               className="employee-role-select"
+                              aria-label={`Change role for ${getFullName(
+                                employee
+                              )}`}
                               value={
                                 selectedRole
                               }
@@ -883,7 +890,7 @@ function Employees() {
                           </div>
                         </td>
 
-                        <td>
+                        <td data-label="Status">
                           <span
                             className={`employee-status-badge ${
                               isActive
@@ -897,13 +904,13 @@ function Employees() {
                           </span>
                         </td>
 
-                        <td>
+                        <td data-label="Created">
                           {formatDate(
                             employee.createdAt
                           )}
                         </td>
 
-                        <td>
+                        <td data-label="Action">
                           <button
                             type="button"
                             className="update-role-button"
@@ -976,7 +983,7 @@ function EmployeeSortableHeader({
   }
 
   return (
-    <th aria-sort={ariaSort}>
+    <th scope="col" aria-sort={ariaSort}>
       <button
         type="button"
         className={`employees-sort-button ${
