@@ -12,7 +12,7 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: ConnectionStrings__DefaultConnection
-        value: Data Source=/tmp/requestflow/requestflow-demo.db
+        value: Data Source=/app/data/requestflow-demo.db
       - key: Jwt__Key
         generateValue: true
       - key: Jwt__Issuer
