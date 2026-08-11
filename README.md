@@ -24,17 +24,33 @@ RequestFlow is a full-stack, role-based request management system developed duri
 
 The gallery below uses local demo data and reflects the current application interface.
 
-| Sign In | All Requests |
-| --- | --- |
-| ![RequestFlow sign in](docs/screenshots/readme/01-login.png) | ![All requests](docs/screenshots/readme/03-all-requests.png) |
+### Sign In
 
-| Create Request | Edit Request and Autosave |
-| --- | --- |
-| ![Create request](docs/screenshots/readme/04-create-request.png) | ![Edit request autosave](docs/screenshots/readme/05-edit-autosave.png) |
+![RequestFlow sign in](docs/screenshots/readme/01-login.png)
 
-| Attachments and Activity | Employee Management |
-| --- | --- |
-| ![Request attachments and activity](docs/screenshots/readme/06-request-details.png) | ![Employee role management](docs/screenshots/readme/07-admin-management.png) |
+### Dashboard
+
+![RequestFlow dashboard](docs/screenshots/readme/02-dashboard.png)
+
+### All Requests
+
+![All requests](docs/screenshots/readme/03-all-requests.png)
+
+### Create Request
+
+![Create request](docs/screenshots/readme/04-create-request.png)
+
+### Edit Request and Autosave
+
+![Edit request autosave](docs/screenshots/readme/05-edit-autosave.png)
+
+### Attachments and Activity
+
+![Request attachments and activity](docs/screenshots/readme/06-request-details.png)
+
+### Employee Management
+
+![Employee role management](docs/screenshots/readme/07-admin-management.png)
 
 ### Reports and Analytics
 
