@@ -157,7 +157,7 @@ public class CategoriesController : ControllerBase
             User,
             "category.created",
             "Category",
-            category.Id.ToString(),
+            null,
             $"Category \"{category.Name}\" was created."
         );
         await _context.SaveChangesAsync();

@@ -213,9 +213,12 @@ function Navbar({
     }, []);
 
   useEffect(() => {
-    void startRealtimeNotifications(token);
+    const startTimer = window.setTimeout(() => {
+      void startRealtimeNotifications(token);
+    }, 0);
 
     return () => {
+      window.clearTimeout(startTimer);
       void stopRealtimeNotifications();
     };
   }, [token]);

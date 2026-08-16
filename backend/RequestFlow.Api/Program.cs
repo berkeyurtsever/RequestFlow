@@ -64,8 +64,13 @@ builder.Services.AddSingleton<
     NotificationPublisher
 >();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
-builder.Services.AddHostedService<NotificationEmailWorker>();
-builder.Services.AddHostedService<SlaMonitoringWorker>();
+
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddHostedService<NotificationEmailWorker>();
+    builder.Services.AddHostedService<SlaMonitoringWorker>();
+}
+
 builder.Services.AddScoped<IReportPdfService, ReportPdfService>();
 
 QuestPDF.Settings.License = LicenseType.Community;
@@ -97,7 +102,8 @@ builder.Services.AddCors(options =>
             policy
                 .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         }
     );
 });

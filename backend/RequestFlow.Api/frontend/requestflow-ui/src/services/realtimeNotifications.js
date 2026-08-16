@@ -22,7 +22,7 @@ export async function startRealtimeNotifications(token) {
     return;
   }
 
-  connection = new HubConnectionBuilder()
+  const nextConnection = new HubConnectionBuilder()
     .withUrl(getHubUrl(), {
       accessTokenFactory: () => token
     })
@@ -30,7 +30,9 @@ export async function startRealtimeNotifications(token) {
     .configureLogging(LogLevel.Warning)
     .build();
 
-  connection.on(
+  connection = nextConnection;
+
+  nextConnection.on(
     "notificationReceived",
     notification => {
       window.dispatchEvent(
@@ -43,13 +45,15 @@ export async function startRealtimeNotifications(token) {
   );
 
   try {
-    await connection.start();
+    await nextConnection.start();
   } catch (error) {
-    console.warn(
-      "Realtime notifications are temporarily unavailable:",
-      error
-    );
-    connection = null;
+    if (connection === nextConnection) {
+      connection = null;
+      console.warn(
+        "Realtime notifications are temporarily unavailable:",
+        error
+      );
+    }
   }
 }
 
