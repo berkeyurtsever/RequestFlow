@@ -654,12 +654,18 @@ function CreateRequest() {
       })
     );
 
-    setFormErrors(
-      previousErrors => ({
-        ...previousErrors,
-        [name]: ""
-      })
-    );
+    setFormErrors(previousErrors => {
+      if (!previousErrors[name]) {
+        return previousErrors;
+      }
+
+      const nextErrors = {
+        ...previousErrors
+      };
+
+      delete nextErrors[name];
+      return nextErrors;
+    });
 
     setError("");
     setIsDraftSaving(true);
@@ -1054,6 +1060,12 @@ function CreateRequest() {
       lastDraftSavedAt
     ]);
 
+  const validationErrors =
+    Object.entries(formErrors).filter(
+      ([, message]) =>
+        Boolean(message)
+    );
+
   return (
     <div className="create-request-page">
       <div className="create-request-header">
@@ -1115,7 +1127,7 @@ function CreateRequest() {
         </div>
       )}
 
-      {Object.keys(formErrors).length > 0 && (
+      {validationErrors.length > 0 && (
         <section
           ref={validationSummaryRef}
           className="request-validation-summary"
@@ -1131,7 +1143,7 @@ function CreateRequest() {
             </h2>
 
             <ul>
-              {Object.entries(formErrors).map(
+              {validationErrors.map(
                 ([fieldName, message]) => (
                   <li key={fieldName}>
                     <a

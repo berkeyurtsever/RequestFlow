@@ -2,7 +2,8 @@ import {
   fireEvent,
   render,
   screen,
-  waitFor
+  waitFor,
+  within
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import {
@@ -125,5 +126,26 @@ describe("CreateRequest accessibility", () => {
     expect(mocks.showError).toHaveBeenCalledWith(
       "Please correct the highlighted fields."
     );
+
+    fireEvent.change(titleInput, {
+      target: {
+        name: "title",
+        value: "New laptop request"
+      }
+    });
+
+    await waitFor(() => {
+      const remainingErrors =
+        within(summary).getAllByRole(
+          "listitem"
+        );
+
+      expect(remainingErrors).toHaveLength(2);
+      expect(
+        remainingErrors.every(item =>
+          Boolean(item.textContent.trim())
+        )
+      ).toBe(true);
+    });
   });
 });
