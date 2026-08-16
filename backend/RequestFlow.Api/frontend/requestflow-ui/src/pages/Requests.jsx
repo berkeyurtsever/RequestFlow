@@ -901,8 +901,8 @@ function Requests() {
     <div className="requests-page">
       <header className="requests-header">
         <div>
-          <span className="requests-eyebrow">
-            REQUEST MANAGEMENT
+          <span className="page-eyebrow">
+            WORKSPACE
           </span>
 
           <h1>{pageTitle}</h1>
@@ -1814,7 +1814,7 @@ function KanbanBoard({
     <div className="requests-kanban-region">
       <div className="requests-kanban-summary">
         <div>
-          <strong>Kanban board</strong>
+          <strong>Kanban Board</strong>
           <span>
             {tickets.length} matching
             {tickets.length === 1
