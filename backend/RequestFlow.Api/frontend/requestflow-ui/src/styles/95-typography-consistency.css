@@ -1,0 +1,259 @@
+:root {
+  --rf-type-page-title: 30px;
+  --rf-type-page-description: 13px;
+  --rf-type-eyebrow: 11px;
+  --rf-type-table-heading: 10px;
+  --rf-type-table-cell: 11px;
+  --rf-type-compact-control: 11px;
+}
+
+.dashboard-page,
+.requests-page,
+.create-request-page,
+.edit-request-page,
+.notifications-page,
+.assigned-tasks-page,
+.reports-page,
+.employees-page,
+.audit-page,
+.categories-page,
+.settings-page,
+.profile-page,
+.change-password-page {
+  font-family: inherit;
+}
+
+:is(
+  .dashboard-header,
+  .requests-header,
+  .create-request-header,
+  .edit-request-header,
+  .notifications-page-header,
+  .assigned-tasks-header,
+  .reports-page-header,
+  .employees-header,
+  .audit-header,
+  .categories-header,
+  .settings-header,
+  .profile-header,
+  .change-password-header
+) h1 {
+  margin: 0 !important;
+  font-family: inherit;
+  font-size: var(--rf-type-page-title);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+:is(
+  .dashboard-header,
+  .requests-header,
+  .create-request-header,
+  .edit-request-header,
+  .notifications-page-header,
+  .assigned-tasks-header,
+  .reports-page-header,
+  .employees-header,
+  .audit-header,
+  .categories-header,
+  .settings-header,
+  .profile-header,
+  .change-password-header
+) p {
+  margin: 8px 0 0 !important;
+  font-family: inherit;
+  font-size: var(--rf-type-page-description);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.page-eyebrow,
+.reports-eyebrow,
+.requests-eyebrow,
+.create-request-eyebrow,
+.edit-request-eyebrow,
+.settings-eyebrow {
+  margin-bottom: 7px;
+  font-family: inherit;
+  font-size: var(--rf-type-eyebrow);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 1.4px;
+}
+
+:is(
+  .dashboard-header-controls,
+  .requests-header-actions,
+  .create-request-header-actions,
+  .edit-request-header-actions,
+  .notifications-page-header,
+  .assigned-tasks-header,
+  .reports-header-actions,
+  .employees-header,
+  .categories-header-actions,
+  .settings-header-actions,
+  .change-password-topbar
+) button {
+  font-family: inherit;
+  font-size: var(--rf-type-compact-control);
+  font-weight: 800;
+}
+
+:is(
+  .requests-table,
+  .recent-requests-table,
+  .assigned-tasks-table,
+  .reports-table,
+  .employees-table,
+  .categories-table,
+  .audit-table
+) {
+  font-family: inherit;
+}
+
+:is(
+  .requests-table,
+  .recent-requests-table,
+  .assigned-tasks-table,
+  .reports-table,
+  .employees-table,
+  .categories-table,
+  .audit-table
+) th {
+  font-size: var(--rf-type-table-heading);
+  font-weight: 800;
+}
+
+:is(
+  .requests-table,
+  .recent-requests-table,
+  .assigned-tasks-table,
+  .reports-table,
+  .employees-table,
+  .categories-table,
+  .audit-table
+) td {
+  font-size: var(--rf-type-table-cell);
+}
+
+.reports-table td strong {
+  font-size: var(--rf-type-table-cell);
+  font-weight: 800;
+}
+
+.notifications-page {
+  max-width: none;
+  margin: 0;
+  padding: 30px 32px 40px;
+}
+
+.notifications-summary-card span {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.notifications-summary-card strong {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.notifications-filter-bar button {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.notifications-filter-bar button span,
+.notifications-unread-label {
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.notifications-item-title strong {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.notifications-list-item.read
+.notifications-item-title strong {
+  font-weight: 700;
+}
+
+.notifications-item-content p {
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.notifications-item-content > span {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.notifications-state strong {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.notifications-state span {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.notifications-state button {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .notifications-page {
+    padding: 26px 22px 40px;
+  }
+}
+
+@media (max-width: 700px) {
+  :is(
+    .dashboard-header,
+    .requests-header,
+    .create-request-header,
+    .edit-request-header,
+    .notifications-page-header,
+    .assigned-tasks-header,
+    .reports-page-header,
+    .employees-header,
+    .audit-header,
+    .categories-header,
+    .settings-header,
+    .profile-header,
+    .change-password-header
+  ) h1 {
+    font-size: 26px !important;
+    line-height: 1.2 !important;
+  }
+
+  :is(
+    .dashboard-header,
+    .requests-header,
+    .create-request-header,
+    .edit-request-header,
+    .notifications-page-header,
+    .assigned-tasks-header,
+    .reports-page-header,
+    .employees-header,
+    .audit-header,
+    .categories-header,
+    .settings-header,
+    .profile-header,
+    .change-password-header
+  ) p {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+
+  .notifications-page {
+    padding: 22px 16px 34px;
+  }
+}
