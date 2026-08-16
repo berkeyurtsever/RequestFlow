@@ -1,7 +1,7 @@
 .knowledge-page {
   width: 100%;
   padding: 30px 32px 48px;
-  color: var(--rf-text);
+  color: var(--rf-text-primary);
 }
 
 .knowledge-page-header {
@@ -31,7 +31,7 @@
 
 .knowledge-page-header p {
   margin: 8px 0 0;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -97,7 +97,7 @@
 }
 
 .knowledge-search-card span {
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 11px;
   line-height: 1.45;
 }
@@ -105,13 +105,13 @@
 .knowledge-search-field {
   min-height: 48px;
   padding: 0 13px;
-  border: 1px solid var(--rf-border-dark);
+  border: 1px solid var(--rf-border-strong);
   border-radius: 11px;
-  background: var(--rf-card-bg);
+  background: var(--rf-surface);
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--rf-muted);
+  color: var(--rf-text-muted);
 }
 
 .knowledge-search-field:focus-within {
@@ -125,7 +125,7 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: var(--rf-text);
+  color: var(--rf-text-primary);
   font-size: 12px;
 }
 
@@ -136,7 +136,7 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: var(--rf-muted);
+  color: var(--rf-text-muted);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -165,14 +165,14 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 10px;
   font-weight: 800;
   cursor: pointer;
 }
 
 .knowledge-type-filters button.active {
-  background: var(--rf-card-bg);
+  background: var(--rf-surface);
   color: var(--rf-primary);
   box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
 }
@@ -184,7 +184,7 @@
 }
 
 .knowledge-category-filter span {
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 10px;
   font-weight: 800;
 }
@@ -192,10 +192,10 @@
 .knowledge-category-filter select {
   min-height: 38px;
   padding: 0 34px 0 11px;
-  border: 1px solid var(--rf-border-dark);
+  border: 1px solid var(--rf-border-strong);
   border-radius: 9px;
-  background: var(--rf-card-bg);
-  color: var(--rf-text);
+  background: var(--rf-input-background);
+  color: var(--rf-text-primary);
   font-size: 11px;
 }
 
@@ -210,7 +210,7 @@
   min-width: 0;
   border: 1px solid var(--rf-border);
   border-radius: 16px;
-  background: var(--rf-card-bg);
+  background: var(--rf-surface);
   overflow: hidden;
   box-shadow: var(--rf-shadow);
 }
@@ -247,7 +247,7 @@
 
 .knowledge-section-heading p {
   margin: 3px 0 0;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 10px;
 }
 
@@ -277,7 +277,7 @@
   border: 1px solid transparent;
   border-radius: 11px;
   background: transparent;
-  color: var(--rf-text);
+  color: var(--rf-text-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -314,7 +314,7 @@
 
 .knowledge-guide-card p {
   margin: 0;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   display: -webkit-box;
   overflow: hidden;
   font-size: 10px;
@@ -370,7 +370,7 @@
 
 .knowledge-faq-list summary svg {
   flex: 0 0 auto;
-  color: var(--rf-muted);
+  color: var(--rf-text-muted);
   transition: transform 160ms ease;
 }
 
@@ -381,7 +381,7 @@
 .knowledge-faq-list details > p {
   margin: 0;
   padding: 0 14px 14px;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 10px;
   line-height: 1.65;
 }
@@ -391,7 +391,7 @@
   padding: 16px 18px;
   border: 1px solid var(--rf-border);
   border-radius: 14px;
-  background: var(--rf-card-bg);
+  background: var(--rf-surface);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -415,7 +415,7 @@
 
 .knowledge-support-card p {
   margin: 4px 0 0;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 10px;
   line-height: 1.5;
 }
@@ -425,18 +425,18 @@
   padding: 32px;
   border: 1px solid var(--rf-border);
   border-radius: 16px;
-  background: var(--rf-card-bg);
+  background: var(--rf-surface);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: 9px;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   text-align: center;
 }
 
 .knowledge-state strong {
-  color: var(--rf-text);
+  color: var(--rf-text-primary);
   font-size: 13px;
 }
 
@@ -463,7 +463,7 @@
   max-height: min(720px, calc(100vh - 48px));
   border: 1px solid var(--rf-border);
   border-radius: 16px;
-  background: var(--rf-card-bg);
+  background: var(--rf-surface);
   overflow: auto;
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
 }
@@ -490,7 +490,7 @@
   border: 1px solid var(--rf-border);
   border-radius: 9px;
   background: transparent;
-  color: var(--rf-muted);
+  color: var(--rf-text-muted);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -499,7 +499,7 @@
 .knowledge-dialog > p {
   margin: 0;
   padding: 24px 22px;
-  color: var(--rf-text-soft);
+  color: var(--rf-text-secondary);
   font-size: 13px;
   line-height: 1.75;
   white-space: pre-line;
@@ -517,7 +517,7 @@
   padding: 17px;
   border: 1px solid #cfe0ff;
   border-radius: 15px;
-  background: var(--rf-card-bg);
+  background: var(--rf-surface);
   box-shadow: var(--rf-shadow);
 }
 
@@ -557,7 +557,7 @@
 
 .request-template-heading p {
   margin: 3px 0 0;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 10px;
   line-height: 1.45;
 }
@@ -574,8 +574,8 @@
   padding: 9px 11px;
   border: 1px solid var(--rf-border);
   border-radius: 10px;
-  background: var(--rf-page-bg);
-  color: var(--rf-text);
+  background: var(--rf-surface-soft);
+  color: var(--rf-text-primary);
   display: flex;
   align-items: center;
   gap: 9px;
@@ -618,7 +618,7 @@
 
 .request-template-list small {
   overflow: hidden;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 8px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -629,8 +629,8 @@
   min-height: 56px;
   margin: 0;
   border-radius: 10px;
-  background: var(--rf-page-bg);
-  color: var(--rf-muted);
+  background: var(--rf-surface-soft);
+  color: var(--rf-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -660,7 +660,7 @@
 }
 
 .request-custom-fields legend small {
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 9px;
 }
 
@@ -676,15 +676,69 @@
 
 .request-custom-field > small {
   margin-top: -4px;
-  color: var(--rf-muted);
+  color: var(--rf-text-secondary);
   font-size: 9px;
   line-height: 1.45;
 }
 
 html[data-theme="dark"] .knowledge-search-card {
   background:
-    linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(15, 23, 42, 0.92));
-  border-color: #27466f;
+    linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(17, 24, 39, 0.96));
+  border-color: #31578a;
+  color: var(--rf-text-primary);
+}
+
+html[data-theme="dark"]
+:is(
+  .knowledge-search-field,
+  .knowledge-section,
+  .knowledge-support-card,
+  .knowledge-state,
+  .knowledge-dialog,
+  .request-template-picker
+) {
+  border-color: var(--rf-border);
+  background: var(--rf-surface);
+  color: var(--rf-text-primary);
+}
+
+html[data-theme="dark"]
+:is(
+  .knowledge-page-header p,
+  .knowledge-search-card span,
+  .knowledge-guide-card p,
+  .knowledge-faq-list details > p,
+  .knowledge-support-card p,
+  .request-template-heading p
+) {
+  color: var(--rf-text-secondary);
+}
+
+html[data-theme="dark"]
+:is(
+  .knowledge-guide-card,
+  .knowledge-faq-list summary,
+  .request-template-list button
+) {
+  color: var(--rf-text-primary);
+}
+
+html[data-theme="dark"]
+:is(
+  .knowledge-search-field input,
+  .knowledge-category-filter select
+) {
+  border-color: var(--rf-border-strong);
+  background: var(--rf-input-background);
+  color: var(--rf-text-primary);
+}
+
+html[data-theme="dark"] .knowledge-search-field input {
+  background: transparent;
+}
+
+html[data-theme="dark"] .knowledge-search-field input::placeholder {
+  color: var(--rf-text-muted);
 }
 
 html[data-theme="dark"] .knowledge-search-card > svg,
@@ -694,8 +748,70 @@ html[data-theme="dark"] .request-template-icon {
   background: rgba(59, 130, 246, 0.16);
 }
 
+html[data-theme="dark"]
+:is(
+  .knowledge-section-icon.faq,
+  .knowledge-support-icon
+) {
+  background: rgba(255, 134, 31, 0.14);
+}
+
+html[data-theme="dark"] .knowledge-section-heading > span {
+  background: rgba(59, 130, 246, 0.15);
+}
+
 html[data-theme="dark"] .knowledge-type-filters {
-  background: rgba(15, 23, 42, 0.45);
+  border-color: var(--rf-border);
+  background: var(--rf-surface-soft);
+}
+
+html[data-theme="dark"] .knowledge-type-filters button.active {
+  background: var(--rf-surface-hover);
+  color: #8fb5ff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.24);
+}
+
+html[data-theme="dark"]
+:is(
+  .knowledge-guide-card:hover,
+  .knowledge-guide-card:focus-visible,
+  .knowledge-faq-list details[open] summary
+) {
+  border-color: #31578a;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+html[data-theme="dark"] .knowledge-faq-list details {
+  border-color: var(--rf-border);
+  background: var(--rf-surface-soft);
+}
+
+html[data-theme="dark"] .knowledge-dialog-backdrop {
+  background: rgba(2, 6, 23, 0.78);
+}
+
+html[data-theme="dark"] .knowledge-dialog header button:hover {
+  border-color: var(--rf-border-strong);
+  background: var(--rf-surface-hover);
+  color: var(--rf-text-primary);
+}
+
+html[data-theme="dark"] .request-template-picker {
+  border-color: #31578a;
+}
+
+html[data-theme="dark"] .request-template-list button {
+  border-color: var(--rf-border);
+  background: var(--rf-surface-soft);
+}
+
+html[data-theme="dark"]
+:is(
+  .request-template-loading,
+  .request-template-empty
+) {
+  background: var(--rf-surface-soft);
+  color: var(--rf-text-secondary);
 }
 
 html[data-theme="dark"] .request-custom-fields,
@@ -703,6 +819,18 @@ html[data-theme="dark"] .request-template-list button.selected,
 html[data-theme="dark"] .request-template-list button:hover {
   background: rgba(59, 130, 246, 0.08);
   border-color: #31578a;
+}
+
+html[data-theme="dark"] .request-custom-fields {
+  color: var(--rf-text-primary);
+}
+
+html[data-theme="dark"]
+.request-custom-field
+:is(input, textarea, select) {
+  border-color: var(--rf-border-strong);
+  background: var(--rf-input-background);
+  color: var(--rf-text-primary);
 }
 
 @media (max-width: 1050px) {
