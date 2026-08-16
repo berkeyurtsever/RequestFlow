@@ -1,14 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using RequestFlow.Api.Models;
+using RequestFlow.Api.Services;
 
 namespace RequestFlow.Api.Data;
 
 public class AppDbContext : DbContext
 {
+    private readonly INotificationPublisher?
+        _notificationPublisher;
+
     public AppDbContext(
-        DbContextOptions<AppDbContext> options
+        DbContextOptions<AppDbContext> options,
+        INotificationPublisher? notificationPublisher = null
     ) : base(options)
     {
+        _notificationPublisher = notificationPublisher;
     }
 
     public DbSet<User> Users =>
@@ -39,6 +45,13 @@ public class AppDbContext : DbContext
         PasswordResetTokens =>
         Set<PasswordResetToken>();
 
+    public DbSet<UserNotificationPreference>
+        UserNotificationPreferences =>
+        Set<UserNotificationPreference>();
+
+    public DbSet<AuditLog> AuditLogs =>
+        Set<AuditLog>();
+
     protected override void OnModelCreating(
         ModelBuilder modelBuilder
     )
@@ -53,6 +66,85 @@ public class AppDbContext : DbContext
         ConfigureTicketActivity(modelBuilder);
         ConfigureNotification(modelBuilder);
         ConfigurePasswordResetToken(modelBuilder);
+        ConfigureUserNotificationPreference(modelBuilder);
+        ConfigureAuditLog(modelBuilder);
+    }
+
+    public override async Task<int> SaveChangesAsync(
+        CancellationToken cancellationToken = default
+    )
+    {
+        var addedNotifications = ChangeTracker
+            .Entries<Notification>()
+            .Where(entry =>
+                entry.State == EntityState.Added
+            )
+            .Select(entry => entry.Entity)
+            .ToList();
+
+        var result = await base.SaveChangesAsync(
+            cancellationToken
+        );
+
+        if (_notificationPublisher != null)
+        {
+            foreach (var notification in addedNotifications)
+            {
+                await _notificationPublisher.PublishAsync(
+                    notification,
+                    cancellationToken
+                );
+            }
+        }
+
+        return result;
+    }
+
+    private static void ConfigureUserNotificationPreference(
+        ModelBuilder modelBuilder
+    )
+    {
+        var preferenceEntity = modelBuilder
+            .Entity<UserNotificationPreference>();
+
+        preferenceEntity.HasKey(preference =>
+            preference.UserId
+        );
+
+        preferenceEntity
+            .HasOne(preference => preference.User)
+            .WithOne(user => user.NotificationPreference)
+            .HasForeignKey<UserNotificationPreference>(
+                preference => preference.UserId
+            )
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private static void ConfigureAuditLog(
+        ModelBuilder modelBuilder
+    )
+    {
+        var auditEntity = modelBuilder.Entity<AuditLog>();
+
+        auditEntity.HasKey(audit => audit.Id);
+        auditEntity.Property(audit => audit.ActorName)
+            .IsRequired().HasMaxLength(100);
+        auditEntity.Property(audit => audit.ActorRole)
+            .IsRequired().HasMaxLength(30);
+        auditEntity.Property(audit => audit.Action)
+            .IsRequired().HasMaxLength(60);
+        auditEntity.Property(audit => audit.EntityType)
+            .IsRequired().HasMaxLength(60);
+        auditEntity.Property(audit => audit.EntityId)
+            .HasMaxLength(80);
+        auditEntity.Property(audit => audit.Summary)
+            .IsRequired().HasMaxLength(500);
+        auditEntity.HasIndex(audit => audit.CreatedAt);
+        auditEntity
+            .HasOne(audit => audit.ActorUser)
+            .WithMany()
+            .HasForeignKey(audit => audit.ActorUserId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 
     private static void ConfigureUser(
@@ -165,6 +257,8 @@ public class AppDbContext : DbContext
         ticketEntity
             .Property(ticket => ticket.CreatedAt)
             .IsRequired();
+
+        ticketEntity.HasIndex(ticket => ticket.SlaDueAt);
 
         ticketEntity
             .HasOne(ticket => ticket.CreatedByUser)
@@ -411,6 +505,16 @@ public class AppDbContext : DbContext
     {
         var notificationEntity =
             modelBuilder.Entity<Notification>();
+
+        notificationEntity
+            .Property(notification => notification.EmailDeliveryStatus)
+            .IsRequired()
+            .HasMaxLength(20)
+            .HasDefaultValue("Pending");
+
+        notificationEntity.HasIndex(notification =>
+            notification.EmailDeliveryStatus
+        );
 
         notificationEntity
             .HasOne(notification => notification.Ticket)

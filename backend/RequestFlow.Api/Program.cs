@@ -9,9 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using RequestFlow.Api.Data;
+using RequestFlow.Api.Hubs;
 using RequestFlow.Api.Models;
 using RequestFlow.Api.Options;
 using RequestFlow.Api.Services;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +57,18 @@ builder.Services.AddSingleton<
     IEmailSender,
     SmtpEmailSender
 >();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<
+    INotificationPublisher,
+    NotificationPublisher
+>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddHostedService<NotificationEmailWorker>();
+builder.Services.AddHostedService<SlaMonitoringWorker>();
+builder.Services.AddScoped<IReportPdfService, ReportPdfService>();
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var connectionString =
     builder.Configuration.GetConnectionString(
@@ -244,6 +258,24 @@ builder.Services
 
         options.Events = new JwtBearerEvents
         {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query[
+                    "access_token"
+                ];
+
+                if (
+                    !string.IsNullOrWhiteSpace(accessToken) &&
+                    context.HttpContext.Request.Path.StartsWithSegments(
+                        "/hubs/notifications"
+                    )
+                )
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            },
             OnTokenValidated = async context =>
             {
                 var userIdValue = context.Principal?
@@ -379,6 +411,7 @@ app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "healthy"

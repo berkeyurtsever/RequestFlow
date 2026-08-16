@@ -11,4 +11,13 @@ public interface IEmailSender
         DateTime expiresAtUtc,
         CancellationToken cancellationToken = default
     );
+
+    Task SendNotificationAsync(
+        string recipientName,
+        string recipientEmail,
+        string subject,
+        string message,
+        string actionUrl,
+        CancellationToken cancellationToken = default
+    );
 }

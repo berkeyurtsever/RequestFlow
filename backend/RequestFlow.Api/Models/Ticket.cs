@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RequestFlow.Api.Models;
 
@@ -43,6 +44,38 @@ public class Ticket
         DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }
+
+    public DateTime? SlaDueAt { get; set; }
+
+    public DateTime? SlaBreachedAt { get; set; }
+
+    [NotMapped]
+    public string SlaStatus
+    {
+        get
+        {
+            var normalizedStatus = Status
+                .Trim()
+                .ToLowerInvariant();
+
+            if (normalizedStatus is "resolved" or "rejected" or "completed")
+            {
+                return "Closed";
+            }
+
+            if (SlaBreachedAt.HasValue || SlaDueAt <= DateTime.UtcNow)
+            {
+                return "Overdue";
+            }
+
+            if (SlaDueAt <= DateTime.UtcNow.AddHours(8))
+            {
+                return "DueSoon";
+            }
+
+            return SlaDueAt.HasValue ? "OnTrack" : "NotSet";
+        }
+    }
 
     public ICollection<TicketComment> Comments
     {

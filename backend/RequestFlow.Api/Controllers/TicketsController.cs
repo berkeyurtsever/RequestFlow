@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RequestFlow.Api.Data;
 using RequestFlow.Api.Models;
+using RequestFlow.Api.Services;
 
 namespace RequestFlow.Api.Controllers;
 
@@ -14,16 +15,19 @@ public partial class TicketsController : ControllerBase
     private readonly AppDbContext _context;
     private readonly IWebHostEnvironment _environment;
     private readonly ILogger<TicketsController> _logger;
+    private readonly IAuditLogService _auditLog;
 
     public TicketsController(
         AppDbContext context,
         IWebHostEnvironment environment,
-        ILogger<TicketsController> logger
+        ILogger<TicketsController> logger,
+        IAuditLogService auditLog
     )
     {
         _context = context;
         _environment = environment;
         _logger = logger;
+        _auditLog = auditLog;
     }
 
     [HttpGet]
@@ -156,6 +160,11 @@ public partial class TicketsController : ControllerBase
         ticket.Status = "Open";
         ticket.CreatedAt = DateTime.UtcNow;
         ticket.UpdatedAt = null;
+        ticket.SlaDueAt = SlaPolicy.CalculateDueAt(
+            ticket.Priority,
+            ticket.CreatedAt
+        );
+        ticket.SlaBreachedAt = null;
 
         _context.Tickets.Add(ticket);
 
@@ -343,6 +352,16 @@ public partial class TicketsController : ControllerBase
 
         if (!ValuesEqual(previousPriority, newPriority))
         {
+            if (!SlaPolicy.IsClosed(newStatus))
+            {
+                existingTicket.SlaDueAt =
+                    SlaPolicy.CalculateDueAt(
+                        newPriority,
+                        updatedAt
+                    );
+                existingTicket.SlaBreachedAt = null;
+            }
+
             AddActivity(
                 ticket: existingTicket,
                 actorUserId: currentUserId,
@@ -403,6 +422,24 @@ public partial class TicketsController : ControllerBase
                 message:
                     $"Request #{existingTicket.Id} \"{existingTicket.Title}\" details were updated by {currentUser.FullName}.",
                 createdAt: updatedAt
+            );
+        }
+
+        if (
+            IsManagementRole(role) &&
+            (
+                requestDetailsChanged ||
+                !ValuesEqual(previousPriority, newPriority) ||
+                !ValuesEqual(previousStatus, newStatus)
+            )
+        )
+        {
+            _auditLog.Add(
+                User,
+                "ticket.updated",
+                "Ticket",
+                existingTicket.Id.ToString(),
+                $"Request #{existingTicket.Id} was updated."
             );
         }
 

@@ -114,6 +114,14 @@ public partial class TicketsController
                 }
             }
 
+            _auditLog.Add(
+                User,
+                "ticket.unassigned",
+                "Ticket",
+                ticket.Id.ToString(),
+                $"The staff assignment for request #{ticket.Id} was removed."
+            );
+
             await _context.SaveChangesAsync();
 
             return Ok(new
@@ -239,6 +247,14 @@ public partial class TicketsController
             }
         }
 
+        _auditLog.Add(
+            User,
+            "ticket.assigned",
+            "Ticket",
+            ticket.Id.ToString(),
+            $"Request #{ticket.Id} was assigned to {assignedUser.FullName}."
+        );
+
         await _context.SaveChangesAsync();
 
         return Ok(new
@@ -268,6 +284,13 @@ public partial class TicketsController
 
         try
         {
+            _auditLog.Add(
+                User,
+                "ticket.deleted",
+                "Ticket",
+                ticket.Id.ToString(),
+                $"Request #{ticket.Id} \"{ticket.Title}\" was deleted."
+            );
             _context.Tickets.Remove(ticket);
             await _context.SaveChangesAsync();
         }

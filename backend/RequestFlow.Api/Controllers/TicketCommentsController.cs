@@ -142,7 +142,9 @@ public class TicketCommentsController : ControllerBase
             TicketId = ticket.Id,
             ActorUserId = currentUser.Id,
             ActorName = currentUser.FullName,
-            ActorRole = "Comment added",
+            ActorRole = currentUser.Role,
+            Type = "comment",
+            Title = "Comment added",
             Description = "A new comment was added to the request.",
             CreatedAt = DateTime.UtcNow
         });
@@ -241,6 +243,8 @@ public class TicketCommentsController : ControllerBase
             TicketId = ticket.Id,
             ActorUserId = currentUserId.Value,
             ActorName = currentUser?.FullName ?? "Unknown User",
+            ActorRole = currentUser?.Role ?? "User",
+            Type = "comment",
             Title = "Comment deleted",
             Description = "A comment was deleted from the request.",
             CreatedAt = DateTime.UtcNow

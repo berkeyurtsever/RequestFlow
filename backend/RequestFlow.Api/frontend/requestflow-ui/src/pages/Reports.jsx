@@ -37,6 +37,8 @@ const emptyReport = {
   pendingRequests: 0,
   completedRequests: 0,
   rejectedRequests: 0,
+  overdueRequests: 0,
+  dueSoonRequests: 0,
   averageResolutionHours: 0,
   statusData: [],
   categoryData: [],
@@ -62,6 +64,7 @@ function Reports() {
   const [isRefreshing, setIsRefreshing] =
     useState(false);
   const [error, setError] = useState("");
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   const loadReports = useCallback(
     async (showRefreshSpinner = false) => {
@@ -255,6 +258,30 @@ function Reports() {
     URL.revokeObjectURL(downloadUrl);
   };
 
+  const handleExportPdf = async () => {
+    setIsExportingPdf(true);
+
+    try {
+      const response = await api.get("/Reports/pdf", {
+        responseType: "blob"
+      });
+      const downloadUrl = URL.createObjectURL(response.data);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = downloadUrl;
+      downloadLink.download =
+        `requestflow-report-${getFileDate()}.pdf`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      URL.revokeObjectURL(downloadUrl);
+    } catch (requestError) {
+      console.error("PDF report could not be exported:", requestError);
+      setError("PDF report could not be exported.");
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="reports-loading">
@@ -285,6 +312,16 @@ function Reports() {
         </div>
 
         <div className="reports-header-actions">
+          <button
+            type="button"
+            className="reports-refresh-button"
+            onClick={handleExportPdf}
+            disabled={report.totalRequests === 0 || isExportingPdf}
+          >
+            <FileText size={16} />
+            <span>{isExportingPdf ? "Preparing PDF..." : "Export PDF"}</span>
+          </button>
+
           <button
             type="button"
             className="reports-refresh-button"
@@ -361,6 +398,14 @@ function Reports() {
           )}
           icon={CheckCircle2}
           variant="resolved"
+        />
+
+        <ReportSummaryCard
+          title="Overdue SLA"
+          value={report.overdueRequests}
+          description={`${report.dueSoonRequests} due within 8 hours`}
+          icon={Clock3}
+          variant="overdue"
         />
 
         <ReportSummaryCard

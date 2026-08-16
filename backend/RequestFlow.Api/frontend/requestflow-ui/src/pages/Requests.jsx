@@ -1336,6 +1336,7 @@ function Requests() {
                                 {ticket.priority ||
                                   "Unknown"}
                               </span>
+                              <SlaBadge ticket={ticket} />
                             </td>
 
                             <td data-label="Created At">
@@ -1496,6 +1497,22 @@ function Requests() {
         )}
       </section>
     </div>
+  );
+}
+
+function SlaBadge({ ticket }) {
+  const status = String(ticket?.slaStatus || "").toLowerCase();
+
+  if (status !== "overdue" && status !== "duesoon") {
+    return null;
+  }
+
+  const isOverdue = status === "overdue";
+
+  return (
+    <span className={`requests-sla-badge ${isOverdue ? "overdue" : "due-soon"}`}>
+      {isOverdue ? "SLA overdue" : "SLA due soon"}
+    </span>
   );
 }
 

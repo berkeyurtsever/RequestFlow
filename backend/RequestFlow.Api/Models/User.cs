@@ -52,4 +52,8 @@ public class User
         get;
         set;
     } = new List<PasswordResetToken>();
+
+    [JsonIgnore]
+    public UserNotificationPreference?
+        NotificationPreference { get; set; }
 }

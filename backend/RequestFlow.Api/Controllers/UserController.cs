@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RequestFlow.Api.Data;
+using RequestFlow.Api.Services;
 using RequestFlow.Api.DTOs;
 
 namespace RequestFlow.Api.Controllers;
@@ -13,6 +14,7 @@ namespace RequestFlow.Api.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IAuditLogService _auditLog;
 
     private static readonly string[] AllowedRoles =
     {
@@ -22,9 +24,13 @@ public class UsersController : ControllerBase
         "Admin"
     };
 
-    public UsersController(AppDbContext context)
+    public UsersController(
+        AppDbContext context,
+        IAuditLogService auditLog
+    )
     {
         _context = context;
+        _auditLog = auditLog;
     }
 
     [Authorize(Policy = "AdminOnly")]
@@ -148,7 +154,16 @@ public class UsersController : ControllerBase
             });
         }
 
+        var previousRole = user.Role;
         user.Role = normalizedRole;
+
+        _auditLog.Add(
+            User,
+            "user.role_changed",
+            "User",
+            user.Id.ToString(),
+            $"{user.FullName}'s role changed from {previousRole} to {normalizedRole}."
+        );
 
         await _context.SaveChangesAsync();
 

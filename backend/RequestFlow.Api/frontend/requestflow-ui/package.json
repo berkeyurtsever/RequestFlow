@@ -15,6 +15,7 @@
   "dependencies": {
     "axios": "^1.18.1",
     "lucide-react": "^1.25.0",
+    "@microsoft/signalr": "^10.0.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "7.18.2",

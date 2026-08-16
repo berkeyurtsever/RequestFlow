@@ -66,6 +66,9 @@ const DemoSettings = lazy(() =>
 const Profile = lazy(() =>
   import("./pages/Profile")
 );
+const AuditLogs = lazy(() =>
+  import("./pages/AuditLogs")
+);
 const ChangePassword = lazy(() =>
   import("./pages/ChangePassword")
 );
@@ -311,6 +314,15 @@ function App() {
               allowedRoles={["admin"]}
             >
               <Employees />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="audit-logs"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AuditLogs />
             </ProtectedRoute>
           }
         />

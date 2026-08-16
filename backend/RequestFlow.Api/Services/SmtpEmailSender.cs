@@ -125,4 +125,82 @@ public sealed class SmtpEmailSender : IEmailSender
             cancellationToken
         );
     }
+
+    public async Task SendNotificationAsync(
+        string recipientName,
+        string recipientEmail,
+        string subject,
+        string message,
+        string actionUrl,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (!IsConfigured)
+        {
+            throw new InvalidOperationException(
+                "Email delivery is not configured."
+            );
+        }
+
+        var displayName = string.IsNullOrWhiteSpace(recipientName)
+            ? "RequestFlow user"
+            : recipientName.Trim();
+
+        using var mailMessage = new MailMessage
+        {
+            From = new MailAddress(
+                _options.FromAddress,
+                _options.FromName
+            ),
+            Subject = subject,
+            Body = $"Hello {displayName},\n\n{message}\n\nOpen RequestFlow: {actionUrl}",
+            IsBodyHtml = false
+        };
+
+        mailMessage.To.Add(new MailAddress(recipientEmail));
+
+        var htmlBody = $"""
+            <p>Hello {WebUtility.HtmlEncode(displayName)},</p>
+            <p>{WebUtility.HtmlEncode(message)}</p>
+            <p><a href="{WebUtility.HtmlEncode(actionUrl)}">Open RequestFlow</a></p>
+            <p style="color:#64748b;font-size:12px">You can change these emails from your RequestFlow profile.</p>
+            """;
+
+        mailMessage.AlternateViews.Add(
+            AlternateView.CreateAlternateViewFromString(
+                htmlBody,
+                null,
+                MediaTypeNames.Text.Html
+            )
+        );
+
+        using var smtpClient = CreateSmtpClient();
+        await smtpClient.SendMailAsync(
+            mailMessage,
+            cancellationToken
+        );
+    }
+
+    private SmtpClient CreateSmtpClient()
+    {
+        var smtpClient = new SmtpClient(
+            _options.Host,
+            _options.Port
+        )
+        {
+            EnableSsl = _options.UseSsl,
+            DeliveryMethod = SmtpDeliveryMethod.Network,
+            UseDefaultCredentials = false
+        };
+
+        if (!string.IsNullOrWhiteSpace(_options.Username))
+        {
+            smtpClient.Credentials = new NetworkCredential(
+                _options.Username,
+                _options.Password
+            );
+        }
+
+        return smtpClient;
+    }
 }

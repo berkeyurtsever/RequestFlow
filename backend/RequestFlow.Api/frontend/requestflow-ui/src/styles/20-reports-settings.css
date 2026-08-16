@@ -141,7 +141,7 @@
 .reports-summary-grid {
   margin-bottom: 22px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -175,6 +175,10 @@
 
 .reports-summary-card.open::before {
   background: #2563eb;
+}
+
+.reports-summary-card.overdue::before {
+  background: #dc2626;
 }
 
 .reports-summary-card.resolved::before {
