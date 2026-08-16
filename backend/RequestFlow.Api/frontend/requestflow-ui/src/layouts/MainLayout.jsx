@@ -14,6 +14,8 @@ const pageTitles = {
   "/overview": "Overview",
   "/requests": "Requests",
   "/requests/create": "Create Request",
+  "/notifications": "Notifications",
+  "/knowledge-base": "Knowledge Base",
   "/tasks": "Assigned Tasks",
   "/reports": "Reports",
   "/employees": "Employees",

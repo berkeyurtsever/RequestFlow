@@ -72,6 +72,9 @@ const AuditLogs = lazy(() =>
 const ChangePassword = lazy(() =>
   import("./pages/ChangePassword")
 );
+const KnowledgeBase = lazy(() =>
+  import("./pages/KnowledgeBase")
+);
 
 import { useAuth } from "./context/AuthContext";
 import { canUseDemoSettings } from "./utils/demoMode";
@@ -281,6 +284,11 @@ function App() {
         <Route
           path="notifications"
           element={<Notifications />}
+        />
+
+        <Route
+          path="knowledge-base"
+          element={<KnowledgeBase />}
         />
 
         <Route

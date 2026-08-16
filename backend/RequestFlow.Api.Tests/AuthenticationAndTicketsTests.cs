@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -178,6 +179,94 @@ public sealed class AuthenticationAndTicketsTests :
 
         Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
         Assert.Contains(tickets!, item => item.Id == createdTicket.Id);
+    }
+
+    [Fact]
+    public async Task AuthenticatedUser_CanReadKnowledgeBaseAndTemplates()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var knowledgeResponse = await _client.GetAsync(
+            "/api/KnowledgeBase"
+        );
+        var templateResponse = await _client.GetAsync(
+            "/api/RequestTemplates"
+        );
+        var fieldResponse = await _client.GetAsync(
+            "/api/CategoryFields?category=Hardware%20Request"
+        );
+
+        Assert.Equal(HttpStatusCode.OK, knowledgeResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, templateResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, fieldResponse.StatusCode);
+
+        var articles = await knowledgeResponse.Content
+            .ReadFromJsonAsync<List<KnowledgeArticle>>();
+        var templates = await templateResponse.Content
+            .ReadFromJsonAsync<List<RequestTemplate>>();
+        var fields = await fieldResponse.Content
+            .ReadFromJsonAsync<List<JsonElement>>();
+
+        Assert.NotEmpty(articles!);
+        Assert.NotEmpty(templates!);
+        Assert.Contains(fields!, field =>
+            field.GetProperty("key").GetString() == "deviceType"
+        );
+    }
+
+    [Fact]
+    public async Task TicketCategoryFields_AreValidatedAndPersisted()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var invalidResponse = await _client.PostAsJsonAsync(
+            "/api/Tickets",
+            new Ticket
+            {
+                Title = "New laptop request",
+                Description = "A laptop is needed for the new employee.",
+                Category = "Hardware Request",
+                Priority = "High"
+            }
+        );
+
+        Assert.Equal(HttpStatusCode.BadRequest, invalidResponse.StatusCode);
+
+        var ticket = new Ticket
+        {
+            Title = "New laptop request",
+            Description = "A laptop is needed for the new employee.",
+            Category = "Hardware Request",
+            Priority = "High",
+            CustomFields = new Dictionary<string, string>
+            {
+                ["deviceType"] = "Laptop",
+                ["operatingSystem"] = "Standard company image",
+                ["neededBy"] = "2026-09-01"
+            }
+        };
+
+        var createResponse = await _client.PostAsJsonAsync(
+            "/api/Tickets",
+            ticket
+        );
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+
+        var createdTicket = await createResponse.Content
+            .ReadFromJsonAsync<Ticket>();
+
+        Assert.NotNull(createdTicket);
+        Assert.Equal(
+            "Laptop",
+            createdTicket.CustomFields["deviceType"]
+        );
+        Assert.Equal(
+            "2026-09-01",
+            createdTicket.CustomFields["neededBy"]
+        );
     }
 
     [Fact]

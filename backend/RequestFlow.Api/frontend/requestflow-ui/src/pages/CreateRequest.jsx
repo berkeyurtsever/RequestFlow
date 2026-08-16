@@ -11,8 +11,10 @@ import {
   Clock3,
   FileClock,
   Info,
+  LayoutTemplate,
   LoaderCircle,
   Send,
+  Sparkles,
   Trash2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -44,7 +46,8 @@ function createInitialFormData(
     title: "",
     category: "",
     priority,
-    description: ""
+    description: "",
+    customFields: {}
   };
 }
 
@@ -166,6 +169,15 @@ function CreateRequest() {
       createInitialFormData()
     );
 
+  const [requestTemplates, setRequestTemplates] =
+    useState([]);
+
+  const [categoryFields, setCategoryFields] =
+    useState([]);
+
+  const [isRequestSetupLoading, setIsRequestSetupLoading] =
+    useState(true);
+
   const [
     systemDefaultPriority,
     setSystemDefaultPriority
@@ -251,6 +263,13 @@ function CreateRequest() {
         responseTimeInformation.Medium
       );
     }, [formData.priority]);
+
+  const selectedCategoryFields =
+    useMemo(() => {
+      return categoryFields.filter(field =>
+        field.category === formData.category
+      );
+    }, [categoryFields, formData.category]);
 
   const hasDraftContent = useMemo(() => {
     return hasMeaningfulDraftData(
@@ -382,10 +401,16 @@ function CreateRequest() {
             loadedPriority
           );
         } catch (requestError) {
-          console.error(
-            "Default request priority could not be loaded:",
-            requestError
-          );
+          if (
+            ![401, 403].includes(
+              requestError.response?.status
+            )
+          ) {
+            console.error(
+              "Default request priority could not be loaded:",
+              requestError
+            );
+          }
 
           if (isActive) {
             setSystemDefaultPriority(
@@ -402,6 +427,58 @@ function CreateRequest() {
       };
 
     void loadSystemSettings();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadRequestSetup = async () => {
+      setIsRequestSetupLoading(true);
+
+      try {
+        const [templatesResponse, fieldsResponse] =
+          await Promise.all([
+            api.get("/RequestTemplates"),
+            api.get("/CategoryFields")
+          ]);
+
+        if (!isActive) {
+          return;
+        }
+
+        setRequestTemplates(
+          Array.isArray(templatesResponse.data)
+            ? templatesResponse.data
+            : []
+        );
+
+        setCategoryFields(
+          Array.isArray(fieldsResponse.data)
+            ? fieldsResponse.data
+            : []
+        );
+      } catch (requestError) {
+        console.error(
+          "Request templates and category fields could not be loaded:",
+          requestError
+        );
+
+        if (isActive) {
+          setRequestTemplates([]);
+          setCategoryFields([]);
+        }
+      } finally {
+        if (isActive) {
+          setIsRequestSetupLoading(false);
+        }
+      }
+    };
+
+    void loadRequestSetup();
 
     return () => {
       isActive = false;
@@ -648,10 +725,18 @@ function CreateRequest() {
     }
 
     setFormData(
-      previousData => ({
-        ...previousData,
-        [name]: value
-      })
+      previousData => {
+        const nextData = {
+          ...previousData,
+          [name]: value
+        };
+
+        if (name === "category") {
+          nextData.customFields = {};
+        }
+
+        return nextData;
+      }
     );
 
     setFormErrors(previousErrors => {
@@ -664,6 +749,64 @@ function CreateRequest() {
       };
 
       delete nextErrors[name];
+      return nextErrors;
+    });
+
+    setError("");
+    setIsDraftSaving(true);
+  };
+
+  const handleApplyTemplate = template => {
+    if (!template) {
+      return;
+    }
+
+    priorityTouchedRef.current = true;
+
+    setFormData(previousData => ({
+      ...previousData,
+      title: template.title || "",
+      category: template.category || "",
+      priority: priorityOptions.includes(template.priority)
+        ? template.priority
+        : previousData.priority,
+      description: template.description || "",
+      customFields: {}
+    }));
+
+    setFormErrors({});
+    setError("");
+    setIsDraftSaving(true);
+
+    info(
+      `The "${template.name}" template was applied.`
+    );
+  };
+
+  const handleCustomFieldChange = (
+    fieldKey,
+    value
+  ) => {
+    setFormData(previousData => ({
+      ...previousData,
+      customFields: {
+        ...(previousData.customFields || {}),
+        [fieldKey]: value
+      }
+    }));
+
+    setFormErrors(previousErrors => {
+      const errorKey = `field-${fieldKey}`;
+
+      if (!previousErrors[errorKey]) {
+        return previousErrors;
+      }
+
+      const nextErrors = {
+        ...previousErrors
+      };
+
+      delete nextErrors[errorKey];
       return nextErrors;
     });
 
@@ -723,6 +866,17 @@ function CreateRequest() {
       errors.description =
         "Description cannot exceed 500 characters.";
     }
+
+    selectedCategoryFields.forEach(field => {
+      const value = String(
+        formData.customFields?.[field.key] || ""
+      ).trim();
+
+      if (field.isRequired && !value) {
+        errors[`field-${field.key}`] =
+          `${field.label} is required.`;
+      }
+    });
 
     setFormErrors(errors);
 
@@ -810,6 +964,8 @@ function CreateRequest() {
       priority: formData.priority,
       description:
         formData.description.trim(),
+      customFields:
+        formData.customFields || {},
       status: "Open"
     };
 
@@ -1159,6 +1315,71 @@ function CreateRequest() {
         </section>
       )}
 
+      <section
+        className="request-template-picker"
+        aria-labelledby="request-template-title"
+      >
+        <div className="request-template-heading">
+          <div className="request-template-heading-icon">
+            <LayoutTemplate size={20} />
+          </div>
+
+          <div>
+            <span>QUICK START</span>
+            <h2 id="request-template-title">
+              Start from a template
+            </h2>
+            <p>
+              Choose a common request to prefill the form, then review the details.
+            </p>
+          </div>
+        </div>
+
+        {isRequestSetupLoading ? (
+          <div
+            className="request-template-loading"
+            role="status"
+          >
+            <LoaderCircle
+              size={18}
+              className="login-button-spinner"
+            />
+            Loading templates...
+          </div>
+        ) : requestTemplates.length > 0 ? (
+          <div className="request-template-list">
+            {requestTemplates.map(template => (
+              <button
+                key={template.id}
+                type="button"
+                className={
+                  formData.category === template.category &&
+                  formData.title === template.title
+                    ? "selected"
+                    : ""
+                }
+                onClick={() =>
+                  handleApplyTemplate(template)
+                }
+                disabled={isSubmitting}
+              >
+                <span className="request-template-icon">
+                  <Sparkles size={17} />
+                </span>
+                <span>
+                  <strong>{template.name}</strong>
+                  <small>{template.category}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="request-template-empty">
+            No templates are available. You can still complete the form manually.
+          </p>
+        )}
+      </section>
+
       <div className="create-request-layout">
         <form
           className="request-form-card"
@@ -1456,6 +1677,39 @@ function CreateRequest() {
               </div>
             </div>
 
+            {selectedCategoryFields.length > 0 && (
+              <fieldset className="request-custom-fields">
+                <legend>
+                  <span>Category details</span>
+                  <small>
+                    Information required for {formData.category}
+                  </small>
+                </legend>
+
+                <div className="request-custom-fields-grid">
+                  {selectedCategoryFields.map(field => (
+                    <CustomFieldInput
+                      key={field.id}
+                      field={field}
+                      value={
+                        formData.customFields?.[field.key] || ""
+                      }
+                      errorMessage={
+                        formErrors[`field-${field.key}`]
+                      }
+                      disabled={isSubmitting}
+                      onChange={value =>
+                        handleCustomFieldChange(
+                          field.key,
+                          value
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              </fieldset>
+            )}
+
             <RequestAttachments
               key={
                 attachmentResetKey
@@ -1615,6 +1869,123 @@ function CreateRequestTip({
   );
 }
 
+function CustomFieldInput({
+  field,
+  value,
+  errorMessage,
+  disabled,
+  onChange
+}) {
+  const inputId = `request-field-${field.key}`;
+  const helpId = `${inputId}-help`;
+  const errorId = `${inputId}-error`;
+  const describedBy = [
+    field.helpText ? helpId : null,
+    errorMessage ? errorId : null
+  ]
+    .filter(Boolean)
+    .join(" ") || undefined;
+
+  const commonProps = {
+    id: inputId,
+    value,
+    disabled,
+    required: field.isRequired,
+    "aria-invalid": Boolean(errorMessage),
+    "aria-describedby": describedBy,
+    className: errorMessage
+      ? "request-input-error"
+      : ""
+  };
+
+  let control;
+
+  if (field.fieldType === "textarea") {
+    control = (
+      <textarea
+        {...commonProps}
+        rows={4}
+        maxLength={1000}
+        placeholder={field.placeholder || ""}
+        onChange={event => onChange(event.target.value)}
+      />
+    );
+  } else if (field.fieldType === "select") {
+    control = (
+      <select
+        {...commonProps}
+        onChange={event => onChange(event.target.value)}
+      >
+        <option value="">
+          {field.placeholder || "Select an option"}
+        </option>
+        {(field.options || []).map(option => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    );
+  } else {
+    control = (
+      <input
+        {...commonProps}
+        type={
+          field.fieldType === "date" ||
+          field.fieldType === "number"
+            ? field.fieldType
+            : "text"
+        }
+        step={
+          field.fieldType === "number"
+            ? "0.01"
+            : undefined
+        }
+        maxLength={
+          field.fieldType === "text"
+            ? 1000
+            : undefined
+        }
+        placeholder={field.placeholder || ""}
+        onChange={event => onChange(event.target.value)}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`request-form-group request-custom-field ${
+        field.fieldType === "textarea"
+          ? "wide"
+          : ""
+      }`}
+    >
+      <label htmlFor={inputId}>
+        {field.label}
+        {field.isRequired && <span>*</span>}
+      </label>
+
+      {control}
+
+      {field.helpText && (
+        <small id={helpId}>
+          {field.helpText}
+        </small>
+      )}
+
+      {errorMessage && (
+        <span
+          id={errorId}
+          className="request-field-error"
+          role="alert"
+        >
+          {errorMessage}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function sanitizeDraftForm(
   value,
   defaultPriority = "Medium"
@@ -1646,7 +2017,20 @@ function sanitizeDraftForm(
 
     description: String(
       value?.description || ""
-    ).slice(0, 500)
+    ).slice(0, 500),
+
+    customFields:
+      value?.customFields &&
+      typeof value.customFields === "object" &&
+      !Array.isArray(value.customFields)
+        ? Object.fromEntries(
+            Object.entries(value.customFields)
+              .map(([key, fieldValue]) => [
+                String(key).slice(0, 80),
+                String(fieldValue || "").slice(0, 1000)
+              ])
+          )
+        : {}
   };
 }
 
@@ -1660,7 +2044,12 @@ function hasMeaningfulDraftData(value) {
       ).trim() ||
       String(
         value?.description || ""
-      ).trim()
+      ).trim() ||
+      Object.values(
+        value?.customFields || {}
+      ).some(fieldValue =>
+        String(fieldValue || "").trim()
+      )
   );
 }
 
