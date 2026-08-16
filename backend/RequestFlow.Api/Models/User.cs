@@ -56,4 +56,8 @@ public class User
     [JsonIgnore]
     public UserNotificationPreference?
         NotificationPreference { get; set; }
+
+    [JsonIgnore]
+    public UserDashboardPreference?
+        DashboardPreference { get; set; }
 }

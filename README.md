@@ -21,7 +21,9 @@ RequestFlow is a full-stack, role-based request management system developed duri
 - Priority management, advanced filtering, sorting, and pagination
 - Comments, attachments, permanent activity history, and notifications
 - Employee, role, category, and system-setting management
-- Dashboard charts, reports, and CSV export
+- Dashboard charts, personnel workload, response/resolution time, and SLA metrics
+- Per-user dashboard card customization saved across sessions
+- Reports with CSV and PDF export
 - Light and dark themes
 - Responsive desktop, tablet, and mobile layouts
 - Route-level loading so screens download only when opened

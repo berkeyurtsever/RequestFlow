@@ -652,6 +652,119 @@ public sealed class AuthenticationAndTicketsTests :
     }
 
     [Fact]
+    public async Task DashboardPreferences_AreSavedForCurrentUser()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var requestedCards = new DashboardPreferenceDto
+        {
+            VisibleCards = new List<string>
+            {
+                "serviceMetrics",
+                "recentRequests"
+            }
+        };
+
+        var updateResponse = await _client.PutAsJsonAsync(
+            "/api/dashboard/preferences",
+            requestedCards
+        );
+
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+
+        var getResponse = await _client.GetAsync(
+            "/api/dashboard/preferences"
+        );
+        var preferences = await getResponse.Content
+            .ReadFromJsonAsync<DashboardPreferenceDto>();
+
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+        Assert.NotNull(preferences);
+        Assert.Equal(requestedCards.VisibleCards, preferences.VisibleCards);
+    }
+
+    [Fact]
+    public async Task DashboardAnalytics_CalculatesResponseResolutionAndSla()
+    {
+        var auth = await RegisterAdminAsync();
+        UseBearerToken(auth.Token);
+
+        var createdAt = DateTime.UtcNow.AddHours(-12);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+
+            var staff = new User
+            {
+                FullName = "Analytics Staff",
+                Email = $"analytics-{Guid.NewGuid():N}@example.com",
+                PasswordHash = "unused-in-test",
+                Role = "Staff"
+            };
+            context.Users.Add(staff);
+            await context.SaveChangesAsync();
+
+            var ticket = new Ticket
+            {
+                Title = "Analytics request",
+                Description = "Dashboard metric integration test.",
+                Category = "Information Technology",
+                Priority = "High",
+                Status = "Resolved",
+                CreatedByUserId = auth.UserId,
+                AssignedToUserId = staff.Id,
+                CreatedAt = createdAt,
+                UpdatedAt = createdAt.AddHours(10),
+                SlaDueAt = createdAt.AddHours(24)
+            };
+            context.Tickets.Add(ticket);
+
+            context.TicketComments.Add(new TicketComment
+            {
+                Ticket = ticket,
+                AuthorUserId = staff.Id,
+                AuthorName = staff.FullName,
+                AuthorRole = staff.Role,
+                Content = "We are reviewing the request.",
+                CreatedAt = createdAt.AddHours(2)
+            });
+
+            context.TicketActivities.Add(new TicketActivity
+            {
+                Ticket = ticket,
+                ActorUserId = staff.Id,
+                ActorName = staff.FullName,
+                ActorRole = staff.Role,
+                Type = "status",
+                Title = "Status changed",
+                Description = "Status changed from In Progress to Resolved.",
+                CreatedAt = createdAt.AddHours(10)
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        var response = await _client.GetAsync(
+            "/api/dashboard/analytics?days=7"
+        );
+        var analytics = await response.Content
+            .ReadFromJsonAsync<DashboardAnalyticsDto>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(analytics);
+        Assert.Equal(2, analytics.AverageFirstResponseHours);
+        Assert.Equal(10, analytics.AverageResolutionHours);
+        Assert.Equal(100, analytics.SlaSuccessRate);
+        Assert.Contains(
+            analytics.PersonnelWorkload,
+            item => item.Name == "Analytics Staff" && item.Resolved == 1
+        );
+    }
+
+    [Fact]
     public async Task CreatedTicket_ReceivesPriorityBasedSlaDeadline()
     {
         var auth = await RegisterUserAsync();

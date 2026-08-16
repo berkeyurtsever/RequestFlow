@@ -11,11 +11,16 @@ import {
   ClipboardList,
   Clock3,
   LoaderCircle,
+  MessageSquare,
   RefreshCw,
+  ShieldCheck,
+  SlidersHorizontal,
   Tags,
+  Timer,
   TrendingDown,
   TrendingUp,
-  UsersRound
+  UsersRound,
+  X
 } from "lucide-react";
 import {
   useCallback,
@@ -66,6 +71,42 @@ const PRIORITY_RESPONSE_HOURS = {
   Urgent: 2
 };
 
+const DEFAULT_DASHBOARD_CARDS = [
+  "periodSummary",
+  "requestSummary",
+  "serviceMetrics",
+  "statusDistribution",
+  "recentRequests",
+  "priorityDistribution",
+  "topCategories",
+  "quickActions",
+  "teamWorkload"
+];
+
+const DASHBOARD_CARD_OPTIONS = [
+  { id: "periodSummary", label: "Period summary" },
+  { id: "requestSummary", label: "Request summary cards" },
+  { id: "serviceMetrics", label: "Response, resolution and SLA" },
+  { id: "statusDistribution", label: "Status distribution" },
+  { id: "recentRequests", label: "Recent requests" },
+  { id: "priorityDistribution", label: "Priority distribution" },
+  { id: "topCategories", label: "Top categories" },
+  { id: "quickActions", label: "Quick actions" },
+  { id: "teamWorkload", label: "Personnel workload", managementOnly: true }
+];
+
+const EMPTY_ANALYTICS = {
+  averageFirstResponseHours: null,
+  firstResponseSampleSize: 0,
+  averageResolutionHours: null,
+  resolutionSampleSize: 0,
+  slaSuccessRate: null,
+  slaEvaluatedCount: 0,
+  slaMetCount: 0,
+  slaBreachedCount: 0,
+  personnelWorkload: []
+};
+
 function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -87,6 +128,21 @@ function Dashboard() {
 
   const [error, setError] =
     useState("");
+
+  const [analytics, setAnalytics] =
+    useState(EMPTY_ANALYTICS);
+
+  const [visibleCards, setVisibleCards] =
+    useState(DEFAULT_DASHBOARD_CARDS);
+
+  const [draftCards, setDraftCards] =
+    useState(DEFAULT_DASHBOARD_CARDS);
+
+  const [isCustomizing, setIsCustomizing] =
+    useState(false);
+
+  const [isSavingPreferences, setIsSavingPreferences] =
+    useState(false);
 
   const normalizedRole = String(
     user?.role || "User"
@@ -117,12 +173,30 @@ function Dashboard() {
       setError("");
 
       try {
-        const response =
-          await api.get("/Tickets");
+        const [ticketsResponse, analyticsResponse, preferencesResponse] =
+          await Promise.all([
+            api.get("/Tickets"),
+            api.get(`/dashboard/analytics?days=${selectedRange}`),
+            api.get("/dashboard/preferences")
+          ]);
 
         setTickets(
-          extractTickets(response.data)
+          extractTickets(ticketsResponse.data)
         );
+
+        setAnalytics({
+          ...EMPTY_ANALYTICS,
+          ...(analyticsResponse.data || {})
+        });
+
+        const savedCards = Array.isArray(
+          preferencesResponse.data?.visibleCards
+        ) && preferencesResponse.data.visibleCards.length > 0
+          ? preferencesResponse.data.visibleCards
+          : DEFAULT_DASHBOARD_CARDS;
+
+        setVisibleCards(savedCards);
+        setDraftCards(savedCards);
       } catch (requestError) {
         console.error(
           "Dashboard data could not be loaded:",
@@ -149,12 +223,13 @@ function Dashboard() {
         }
 
         setTickets([]);
+        setAnalytics(EMPTY_ANALYTICS);
       } finally {
         setIsLoading(false);
         setIsRefreshing(false);
       }
     },
-    []
+    [selectedRange]
   );
 
   useEffect(() => {
@@ -432,7 +507,7 @@ function Dashboard() {
       .slice(0, 5);
   }, [tickets]);
 
-  const workloadItems = useMemo(() => {
+  const fallbackWorkloadItems = useMemo(() => {
     const workloadCounts = {};
 
     tickets.forEach(ticket => {
@@ -458,29 +533,45 @@ function Dashboard() {
       workloadCounts
     )
       .map(([name, value]) => ({
+        userId: name,
         name,
-        value
+        active: value,
+        resolved: 0,
+        overdue: 0,
+        total: value
       }))
       .sort(
         (firstItem, secondItem) =>
-          secondItem.value -
-          firstItem.value
+          secondItem.active -
+          firstItem.active
       )
       .slice(0, 6);
 
     const maximumValue = Math.max(
-      ...items.map(item => item.value),
+      ...items.map(item => item.active),
       1
     );
 
     return items.map(item => ({
       ...item,
-      percentage: Math.round(
-        (item.value / maximumValue) *
+      utilizationPercentage: Math.round(
+        (item.active / maximumValue) *
           100
       )
     }));
   }, [tickets]);
+
+  const workloadItems = useMemo(() => {
+    const backendItems = Array.isArray(
+      analytics.personnelWorkload
+    )
+      ? analytics.personnelWorkload
+      : [];
+
+    return backendItems.length > 0
+      ? backendItems
+      : fallbackWorkloadItems;
+  }, [analytics.personnelWorkload, fallbackWorkloadItems]);
 
   const recentTickets = useMemo(() => {
     return [...tickets]
@@ -551,6 +642,56 @@ function Dashboard() {
     isManagement,
     isStaff
   ]);
+
+  const isCardVisible = useCallback(
+    cardId => visibleCards.includes(cardId),
+    [visibleCards]
+  );
+
+  const openCustomization = () => {
+    setDraftCards(visibleCards);
+    setIsCustomizing(true);
+  };
+
+  const toggleDraftCard = cardId => {
+    setDraftCards(currentCards =>
+      currentCards.includes(cardId)
+        ? currentCards.filter(id => id !== cardId)
+        : [...currentCards, cardId]
+    );
+  };
+
+  const savePreferences = async () => {
+    if (draftCards.length === 0) {
+      setError("Select at least one dashboard card.");
+      return;
+    }
+
+    setIsSavingPreferences(true);
+    setError("");
+
+    try {
+      const response = await api.put(
+        "/dashboard/preferences",
+        { visibleCards: draftCards }
+      );
+
+      const savedCards = Array.isArray(response.data?.visibleCards)
+        ? response.data.visibleCards
+        : draftCards;
+
+      setVisibleCards(savedCards);
+      setDraftCards(savedCards);
+      setIsCustomizing(false);
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.message ||
+          "Dashboard preferences could not be saved."
+      );
+    } finally {
+      setIsSavingPreferences(false);
+    }
+  };
 
   const displayName =
     user?.fullName ||
@@ -631,6 +772,17 @@ function Dashboard() {
         </div>
 
         <div className="dashboard-header-controls">
+          <button
+            type="button"
+            className="dashboard-customize-button"
+            onClick={openCustomization}
+            aria-expanded={isCustomizing}
+            aria-controls="dashboard-customization-panel"
+          >
+            <SlidersHorizontal size={16} />
+            <span>Customize</span>
+          </button>
+
           <div className="dashboard-range-control">
             <CalendarRange
               size={17}
@@ -713,7 +865,72 @@ function Dashboard() {
         </div>
       )}
 
-      <section className="dashboard-period-card">
+      {isCustomizing && (
+        <section
+          id="dashboard-customization-panel"
+          className="dashboard-customization-panel"
+          aria-labelledby="dashboard-customization-title"
+        >
+          <div className="dashboard-customization-heading">
+            <div>
+              <span className="page-eyebrow">PERSONAL VIEW</span>
+              <h2 id="dashboard-customization-title">
+                Choose your dashboard cards
+              </h2>
+              <p>
+                Your selection is saved to your RequestFlow account.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="dashboard-customization-close"
+              onClick={() => setIsCustomizing(false)}
+              aria-label="Close dashboard customization"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="dashboard-customization-options">
+            {DASHBOARD_CARD_OPTIONS
+              .filter(option => !option.managementOnly || isManagement)
+              .map(option => (
+                <label key={option.id}>
+                  <input
+                    type="checkbox"
+                    checked={draftCards.includes(option.id)}
+                    onChange={() => toggleDraftCard(option.id)}
+                  />
+                  <span>{option.label}</span>
+                </label>
+              ))}
+          </div>
+
+          <div className="dashboard-customization-actions">
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => setDraftCards(DEFAULT_DASHBOARD_CARDS)}
+            >
+              Show all
+            </button>
+            <button
+              type="button"
+              className="primary"
+              onClick={savePreferences}
+              disabled={isSavingPreferences}
+            >
+              {isSavingPreferences ? "Saving..." : "Save layout"}
+            </button>
+          </div>
+        </section>
+      )}
+
+      <section
+        className="dashboard-period-card"
+        hidden={!isCardVisible("periodSummary")}
+      >
         <div className="dashboard-period-icon">
           <CalendarRange size={22} />
         </div>
@@ -774,7 +991,10 @@ function Dashboard() {
         </div>
       </section>
 
-      <div className="dashboard-stats-grid">
+      <div
+        className="dashboard-stats-grid"
+        hidden={!isCardVisible("requestSummary")}
+      >
         <DashboardStatCard
           title="Open Requests"
           value={statistics.open}
@@ -839,8 +1059,54 @@ function Dashboard() {
         />
       </div>
 
+      <section
+        className="dashboard-service-metrics"
+        hidden={!isCardVisible("serviceMetrics")}
+        aria-label="Service performance metrics"
+      >
+        <ServiceMetricCard
+          title="Average First Response"
+          value={formatDuration(analytics.averageFirstResponseHours)}
+          description={
+            analytics.firstResponseSampleSize > 0
+              ? `Based on ${analytics.firstResponseSampleSize} responded requests`
+              : "No staff responses recorded in this period"
+          }
+          icon={MessageSquare}
+          variant="response"
+        />
+
+        <ServiceMetricCard
+          title="Average Resolution Time"
+          value={formatDuration(analytics.averageResolutionHours)}
+          description={
+            analytics.resolutionSampleSize > 0
+              ? `Based on ${analytics.resolutionSampleSize} resolved requests`
+              : "No resolved requests in this period"
+          }
+          icon={Timer}
+          variant="resolution"
+        />
+
+        <ServiceMetricCard
+          title="SLA Success Rate"
+          value={formatPercentage(analytics.slaSuccessRate)}
+          description={
+            analytics.slaEvaluatedCount > 0
+              ? `${analytics.slaMetCount} of ${analytics.slaEvaluatedCount} requests met SLA`
+              : "No completed SLA records in this period"
+          }
+          icon={ShieldCheck}
+          variant="sla"
+          progress={analytics.slaSuccessRate}
+        />
+      </section>
+
       <div className="dashboard-content-grid">
-        <section className="dashboard-chart-card">
+        <section
+          className="dashboard-chart-card"
+          hidden={!isCardVisible("statusDistribution")}
+        >
           <div className="dashboard-card-header">
             <div>
               <h2>
@@ -910,7 +1176,10 @@ function Dashboard() {
           </div>
         </section>
 
-        <section className="dashboard-recent-card">
+        <section
+          className="dashboard-recent-card"
+          hidden={!isCardVisible("recentRequests")}
+        >
           <div className="dashboard-card-header">
             <div>
               <h2>Recent Requests</h2>
@@ -1059,6 +1328,7 @@ function Dashboard() {
           items={priorityBreakdown}
           emptyMessage="No priority data available."
           showColors
+          hidden={!isCardVisible("priorityDistribution")}
         />
 
         <AnalyticsCard
@@ -1067,9 +1337,13 @@ function Dashboard() {
           icon={Tags}
           items={categoryBreakdown}
           emptyMessage="No category data available."
+          hidden={!isCardVisible("topCategories")}
         />
 
-        <section className="dashboard-quick-actions-card">
+        <section
+          className="dashboard-quick-actions-card"
+          hidden={!isCardVisible("quickActions")}
+        >
           <div className="dashboard-insight-header">
             <div className="dashboard-insight-icon quick">
               <CirclePlus size={19} />
@@ -1119,7 +1393,7 @@ function Dashboard() {
         </section>
       </div>
 
-      {isManagement && (
+      {isManagement && isCardVisible("teamWorkload") && (
         <section className="dashboard-workload-card">
           <div className="dashboard-card-header">
             <div>
@@ -1150,7 +1424,7 @@ function Dashboard() {
             <div className="dashboard-workload-list">
               {workloadItems.map(item => (
                 <div
-                  key={item.name}
+                  key={item.userId || item.name}
                   className="dashboard-workload-row"
                 >
                   <div className="dashboard-workload-avatar">
@@ -1166,19 +1440,34 @@ function Dashboard() {
                       </strong>
 
                       <span>
-                        {item.value} active{" "}
-                        {item.value === 1
+                        {item.active} active{" "}
+                        {item.active === 1
                           ? "request"
                           : "requests"}
                       </span>
                     </div>
 
-                    <div className="dashboard-workload-progress">
+                    <div
+                      className="dashboard-workload-progress"
+                      aria-label={`${item.name}: ${item.active} active requests`}
+                    >
                       <span
                         style={{
-                          width: `${item.percentage}%`
+                          width: `${item.utilizationPercentage}%`
                         }}
                       />
+                    </div>
+
+                    <div className="dashboard-workload-metrics">
+                      <span className="active">
+                        <i /> {item.active} active
+                      </span>
+                      <span className="resolved">
+                        <i /> {item.resolved} resolved
+                      </span>
+                      <span className="overdue">
+                        <i /> {item.overdue} overdue
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1246,6 +1535,46 @@ function DashboardStatCard({
   );
 }
 
+function ServiceMetricCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+  variant,
+  progress
+}) {
+  const progressValue = Number.isFinite(Number(progress))
+    ? Math.min(Math.max(Number(progress), 0), 100)
+    : null;
+
+  return (
+    <article className={`dashboard-service-card ${variant}`}>
+      <div className="dashboard-service-icon">
+        <Icon size={21} aria-hidden="true" />
+      </div>
+
+      <div className="dashboard-service-content">
+        <span>{title}</span>
+        <strong>{value}</strong>
+        <p>{description}</p>
+
+        {progressValue !== null && (
+          <div
+            className="dashboard-service-progress"
+            role="progressbar"
+            aria-label={title}
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow={Math.round(progressValue)}
+          >
+            <span style={{ width: `${progressValue}%` }} />
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
 function TrendBadge({ trend }) {
   const isPositive =
     trend.value > 0;
@@ -1279,7 +1608,8 @@ function AnalyticsCard({
   icon: Icon,
   items,
   emptyMessage,
-  showColors = false
+  showColors = false,
+  hidden = false
 }) {
   const maximumValue = Math.max(
     ...items.map(item => item.value),
@@ -1287,7 +1617,7 @@ function AnalyticsCard({
   );
 
   return (
-    <section className="dashboard-insight-card">
+    <section className="dashboard-insight-card" hidden={hidden}>
       <div className="dashboard-insight-header">
         <div className="dashboard-insight-icon">
           <Icon size={19} />
@@ -1378,6 +1708,45 @@ function extractTickets(responseData) {
   }
 
   return [];
+}
+
+function formatDuration(hours) {
+  if (hours === null || hours === undefined || hours === "") {
+    return "Not enough data";
+  }
+
+  const numericHours = Number(hours);
+
+  if (!Number.isFinite(numericHours)) {
+    return "Not enough data";
+  }
+
+  if (numericHours < 1) {
+    return `${Math.max(Math.round(numericHours * 60), 1)} min`;
+  }
+
+  if (numericHours < 24) {
+    return `${numericHours.toFixed(numericHours < 10 ? 1 : 0)} hrs`;
+  }
+
+  const days = numericHours / 24;
+  return `${days.toFixed(days < 10 ? 1 : 0)} days`;
+}
+
+function formatPercentage(value) {
+  if (value === null || value === undefined || value === "") {
+    return "Not enough data";
+  }
+
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) {
+    return "Not enough data";
+  }
+
+  return `${numericValue.toFixed(
+    Number.isInteger(numericValue) ? 0 : 1
+  )}%`;
 }
 
 function normalizeStatus(status) {

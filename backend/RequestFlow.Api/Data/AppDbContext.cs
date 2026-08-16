@@ -49,6 +49,10 @@ public class AppDbContext : DbContext
         UserNotificationPreferences =>
         Set<UserNotificationPreference>();
 
+    public DbSet<UserDashboardPreference>
+        UserDashboardPreferences =>
+        Set<UserDashboardPreference>();
+
     public DbSet<AuditLog> AuditLogs =>
         Set<AuditLog>();
 
@@ -76,6 +80,7 @@ public class AppDbContext : DbContext
         ConfigureNotification(modelBuilder);
         ConfigurePasswordResetToken(modelBuilder);
         ConfigureUserNotificationPreference(modelBuilder);
+        ConfigureUserDashboardPreference(modelBuilder);
         ConfigureAuditLog(modelBuilder);
         ConfigureKnowledgeArticle(modelBuilder);
         ConfigureRequestTemplate(modelBuilder);
@@ -127,6 +132,31 @@ public class AppDbContext : DbContext
             .HasOne(preference => preference.User)
             .WithOne(user => user.NotificationPreference)
             .HasForeignKey<UserNotificationPreference>(
+                preference => preference.UserId
+            )
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private static void ConfigureUserDashboardPreference(
+        ModelBuilder modelBuilder
+    )
+    {
+        var preferenceEntity = modelBuilder
+            .Entity<UserDashboardPreference>();
+
+        preferenceEntity.HasKey(preference =>
+            preference.UserId
+        );
+
+        preferenceEntity
+            .Property(preference => preference.VisibleCardsJson)
+            .IsRequired()
+            .HasDefaultValue("[]");
+
+        preferenceEntity
+            .HasOne(preference => preference.User)
+            .WithOne(user => user.DashboardPreference)
+            .HasForeignKey<UserDashboardPreference>(
                 preference => preference.UserId
             )
             .OnDelete(DeleteBehavior.Cascade);
