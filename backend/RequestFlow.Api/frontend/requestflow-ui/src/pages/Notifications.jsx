@@ -108,6 +108,35 @@ function Notifications() {
     void loadNotifications();
   }, [loadNotifications]);
 
+  useEffect(() => {
+    const handleRealtimeNotification = event => {
+      const notification = event.detail;
+
+      if (!notification?.id) {
+        return;
+      }
+
+      setNotifications(previous => [
+        notification,
+        ...previous.filter(item =>
+          item.id !== notification.id
+        )
+      ]);
+    };
+
+    window.addEventListener(
+      "requestflow:notification",
+      handleRealtimeNotification
+    );
+
+    return () => {
+      window.removeEventListener(
+        "requestflow:notification",
+        handleRealtimeNotification
+      );
+    };
+  }, []);
+
   const unreadCount = useMemo(() => {
     return notifications.filter(
       notification =>

@@ -28,6 +28,11 @@ public sealed class RequestFlowWebApplicationFactory :
     private readonly IReadOnlyDictionary<string, string?>
         _configurationOverrides;
 
+    private readonly SemaphoreSlim
+        _databaseInitializationLock = new(1, 1);
+
+    private bool _databaseInitialized;
+
     public RequestFlowWebApplicationFactory()
         : this(null)
     {
@@ -125,13 +130,28 @@ public sealed class RequestFlowWebApplicationFactory :
 
     public async Task InitializeDatabaseAsync()
     {
-        using var scope = Services.CreateScope();
+        await _databaseInitializationLock.WaitAsync();
 
-        var context = scope.ServiceProvider
-            .GetRequiredService<AppDbContext>();
+        try
+        {
+            if (_databaseInitialized)
+            {
+                return;
+            }
 
-        await context.Database.EnsureCreatedAsync();
-        await CategorySeeder.SeedAsync(context);
+            using var scope = Services.CreateScope();
+
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+
+            await context.Database.EnsureCreatedAsync();
+            await CategorySeeder.SeedAsync(context);
+            _databaseInitialized = true;
+        }
+        finally
+        {
+            _databaseInitializationLock.Release();
+        }
     }
 
     protected override void Dispose(bool disposing)
@@ -140,6 +160,7 @@ public sealed class RequestFlowWebApplicationFactory :
 
         if (disposing)
         {
+            _databaseInitializationLock.Dispose();
             _connection.Dispose();
         }
     }

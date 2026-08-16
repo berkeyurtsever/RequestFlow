@@ -19,6 +19,7 @@ const pageTitles = {
   "/employees": "Employees",
   "/categories": "Categories",
   "/settings": "Settings",
+  "/audit-logs": "Audit Logs",
   "/profile": "My Profile",
   "/change-password": "Change Password",
   "/access-denied": "Access Denied"

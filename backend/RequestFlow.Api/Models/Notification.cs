@@ -25,6 +25,11 @@ public class Notification
 
     public DateTime? ReadAt { get; set; }
 
+    public string EmailDeliveryStatus { get; set; } =
+        "Pending";
+
+    public DateTime? EmailDeliveredAt { get; set; }
+
     public User? User { get; set; }
 
     public Ticket? Ticket { get; set; }

@@ -5,6 +5,7 @@ import {
   CirclePlus,
   ClipboardCheck,
   ClipboardList,
+  FileClock,
   LayoutDashboard,
   Settings,
   Tags,
@@ -114,6 +115,12 @@ function Sidebar({
         label: "Employees",
         path: "/employees",
         icon: UsersRound
+      });
+
+      items.push({
+        label: "Audit Log",
+        path: "/audit-logs",
+        icon: FileClock
       });
     }
 

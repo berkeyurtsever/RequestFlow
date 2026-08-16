@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RequestFlow.Api.Data;
 using RequestFlow.Api.DTOs;
 using RequestFlow.Api.Models;
+using RequestFlow.Api.Services;
 
 namespace RequestFlow.Api.Controllers;
 
@@ -14,12 +15,15 @@ namespace RequestFlow.Api.Controllers;
 public class CategoriesController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IAuditLogService _auditLog;
 
     public CategoriesController(
-        AppDbContext context
+        AppDbContext context,
+        IAuditLogService auditLog
     )
     {
         _context = context;
+        _auditLog = auditLog;
     }
 
     [HttpGet]
@@ -149,6 +153,13 @@ public class CategoriesController : ControllerBase
         };
 
         _context.Categories.Add(category);
+        _auditLog.Add(
+            User,
+            "category.created",
+            "Category",
+            null,
+            $"Category \"{category.Name}\" was created."
+        );
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(
@@ -227,6 +238,14 @@ public class CategoriesController : ControllerBase
             updateCategoryDto.IsActive;
         category.UpdatedAt = DateTime.UtcNow;
 
+        _auditLog.Add(
+            User,
+            "category.updated",
+            "Category",
+            category.Id.ToString(),
+            $"Category \"{category.Name}\" was updated."
+        );
+
         await _context.SaveChangesAsync();
 
         return Ok(new
@@ -266,6 +285,13 @@ public class CategoriesController : ControllerBase
         }
 
         _context.Categories.Remove(category);
+        _auditLog.Add(
+            User,
+            "category.deleted",
+            "Category",
+            category.Id.ToString(),
+            $"Category \"{category.Name}\" was deleted."
+        );
         await _context.SaveChangesAsync();
 
         return NoContent();

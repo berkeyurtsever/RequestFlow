@@ -10,7 +10,10 @@ import {
   CircleDot,
   CirclePlus,
   Filter,
+  GripVertical,
   Inbox,
+  LayoutGrid,
+  List,
   LoaderCircle,
   Pencil,
   RefreshCw,
@@ -133,6 +136,18 @@ function Requests() {
   const [isFiltersOpen, setIsFiltersOpen] =
     useState(false);
 
+  const [viewMode, setViewMode] =
+    useState("list");
+
+  const [updatingTicketId, setUpdatingTicketId] =
+    useState(null);
+
+  const [draggedTicketId, setDraggedTicketId] =
+    useState(null);
+
+  const [dragOverStatus, setDragOverStatus] =
+    useState("");
+
   const [sortConfig, setSortConfig] =
     useState({
       key: "createdAt",
@@ -151,6 +166,10 @@ function Requests() {
   const isManagement =
     normalizedRole === "admin" ||
     normalizedRole === "supervisor";
+
+  const canChangeStatus =
+    isManagement ||
+    normalizedRole === "staff";
 
   const pageTitle = isManagement
     ? "All Requests"
@@ -654,6 +673,181 @@ function Requests() {
     }
   };
 
+  const handleStatusChange = async (
+    ticket,
+    nextStatus
+  ) => {
+    const previousStatus =
+      ticket.status || "Open";
+
+    if (
+      !canChangeStatus ||
+      normalizeValue(previousStatus) ===
+        normalizeValue(nextStatus)
+    ) {
+      return;
+    }
+
+    setUpdatingTicketId(ticket.id);
+
+    setTickets(currentTickets =>
+      currentTickets.map(currentTicket =>
+        Number(currentTicket.id) ===
+        Number(ticket.id)
+          ? {
+              ...currentTicket,
+              status: nextStatus
+            }
+          : currentTicket
+      )
+    );
+
+    try {
+      const response = await api.put(
+        `/Tickets/${ticket.id}`,
+        {
+          title: ticket.title,
+          category: ticket.category,
+          priority: ticket.priority,
+          status: nextStatus,
+          description: ticket.description
+        }
+      );
+
+      const responseTicket =
+        response.data &&
+        typeof response.data === "object"
+          ? response.data
+          : {};
+
+      setTickets(currentTickets =>
+        currentTickets.map(currentTicket =>
+          Number(currentTicket.id) ===
+          Number(ticket.id)
+            ? {
+                ...currentTicket,
+                ...responseTicket,
+                status: nextStatus
+              }
+            : currentTicket
+        )
+      );
+
+      success(
+        `Request #${ticket.id} moved to ${nextStatus}.`
+      );
+    } catch (requestError) {
+      console.error(
+        "Request status could not be updated:",
+        requestError
+      );
+
+      setTickets(currentTickets =>
+        currentTickets.map(currentTicket =>
+          Number(currentTicket.id) ===
+          Number(ticket.id)
+            ? {
+                ...currentTicket,
+                status: previousStatus
+              }
+            : currentTicket
+        )
+      );
+
+      const status =
+        requestError.response?.status;
+
+      if (status === 401) {
+        showError(
+          "Your session has expired. Please sign in again."
+        );
+      } else if (status === 403) {
+        showError(
+          "You do not have permission to change this request status."
+        );
+      } else if (status === 404) {
+        showError(
+          "The request could not be found."
+        );
+      } else {
+        showError(
+          requestError.response?.data
+            ?.message ||
+            "Request status could not be updated."
+        );
+      }
+    } finally {
+      setUpdatingTicketId(null);
+    }
+  };
+
+  const handleDragStart = (
+    event,
+    ticket
+  ) => {
+    if (!canChangeStatus) {
+      event.preventDefault();
+      return;
+    }
+
+    event.dataTransfer.effectAllowed =
+      "move";
+
+    event.dataTransfer.setData(
+      "text/plain",
+      String(ticket.id)
+    );
+
+    setDraggedTicketId(ticket.id);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedTicketId(null);
+    setDragOverStatus("");
+  };
+
+  const handleDragOver = (
+    event,
+    status
+  ) => {
+    if (!canChangeStatus) {
+      return;
+    }
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect =
+      "move";
+    setDragOverStatus(status);
+  };
+
+  const handleDrop = async (
+    event,
+    status
+  ) => {
+    event.preventDefault();
+
+    const ticketId =
+      event.dataTransfer.getData(
+        "text/plain"
+      ) || draggedTicketId;
+
+    const ticket = tickets.find(
+      currentTicket =>
+        Number(currentTicket.id) ===
+        Number(ticketId)
+    );
+
+    setDraggedTicketId(null);
+    setDragOverStatus("");
+
+    if (ticket) {
+      await handleStatusChange(
+        ticket,
+        status
+      );
+    }
+  };
+
   const firstVisibleEntry =
     sortedTickets.length === 0
       ? 0
@@ -830,6 +1024,56 @@ function Requests() {
                         : ""
                     }
                   />
+                </button>
+              </div>
+
+              <div
+                className="requests-view-toggle"
+                role="group"
+                aria-label="Request view"
+              >
+                <button
+                  type="button"
+                  className={
+                    viewMode === "list"
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() =>
+                    setViewMode("list")
+                  }
+                  aria-pressed={
+                    viewMode === "list"
+                  }
+                  title="List view"
+                >
+                  <List
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  <span>List</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={
+                    viewMode === "kanban"
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() =>
+                    setViewMode("kanban")
+                  }
+                  aria-pressed={
+                    viewMode === "kanban"
+                  }
+                  title="Kanban view"
+                >
+                  <LayoutGrid
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  <span>Kanban</span>
                 </button>
               </div>
 
@@ -1162,6 +1406,38 @@ function Requests() {
                         )
                 }
               />
+            ) : viewMode === "kanban" ? (
+              <KanbanBoard
+                tickets={sortedTickets}
+                canChangeStatus={
+                  canChangeStatus
+                }
+                isManagement={isManagement}
+                updatingTicketId={
+                  updatingTicketId
+                }
+                draggedTicketId={
+                  draggedTicketId
+                }
+                dragOverStatus={
+                  dragOverStatus
+                }
+                onOpen={ticketId =>
+                  navigate(
+                    `/requests/edit/${ticketId}`
+                  )
+                }
+                onDelete={handleDelete}
+                onStatusChange={
+                  handleStatusChange
+                }
+                onDragStart={
+                  handleDragStart
+                }
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              />
             ) : (
               <>
                 <div className="requests-table-wrapper">
@@ -1336,6 +1612,7 @@ function Requests() {
                                 {ticket.priority ||
                                   "Unknown"}
                               </span>
+                              <SlaBadge ticket={ticket} />
                             </td>
 
                             <td data-label="Created At">
@@ -1499,6 +1776,375 @@ function Requests() {
   );
 }
 
+function SlaBadge({ ticket }) {
+  const status = String(ticket?.slaStatus || "").toLowerCase();
+
+  if (status !== "overdue" && status !== "duesoon") {
+    return null;
+  }
+
+  const isOverdue = status === "overdue";
+
+  return (
+    <span className={`requests-sla-badge ${isOverdue ? "overdue" : "due-soon"}`}>
+      {isOverdue ? "SLA overdue" : "SLA due soon"}
+    </span>
+  );
+}
+
+function KanbanBoard({
+  tickets,
+  canChangeStatus,
+  isManagement,
+  updatingTicketId,
+  draggedTicketId,
+  dragOverStatus,
+  onOpen,
+  onDelete,
+  onStatusChange,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDrop
+}) {
+  const columns =
+    groupTicketsByStatus(tickets);
+
+  return (
+    <div className="requests-kanban-region">
+      <div className="requests-kanban-summary">
+        <div>
+          <strong>Kanban board</strong>
+          <span>
+            {tickets.length} matching
+            {tickets.length === 1
+              ? " request"
+              : " requests"}
+          </span>
+        </div>
+
+        <p>
+          {canChangeStatus
+            ? "Drag cards between columns or use the status menu."
+            : "Request status is read-only for your role."}
+        </p>
+      </div>
+
+      <div className="requests-kanban-scroll">
+        <div
+          className="requests-kanban-board"
+          aria-label="Requests grouped by status"
+        >
+          {columns.map(column => {
+            const columnClassName =
+              createClassName(
+                column.status
+              ) || "other";
+
+            const canReceiveDrop =
+              canChangeStatus &&
+              statusOptions.includes(
+                column.status
+              );
+
+            return (
+              <section
+                key={column.status}
+                className={`requests-kanban-column ${columnClassName} ${
+                  dragOverStatus ===
+                    column.status &&
+                  canReceiveDrop
+                    ? "drag-over"
+                    : ""
+                }`}
+                aria-labelledby={`requests-kanban-${columnClassName}`}
+                onDragOver={event => {
+                  if (canReceiveDrop) {
+                    onDragOver(
+                      event,
+                      column.status
+                    );
+                  }
+                }}
+                onDrop={event => {
+                  if (canReceiveDrop) {
+                    onDrop(
+                      event,
+                      column.status
+                    );
+                  }
+                }}
+              >
+                <header className="requests-kanban-column-header">
+                  <div>
+                    <span
+                      className="requests-kanban-column-dot"
+                      aria-hidden="true"
+                    />
+
+                    <h2
+                      id={`requests-kanban-${columnClassName}`}
+                    >
+                      {column.status}
+                    </h2>
+                  </div>
+
+                  <span
+                    className="requests-kanban-count"
+                    aria-label={`${column.tickets.length} requests`}
+                  >
+                    {column.tickets.length}
+                  </span>
+                </header>
+
+                <div className="requests-kanban-card-list">
+                  {column.tickets.length ===
+                  0 ? (
+                    <div className="requests-kanban-empty">
+                      <Inbox
+                        size={22}
+                        aria-hidden="true"
+                      />
+                      <span>No requests</span>
+                    </div>
+                  ) : (
+                    column.tickets.map(
+                      ticket => (
+                        <KanbanCard
+                          key={ticket.id}
+                          ticket={ticket}
+                          canChangeStatus={
+                            canChangeStatus
+                          }
+                          isManagement={
+                            isManagement
+                          }
+                          isUpdating={
+                            Number(
+                              updatingTicketId
+                            ) ===
+                            Number(ticket.id)
+                          }
+                          isDragging={
+                            Number(
+                              draggedTicketId
+                            ) ===
+                            Number(ticket.id)
+                          }
+                          onOpen={onOpen}
+                          onDelete={onDelete}
+                          onStatusChange={
+                            onStatusChange
+                          }
+                          onDragStart={
+                            onDragStart
+                          }
+                          onDragEnd={
+                            onDragEnd
+                          }
+                        />
+                      )
+                    )
+                  )}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KanbanCard({
+  ticket,
+  canChangeStatus,
+  isManagement,
+  isUpdating,
+  isDragging,
+  onOpen,
+  onDelete,
+  onStatusChange,
+  onDragStart,
+  onDragEnd
+}) {
+  const ticketStatus =
+    ticket.status || "Open";
+
+  const hasKnownStatus =
+    statusOptions.some(
+      status =>
+        normalizeValue(status) ===
+        normalizeValue(ticketStatus)
+    );
+
+  return (
+    <article
+      className={`requests-kanban-card ${
+        isDragging ? "dragging" : ""
+      }`}
+      draggable={
+        canChangeStatus && !isUpdating
+      }
+      onDragStart={event =>
+        onDragStart(event, ticket)
+      }
+      onDragEnd={onDragEnd}
+    >
+      <div className="requests-kanban-card-topline">
+        <div className="requests-kanban-card-id">
+          {canChangeStatus && (
+            <GripVertical
+              size={15}
+              aria-hidden="true"
+            />
+          )}
+
+          <span>#{ticket.id}</span>
+        </div>
+
+        <span
+          className={`requests-priority-badge ${createClassName(
+            ticket.priority
+          )}`}
+        >
+          {ticket.priority || "Unknown"}
+        </span>
+      </div>
+
+      <SlaBadge ticket={ticket} />
+
+      <button
+        type="button"
+        className="requests-kanban-title"
+        onClick={() => onOpen(ticket.id)}
+      >
+        {ticket.title ||
+          "Untitled Request"}
+      </button>
+
+      <div className="requests-kanban-card-details">
+        <span>
+          <Tags
+            size={14}
+            aria-hidden="true"
+          />
+          {ticket.category ||
+            "Uncategorized"}
+        </span>
+
+        <span>
+          <UsersRound
+            size={14}
+            aria-hidden="true"
+          />
+          {getAssignedEmployeeName(ticket)}
+        </span>
+
+        <time
+          dateTime={
+            ticket.createdAt || undefined
+          }
+        >
+          <CalendarDays
+            size={14}
+            aria-hidden="true"
+          />
+          {formatDate(ticket.createdAt)}
+        </time>
+      </div>
+
+      <div className="requests-kanban-card-footer">
+        {canChangeStatus ? (
+          <label className="requests-kanban-status-control">
+            <span className="rf-visually-hidden">
+              Move request {ticket.id} to
+              another status
+            </span>
+
+            <select
+              value={ticketStatus}
+              onChange={event =>
+                onStatusChange(
+                  ticket,
+                  event.target.value
+                )
+              }
+              disabled={isUpdating}
+              aria-label={`Move request ${ticket.id} to another status`}
+            >
+              {!hasKnownStatus && (
+                <option value={ticketStatus}>
+                  {ticketStatus}
+                </option>
+              )}
+
+              {statusOptions.map(status => (
+                <option
+                  key={status}
+                  value={status}
+                >
+                  {status}
+                </option>
+              ))}
+            </select>
+
+            {isUpdating ? (
+              <LoaderCircle
+                size={15}
+                className="requests-rotating-icon"
+                aria-label="Updating status"
+              />
+            ) : (
+              <ChevronDown
+                size={15}
+                aria-hidden="true"
+              />
+            )}
+          </label>
+        ) : (
+          <span
+            className={`requests-status-badge ${createClassName(
+              ticketStatus
+            )}`}
+          >
+            {ticketStatus}
+          </span>
+        )}
+
+        <div className="requests-kanban-actions">
+          <button
+            type="button"
+            className="requests-action-button edit"
+            onClick={() =>
+              onOpen(ticket.id)
+            }
+            title="Edit request"
+            aria-label={`Edit request ${ticket.id}`}
+          >
+            <Pencil size={15} />
+          </button>
+
+          {isManagement && (
+            <button
+              type="button"
+              className="requests-action-button delete"
+              onClick={() =>
+                onDelete(ticket.id)
+              }
+              disabled={isUpdating}
+              title="Delete request"
+              aria-label={`Delete request ${ticket.id}`}
+            >
+              <Trash2 size={15} />
+            </button>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function FilterField({
   id,
   label,
@@ -1652,6 +2298,42 @@ function extractTickets(responseData) {
   }
 
   return [];
+}
+
+function groupTicketsByStatus(tickets) {
+  const columns = statusOptions.map(
+    status => ({
+      status,
+      tickets: []
+    })
+  );
+
+  const otherTickets = [];
+
+  tickets.forEach(ticket => {
+    const column = columns.find(
+      currentColumn =>
+        normalizeValue(
+          currentColumn.status
+        ) ===
+        normalizeValue(ticket.status)
+    );
+
+    if (column) {
+      column.tickets.push(ticket);
+    } else {
+      otherTickets.push(ticket);
+    }
+  });
+
+  if (otherTickets.length > 0) {
+    columns.push({
+      status: "Other",
+      tickets: otherTickets
+    });
+  }
+
+  return columns;
 }
 
 function createUniqueOptions(values) {

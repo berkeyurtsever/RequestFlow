@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RequestFlow.Api.Models;
+using RequestFlow.Api.Services;
 
 namespace RequestFlow.Api.Data;
 
@@ -94,6 +95,14 @@ public static class DemoDataSeeder
                 UpdatedAt = createdAt.AddDays(5)
             }
         };
+
+        foreach (var ticket in tickets)
+        {
+            ticket.SlaDueAt = SlaPolicy.CalculateDueAt(
+                ticket.Priority,
+                ticket.CreatedAt
+            );
+        }
 
         await context.Tickets.AddRangeAsync(tickets);
         await context.SaveChangesAsync();

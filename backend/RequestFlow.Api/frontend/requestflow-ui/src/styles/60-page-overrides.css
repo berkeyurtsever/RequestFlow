@@ -238,6 +238,111 @@ html[data-theme="dark"]
 
 /* PROFILE PAGE */
 
+.profile-preferences-card {
+  margin-top: 20px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.profile-preferences-heading,
+.profile-preference-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-preferences-heading h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 17px;
+}
+
+.profile-preferences-heading p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.profile-preferences-list {
+  margin-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.profile-delivery-status {
+  margin: 14px 0 2px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.profile-delivery-status.active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.profile-delivery-status.inactive {
+  background: #fef3c7;
+  color: #a16207;
+}
+
+.profile-preference-row {
+  justify-content: space-between;
+  padding: 14px 2px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.profile-preference-row > span {
+  display: grid;
+  gap: 3px;
+}
+
+.profile-preference-row strong {
+  color: #1e293b;
+  font-size: 12px;
+}
+
+.profile-preference-row small {
+  color: #64748b;
+  font-size: 10px;
+}
+
+.profile-preference-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: #2563eb;
+}
+
+.profile-preferences-save {
+  min-height: 40px;
+  margin-top: 18px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 9px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.profile-preferences-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+html[data-theme="dark"] .profile-preferences-card {
+  border-color: var(--rf-dark-border) !important;
+  background: var(--rf-dark-card) !important;
+}
+
+html[data-theme="dark"] .profile-preference-row,
+html[data-theme="dark"] .profile-preferences-list {
+  border-color: var(--rf-dark-border-soft) !important;
+}
+
 html[data-theme="dark"]
 .profile-page
 :is(

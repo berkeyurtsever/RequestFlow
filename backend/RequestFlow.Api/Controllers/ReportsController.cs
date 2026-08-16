@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RequestFlow.Api.Data;
+using RequestFlow.Api.Services;
 
 namespace RequestFlow.Api.Controllers;
 
@@ -11,10 +12,31 @@ namespace RequestFlow.Api.Controllers;
 public class ReportsController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IReportPdfService _pdfService;
 
-    public ReportsController(AppDbContext context)
+    public ReportsController(
+        AppDbContext context,
+        IReportPdfService pdfService
+    )
     {
         _context = context;
+        _pdfService = pdfService;
+    }
+
+    [HttpGet("pdf")]
+    public async Task<IActionResult> DownloadPdf(
+        CancellationToken cancellationToken
+    )
+    {
+        var content = await _pdfService.GenerateAsync(
+            cancellationToken
+        );
+
+        return File(
+            content,
+            "application/pdf",
+            $"requestflow-report-{DateTime.UtcNow:yyyy-MM-dd}.pdf"
+        );
     }
 
     [HttpGet]
@@ -60,6 +82,20 @@ public class ReportsController : ControllerBase
                 "Rejected",
                 StringComparison.OrdinalIgnoreCase
             )
+        );
+
+        var now = DateTime.UtcNow;
+        var overdueRequests = tickets.Count(ticket =>
+            !SlaPolicy.IsClosed(ticket.Status) &&
+            ticket.SlaDueAt.HasValue &&
+            ticket.SlaDueAt.Value <= now
+        );
+
+        var dueSoonRequests = tickets.Count(ticket =>
+            !SlaPolicy.IsClosed(ticket.Status) &&
+            ticket.SlaDueAt.HasValue &&
+            ticket.SlaDueAt.Value > now &&
+            ticket.SlaDueAt.Value <= now.AddHours(8)
         );
 
         var statusData = tickets
@@ -113,7 +149,9 @@ public class ReportsController : ControllerBase
                 ticket.Category,
                 ticket.Status,
                 ticket.Priority,
-                ticket.CreatedAt
+                ticket.CreatedAt,
+                ticket.SlaDueAt,
+                ticket.SlaBreachedAt
             })
             .ToList();
 
@@ -148,6 +186,8 @@ public class ReportsController : ControllerBase
             pendingRequests,
             completedRequests,
             rejectedRequests,
+            overdueRequests,
+            dueSoonRequests,
             averageResolutionHours,
             statusData,
             categoryData,

@@ -533,6 +533,126 @@ public sealed class AuthenticationAndTicketsTests :
             .ReadFromJsonAsync<AuthResponseDto>())!;
     }
 
+    [Fact]
+    public async Task NotificationPreferences_CanBeUpdatedByCurrentUser()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var updateResponse = await _client.PutAsJsonAsync(
+            "/api/notification-preferences",
+            new NotificationPreferenceDto
+            {
+                EmailEnabled = true,
+                NotifyAssignment = false,
+                NotifyStatusChange = true,
+                NotifyComments = false,
+                NotifySla = true
+            }
+        );
+
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+
+        var preferences = await updateResponse.Content
+            .ReadFromJsonAsync<NotificationPreferenceDto>();
+
+        Assert.NotNull(preferences);
+        Assert.False(preferences.NotifyAssignment);
+        Assert.False(preferences.NotifyComments);
+        Assert.True(preferences.NotifySla);
+    }
+
+    [Fact]
+    public async Task CreatedTicket_ReceivesPriorityBasedSlaDeadline()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var beforeCreate = DateTime.UtcNow;
+        var response = await _client.PostAsJsonAsync(
+            "/api/Tickets",
+            new Ticket
+            {
+                Title = "Urgent SLA test",
+                Description = "Verify that urgent requests receive a four hour SLA.",
+                Category = "Information Technology",
+                Priority = "Urgent"
+            }
+        );
+
+        var ticket = await response.Content.ReadFromJsonAsync<Ticket>();
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.NotNull(ticket?.SlaDueAt);
+        Assert.InRange(
+            ticket!.SlaDueAt!.Value,
+            beforeCreate.AddHours(4),
+            DateTime.UtcNow.AddHours(4).AddSeconds(2)
+        );
+    }
+
+    [Fact]
+    public async Task Admin_CanExportPdfAndReviewAuditLog()
+    {
+        var auth = await RegisterAdminAsync();
+        UseBearerToken(auth.Token);
+
+        var categoryResponse = await _client.PostAsJsonAsync(
+            "/api/Categories",
+            new CreateCategoryDto
+            {
+                Name = $"Audit {Guid.NewGuid():N}",
+                Description = "Created by the integration suite."
+            }
+        );
+
+        Assert.Equal(HttpStatusCode.Created, categoryResponse.StatusCode);
+
+        var auditResponse = await _client.GetAsync("/api/audit-logs");
+        var auditJson = await auditResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, auditResponse.StatusCode);
+        Assert.Contains("category.created", auditJson);
+
+        var pdfResponse = await _client.GetAsync("/api/Reports/pdf");
+        var pdf = await pdfResponse.Content.ReadAsByteArrayAsync();
+
+        Assert.Equal(HttpStatusCode.OK, pdfResponse.StatusCode);
+        Assert.Equal("application/pdf", pdfResponse.Content.Headers.ContentType?.MediaType);
+        Assert.True(pdf.Length > 1000);
+        Assert.Equal("%PDF", System.Text.Encoding.ASCII.GetString(pdf, 0, 4));
+    }
+
+    private async Task<AuthResponseDto> RegisterAdminAsync()
+    {
+        const string password = "SafePassword123!";
+        var auth = await RegisterUserAsync();
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+            var user = await context.Users.SingleAsync(item =>
+                item.Id == auth.UserId
+            );
+            user.Role = "Admin";
+            await context.SaveChangesAsync();
+        }
+
+        var loginResponse = await _client.PostAsJsonAsync(
+            "/api/Auth/login",
+            new LoginDto
+            {
+                Email = auth.Email,
+                Password = password
+            }
+        );
+
+        loginResponse.EnsureSuccessStatusCode();
+        return (await loginResponse.Content
+            .ReadFromJsonAsync<AuthResponseDto>())!;
+    }
+
     private void UseBearerToken(string token)
     {
         _client.DefaultRequestHeaders.Authorization =

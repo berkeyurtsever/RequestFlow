@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RequestFlow.Api.Data;
 using RequestFlow.Api.DTOs.Settings;
 using RequestFlow.Api.Models;
+using RequestFlow.Api.Services;
 
 namespace RequestFlow.Api.Controllers;
 
@@ -22,12 +23,15 @@ public class SettingsController : ControllerBase
     };
 
     private readonly AppDbContext _context;
+    private readonly IAuditLogService _auditLog;
 
     public SettingsController(
-        AppDbContext context
+        AppDbContext context,
+        IAuditLogService auditLog
     )
     {
         _context = context;
+        _auditLog = auditLog;
     }
 
     [HttpGet]
@@ -172,6 +176,14 @@ public class SettingsController : ControllerBase
         settings.UpdatedByUserId =
             currentUserId;
 
+        _auditLog.Add(
+            User,
+            "settings.updated",
+            "SystemSetting",
+            settings.Id.ToString(),
+            "System and notification settings were updated."
+        );
+
         await _context.SaveChangesAsync();
 
         var response =
@@ -225,6 +237,14 @@ public class SettingsController : ControllerBase
 
         settings.UpdatedByUserId =
             currentUserId;
+
+        _auditLog.Add(
+            User,
+            "settings.restored",
+            "SystemSetting",
+            settings.Id.ToString(),
+            "System settings were restored to defaults."
+        );
 
         await _context.SaveChangesAsync();
 

@@ -24,6 +24,10 @@ import {
 } from "react-router-dom";
 
 import api from "../services/api";
+import {
+  startRealtimeNotifications,
+  stopRealtimeNotifications
+} from "../services/realtimeNotifications";
 import DemoThemeToggle from "./DemoThemeToggle";
 import { useAuth } from "../context/AuthContext";
 import { useConfirm } from "../context/ConfirmContext";
@@ -44,7 +48,7 @@ function Navbar({
   const notificationRef = useRef(null);
   const profileMenuRef = useRef(null);
 
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const { confirm } = useConfirm();
 
   const {
@@ -209,6 +213,17 @@ function Navbar({
     }, []);
 
   useEffect(() => {
+    const startTimer = window.setTimeout(() => {
+      void startRealtimeNotifications(token);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(startTimer);
+      void stopRealtimeNotifications();
+    };
+  }, [token]);
+
+  useEffect(() => {
     void loadNavbarTickets();
   }, [
     loadNavbarTickets,
@@ -221,6 +236,37 @@ function Navbar({
     loadNotifications,
     location.pathname
   ]);
+
+  useEffect(() => {
+    const handleRealtimeNotification = event => {
+      const notification = event.detail;
+
+      if (!notification?.id) {
+        return;
+      }
+
+      setNotifications(previous => [
+        notification,
+        ...previous.filter(item =>
+          item.id !== notification.id
+        )
+      ]);
+
+      info(notification.title || "New notification");
+    };
+
+    window.addEventListener(
+      "requestflow:notification",
+      handleRealtimeNotification
+    );
+
+    return () => {
+      window.removeEventListener(
+        "requestflow:notification",
+        handleRealtimeNotification
+      );
+    };
+  }, [info]);
 
   useEffect(() => {
     const intervalId =
