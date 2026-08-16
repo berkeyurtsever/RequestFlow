@@ -413,7 +413,10 @@ app.UseRouting();
 app.UseCors("FrontendPolicy");
 
 app.UseAuthentication();
-app.UseRateLimiter();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseRateLimiter();
+}
 app.UseAuthorization();
 
 app.MapControllers();
@@ -442,6 +445,7 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     await context.Database.MigrateAsync();
     await CategorySeeder.SeedAsync(context);
+    await RequestContentSeeder.SeedAsync(context);
 
     if (builder.Configuration.GetValue<bool>(
             "Demo:Enabled"

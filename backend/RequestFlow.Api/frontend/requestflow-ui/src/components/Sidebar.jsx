@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import {
   BarChart3,
   Bell,
+  BookOpenCheck,
   CirclePlus,
   ClipboardCheck,
   ClipboardList,
@@ -85,6 +86,11 @@ function Sidebar({
       label: "Notifications",
       path: "/notifications",
       icon: Bell
+    },
+    {
+      label: "Knowledge Base",
+      path: "/knowledge-base",
+      icon: BookOpenCheck
     }
     ];
 

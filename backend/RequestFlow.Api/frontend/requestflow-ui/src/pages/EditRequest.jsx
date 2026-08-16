@@ -128,7 +128,8 @@ const initialForm = {
   category: "",
   priority: "Medium",
   status: "Open",
-  description: ""
+  description: "",
+  customFields: {}
 };
 
 function EditRequest() {
@@ -148,6 +149,9 @@ function EditRequest() {
 
   const [formData, setFormData] =
     useState(initialForm);
+
+  const [categoryFields, setCategoryFields] =
+    useState([]);
 
   const [touchedFields, setTouchedFields] =
     useState({});
@@ -242,6 +246,13 @@ function EditRequest() {
       formData.category
     );
 
+  const selectedCategoryFields = useMemo(
+    () => categoryFields.filter(field =>
+      field.category === formData.category
+    ),
+    [categoryFields, formData.category]
+  );
+
   const hasUnsavedChanges = useMemo(() => {
     if (!savedFormData) {
       return false;
@@ -298,7 +309,13 @@ function EditRequest() {
 
           description:
             loadedTicket?.description ||
-            ""
+            "",
+
+          customFields:
+            loadedTicket?.customFields &&
+            typeof loadedTicket.customFields === "object"
+              ? loadedTicket.customFields
+              : {}
         };
 
         setTicket(loadedTicket);
@@ -343,6 +360,41 @@ function EditRequest() {
     },
     [id]
   );
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadCategoryFields = async () => {
+      try {
+        const response = await api.get(
+          "/CategoryFields"
+        );
+
+        if (isActive) {
+          setCategoryFields(
+            Array.isArray(response.data)
+              ? response.data
+              : []
+          );
+        }
+      } catch (requestError) {
+        console.error(
+          "Category fields could not be loaded:",
+          requestError
+        );
+
+        if (isActive) {
+          setCategoryFields([]);
+        }
+      }
+    };
+
+    void loadCategoryFields();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const loadActivities = useCallback(
     async () => {
@@ -611,10 +663,18 @@ function EditRequest() {
       value
     } = event.target;
 
-    setFormData(previousForm => ({
-      ...previousForm,
-      [name]: value
-    }));
+    setFormData(previousForm => {
+      const nextForm = {
+        ...previousForm,
+        [name]: value
+      };
+
+      if (name === "category") {
+        nextForm.customFields = {};
+      }
+
+      return nextForm;
+    });
 
     setTouchedFields(previousFields => ({
       ...previousFields,
@@ -627,6 +687,27 @@ function EditRequest() {
     setAutoSaveStatus("pending");
   };
 
+  const handleCustomFieldChange = (
+    fieldKey,
+    value
+  ) => {
+    setFormData(previousForm => ({
+      ...previousForm,
+      customFields: {
+        ...(previousForm.customFields || {}),
+        [fieldKey]: value
+      }
+    }));
+
+    setTouchedFields(previousFields => ({
+      ...previousFields,
+      [`field-${fieldKey}`]: true
+    }));
+
+    autoSaveFailureFingerprintRef.current = null;
+    setAutoSaveStatus("pending");
+  };
+
   const saveChanges = useCallback(
     async (
       sourceFormData,
@@ -636,7 +717,8 @@ function EditRequest() {
     ) => {
       const validationMessage =
         getFormValidationMessage(
-          sourceFormData
+          sourceFormData,
+          selectedCategoryFields
         );
 
       if (validationMessage) {
@@ -646,7 +728,13 @@ function EditRequest() {
           setTouchedFields({
             title: true,
             category: true,
-            description: true
+            description: true,
+            ...Object.fromEntries(
+              selectedCategoryFields.map(field => [
+                `field-${field.key}`,
+                true
+              ])
+            )
           });
 
           window.setTimeout(() => {
@@ -680,7 +768,10 @@ function EditRequest() {
               "Open",
 
         description:
-          sourceFormData.description.trim()
+          sourceFormData.description.trim(),
+
+        customFields:
+          sourceFormData.customFields || {}
       };
 
       const saveFingerprint =
@@ -759,6 +850,7 @@ function EditRequest() {
       canChangeStatus,
       id,
       loadActivities,
+      selectedCategoryFields,
       showError,
       success
     ]
@@ -778,7 +870,10 @@ function EditRequest() {
     }
 
     const validationMessage =
-      getFormValidationMessage(formData);
+      getFormValidationMessage(
+        formData,
+        selectedCategoryFields
+      );
 
     if (validationMessage) {
       setAutoSaveStatus("waiting");
@@ -818,6 +913,7 @@ function EditRequest() {
     isSaving,
     savedFormData,
     saveChanges,
+    selectedCategoryFields,
     ticket
   ]);
 
@@ -1007,7 +1103,10 @@ function EditRequest() {
   }
 
   const validationErrors =
-    getFormValidationErrors(formData);
+    getFormValidationErrors(
+      formData,
+      selectedCategoryFields
+    );
 
   return (
     <div className="edit-request-page">
@@ -1107,6 +1206,7 @@ function EditRequest() {
                   information below.
                 </p>
               </div>
+
             </div>
 
             <div className="edit-request-form-grid">
@@ -1362,6 +1462,42 @@ function EditRequest() {
                     </span>
                   )}
               </div>
+
+              {selectedCategoryFields.length > 0 && (
+                <fieldset className="request-custom-fields edit-request-custom-fields edit-request-full-width">
+                  <legend>
+                    <span>Category details</span>
+                    <small>
+                      Information required for {formData.category}
+                    </small>
+                  </legend>
+
+                  <div className="request-custom-fields-grid">
+                    {selectedCategoryFields.map(field => (
+                      <EditCustomField
+                        key={field.id}
+                        field={field}
+                        value={
+                          formData.customFields?.[field.key] || ""
+                        }
+                        errorMessage={
+                          validationErrors[`field-${field.key}`]
+                        }
+                        isTouched={
+                          touchedFields[`field-${field.key}`]
+                        }
+                        disabled={isSaving || isDeleting}
+                        onChange={value =>
+                          handleCustomFieldChange(
+                            field.key,
+                            value
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </fieldset>
+              )}
             </div>
 
             <div className="edit-request-form-actions">
@@ -1581,6 +1717,122 @@ function EditRequest() {
           </section>
         </aside>
       </div>
+    </div>
+  );
+}
+
+function EditCustomField({
+  field,
+  value,
+  errorMessage,
+  isTouched,
+  disabled,
+  onChange
+}) {
+  const inputId = `edit-field-${field.key}`;
+  const helpId = `${inputId}-help`;
+  const errorId = `${inputId}-error`;
+  const showError = isTouched && errorMessage;
+  const describedBy = [
+    field.helpText ? helpId : null,
+    showError ? errorId : null
+  ]
+    .filter(Boolean)
+    .join(" ") || undefined;
+
+  const commonProps = {
+    id: inputId,
+    value,
+    disabled,
+    required: field.isRequired,
+    "aria-invalid": Boolean(showError),
+    "aria-describedby": describedBy
+  };
+
+  let control;
+
+  if (field.fieldType === "textarea") {
+    control = (
+      <textarea
+        {...commonProps}
+        rows={4}
+        maxLength={1000}
+        placeholder={field.placeholder || ""}
+        onChange={event => onChange(event.target.value)}
+      />
+    );
+  } else if (field.fieldType === "select") {
+    control = (
+      <select
+        {...commonProps}
+        onChange={event => onChange(event.target.value)}
+      >
+        <option value="">
+          {field.placeholder || "Select an option"}
+        </option>
+        {(field.options || []).map(option => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    );
+  } else {
+    control = (
+      <input
+        {...commonProps}
+        type={
+          field.fieldType === "date" ||
+          field.fieldType === "number"
+            ? field.fieldType
+            : "text"
+        }
+        step={
+          field.fieldType === "number"
+            ? "0.01"
+            : undefined
+        }
+        maxLength={
+          field.fieldType === "text"
+            ? 1000
+            : undefined
+        }
+        placeholder={field.placeholder || ""}
+        onChange={event => onChange(event.target.value)}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`edit-request-form-group request-custom-field ${
+        field.fieldType === "textarea"
+          ? "wide"
+          : ""
+      }`}
+    >
+      <label htmlFor={inputId}>
+        {field.label}
+        {field.isRequired && <span>*</span>}
+      </label>
+
+      {control}
+
+      {field.helpText && (
+        <small id={helpId}>
+          {field.helpText}
+        </small>
+      )}
+
+      {showError && (
+        <span
+          id={errorId}
+          className="request-field-error"
+          role="alert"
+        >
+          {errorMessage}
+        </span>
+      )}
     </div>
   );
 }
@@ -1909,19 +2161,41 @@ function normalizeFormData(form) {
     description:
       String(
         form?.description || ""
-      ).trim()
+      ).trim(),
+
+    customFields: Object.fromEntries(
+      Object.entries(
+        form?.customFields || {}
+      )
+        .map(([key, value]) => [
+          String(key),
+          String(value || "").trim()
+        ])
+        .sort(([firstKey], [secondKey]) =>
+          firstKey.localeCompare(secondKey)
+        )
+    )
   };
 }
 
-function getFormValidationMessage(form) {
+function getFormValidationMessage(
+  form,
+  categoryFields = []
+) {
   return (
     Object.values(
-      getFormValidationErrors(form)
+      getFormValidationErrors(
+        form,
+        categoryFields
+      )
     )[0] || ""
   );
 }
 
-function getFormValidationErrors(form) {
+function getFormValidationErrors(
+  form,
+  categoryFields = []
+) {
   const errors = {};
 
   if (!String(form?.title || "").trim()) {
@@ -1937,6 +2211,17 @@ function getFormValidationErrors(form) {
     errors.description =
       "Request description is required.";
   }
+
+  categoryFields.forEach(field => {
+    const value = String(
+      form?.customFields?.[field.key] || ""
+    ).trim();
+
+    if (field.isRequired && !value) {
+      errors[`field-${field.key}`] =
+        `${field.label} is required.`;
+    }
+  });
 
   return errors;
 }

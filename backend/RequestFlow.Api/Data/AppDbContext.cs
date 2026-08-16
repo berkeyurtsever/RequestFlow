@@ -52,6 +52,15 @@ public class AppDbContext : DbContext
     public DbSet<AuditLog> AuditLogs =>
         Set<AuditLog>();
 
+    public DbSet<KnowledgeArticle> KnowledgeArticles =>
+        Set<KnowledgeArticle>();
+
+    public DbSet<RequestTemplate> RequestTemplates =>
+        Set<RequestTemplate>();
+
+    public DbSet<CategoryField> CategoryFields =>
+        Set<CategoryField>();
+
     protected override void OnModelCreating(
         ModelBuilder modelBuilder
     )
@@ -68,6 +77,9 @@ public class AppDbContext : DbContext
         ConfigurePasswordResetToken(modelBuilder);
         ConfigureUserNotificationPreference(modelBuilder);
         ConfigureAuditLog(modelBuilder);
+        ConfigureKnowledgeArticle(modelBuilder);
+        ConfigureRequestTemplate(modelBuilder);
+        ConfigureCategoryField(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(
@@ -145,6 +157,90 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(audit => audit.ActorUserId)
             .OnDelete(DeleteBehavior.SetNull);
+    }
+
+    private static void ConfigureKnowledgeArticle(
+        ModelBuilder modelBuilder
+    )
+    {
+        var articleEntity = modelBuilder
+            .Entity<KnowledgeArticle>();
+
+        articleEntity.HasKey(article => article.Id);
+        articleEntity.Property(article => article.Title)
+            .IsRequired().HasMaxLength(180);
+        articleEntity.Property(article => article.Category)
+            .IsRequired().HasMaxLength(120);
+        articleEntity.Property(article => article.ArticleType)
+            .IsRequired().HasMaxLength(20);
+        articleEntity.Property(article => article.Summary)
+            .IsRequired().HasMaxLength(320);
+        articleEntity.Property(article => article.Content)
+            .IsRequired().HasMaxLength(6000);
+        articleEntity.Property(article => article.Keywords)
+            .HasMaxLength(240);
+        articleEntity.HasIndex(article => new
+        {
+            article.IsPublished,
+            article.DisplayOrder
+        });
+    }
+
+    private static void ConfigureRequestTemplate(
+        ModelBuilder modelBuilder
+    )
+    {
+        var templateEntity = modelBuilder
+            .Entity<RequestTemplate>();
+
+        templateEntity.HasKey(template => template.Id);
+        templateEntity.Property(template => template.Name)
+            .IsRequired().HasMaxLength(120);
+        templateEntity.Property(template => template.Category)
+            .IsRequired().HasMaxLength(100);
+        templateEntity.Property(template => template.Title)
+            .IsRequired().HasMaxLength(150);
+        templateEntity.Property(template => template.Description)
+            .IsRequired().HasMaxLength(500);
+        templateEntity.Property(template => template.Priority)
+            .IsRequired().HasMaxLength(20);
+        templateEntity.Property(template => template.Icon)
+            .HasMaxLength(80);
+        templateEntity.HasIndex(template => new
+        {
+            template.IsActive,
+            template.Category,
+            template.DisplayOrder
+        });
+    }
+
+    private static void ConfigureCategoryField(
+        ModelBuilder modelBuilder
+    )
+    {
+        var fieldEntity = modelBuilder
+            .Entity<CategoryField>();
+
+        fieldEntity.HasKey(field => field.Id);
+        fieldEntity.Property(field => field.Category)
+            .IsRequired().HasMaxLength(100);
+        fieldEntity.Property(field => field.Key)
+            .IsRequired().HasMaxLength(80);
+        fieldEntity.Property(field => field.Label)
+            .IsRequired().HasMaxLength(120);
+        fieldEntity.Property(field => field.FieldType)
+            .IsRequired().HasMaxLength(20);
+        fieldEntity.Property(field => field.Placeholder)
+            .HasMaxLength(180);
+        fieldEntity.Property(field => field.HelpText)
+            .HasMaxLength(300);
+        fieldEntity.Property(field => field.OptionsJson)
+            .HasMaxLength(1000);
+        fieldEntity.HasIndex(field => new
+        {
+            field.Category,
+            field.Key
+        }).IsUnique();
     }
 
     private static void ConfigureUser(
@@ -253,6 +349,11 @@ public class AppDbContext : DbContext
             .Property(ticket => ticket.Status)
             .IsRequired()
             .HasMaxLength(30);
+
+        ticketEntity
+            .Property(ticket => ticket.CustomFieldsJson)
+            .IsRequired()
+            .HasDefaultValue("{}");
 
         ticketEntity
             .Property(ticket => ticket.CreatedAt)

@@ -64,10 +64,20 @@ beforeEach(() => {
     clear: vi.fn()
   });
 
-  api.get.mockResolvedValue({
-    data: {
-      defaultPriority: "Medium"
+  api.get.mockImplementation(url => {
+    if (url === "/RequestTemplates") {
+      return Promise.resolve({ data: [] });
     }
+
+    if (url === "/CategoryFields") {
+      return Promise.resolve({ data: [] });
+    }
+
+    return Promise.resolve({
+      data: {
+        defaultPriority: "Medium"
+      }
+    });
   });
 });
 
@@ -146,6 +156,109 @@ describe("CreateRequest accessibility", () => {
           Boolean(item.textContent.trim())
         )
       ).toBe(true);
+    });
+  });
+
+  it("applies templates and submits category-specific fields", async () => {
+    api.get.mockImplementation(url => {
+      if (url === "/RequestTemplates") {
+        return Promise.resolve({
+          data: [
+            {
+              id: 1,
+              name: "New computer setup",
+              category: "Hardware Request",
+              title: "New computer setup for employee",
+              description:
+                "Please prepare a standard laptop and required accessories.",
+              priority: "High"
+            }
+          ]
+        });
+      }
+
+      if (url === "/CategoryFields") {
+        return Promise.resolve({
+          data: [
+            {
+              id: 1,
+              category: "Hardware Request",
+              key: "deviceType",
+              label: "Device type",
+              fieldType: "select",
+              placeholder: "Select a device",
+              helpText: "Choose the required device.",
+              isRequired: true,
+              options: ["Laptop", "Desktop"]
+            },
+            {
+              id: 2,
+              category: "Hardware Request",
+              key: "neededBy",
+              label: "Required date",
+              fieldType: "date",
+              isRequired: true,
+              options: []
+            }
+          ]
+        });
+      }
+
+      return Promise.resolve({
+        data: { defaultPriority: "Medium" }
+      });
+    });
+
+    api.post.mockResolvedValue({
+      data: { id: 42 }
+    });
+
+    render(
+      <MemoryRouter>
+        <CreateRequest />
+      </MemoryRouter>
+    );
+
+    const templateName = await screen.findByText(
+      "New computer setup"
+    );
+
+    fireEvent.click(
+      templateName.closest("button")
+    );
+
+    expect(
+      screen.getByLabelText(/Request Title/)
+    ).toHaveValue("New computer setup for employee");
+
+    fireEvent.change(
+      screen.getByLabelText(/Device type/),
+      { target: { value: "Laptop" } }
+    );
+
+    fireEvent.change(
+      screen.getByLabelText(/Required date/),
+      { target: { value: "2026-09-01" } }
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Submit Request"
+      })
+    );
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith(
+        "/Tickets",
+        expect.objectContaining({
+          category: "Hardware Request",
+          priority: "High",
+          customFields: {
+            deviceType: "Laptop",
+            neededBy: "2026-09-01"
+          }
+        })
+      );
     });
   });
 });

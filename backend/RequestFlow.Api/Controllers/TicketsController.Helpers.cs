@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.Globalization;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using RequestFlow.Api.Models;
 
@@ -6,6 +8,138 @@ namespace RequestFlow.Api.Controllers;
 
 public partial class TicketsController
 {
+    private async Task<(
+        Dictionary<string, string> Values,
+        string? ErrorMessage
+    )> ValidateAndNormalizeCustomFieldsAsync(
+        string category,
+        IReadOnlyDictionary<string, string>? suppliedValues
+    )
+    {
+        var fields = await _context.CategoryFields
+            .AsNoTracking()
+            .Where(field =>
+                field.IsActive &&
+                field.Category == category
+            )
+            .OrderBy(field => field.DisplayOrder)
+            .ToListAsync();
+
+        var values = suppliedValues ??
+            new Dictionary<string, string>();
+
+        if (fields.Count == 0)
+        {
+            return (new Dictionary<string, string>(), null);
+        }
+
+        var allowedKeys = fields
+            .Select(field => field.Key)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (values.Keys.Any(key => !allowedKeys.Contains(key)))
+        {
+            return (
+                new Dictionary<string, string>(),
+                "One or more category-specific fields are not valid."
+            );
+        }
+
+        var normalizedValues =
+            new Dictionary<string, string>(
+                StringComparer.OrdinalIgnoreCase
+            );
+
+        foreach (var field in fields)
+        {
+            values.TryGetValue(field.Key, out var rawValue);
+            var value = rawValue?.Trim() ?? string.Empty;
+
+            if (field.IsRequired && string.IsNullOrWhiteSpace(value))
+            {
+                return (
+                    new Dictionary<string, string>(),
+                    $"{field.Label} is required."
+                );
+            }
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            if (value.Length > 1000)
+            {
+                return (
+                    new Dictionary<string, string>(),
+                    $"{field.Label} cannot exceed 1000 characters."
+                );
+            }
+
+            var fieldType = field.FieldType.Trim().ToLowerInvariant();
+
+            if (
+                fieldType == "date" &&
+                !DateOnly.TryParse(
+                    value,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out _
+                )
+            )
+            {
+                return (
+                    new Dictionary<string, string>(),
+                    $"{field.Label} must be a valid date."
+                );
+            }
+
+            if (
+                fieldType == "number" &&
+                !decimal.TryParse(
+                    value,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out _
+                )
+            )
+            {
+                return (
+                    new Dictionary<string, string>(),
+                    $"{field.Label} must be a valid number."
+                );
+            }
+
+            if (fieldType == "select")
+            {
+                string[] options;
+
+                try
+                {
+                    options = JsonSerializer.Deserialize<string[]>(
+                        field.OptionsJson
+                    ) ?? [];
+                }
+                catch (JsonException)
+                {
+                    options = [];
+                }
+
+                if (!options.Contains(value, StringComparer.OrdinalIgnoreCase))
+                {
+                    return (
+                        new Dictionary<string, string>(),
+                        $"{field.Label} contains an invalid selection."
+                    );
+                }
+            }
+
+            normalizedValues[field.Key] = value;
+        }
+
+        return (normalizedValues, null);
+    }
+
     private async Task<(
         bool NotifyNewRequest,
         bool NotifyAssignment,

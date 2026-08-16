@@ -153,6 +153,22 @@ public partial class TicketsController : ControllerBase
         ticket.Description = ticket.Description.Trim();
         ticket.Category = ticket.Category.Trim();
 
+        var customFieldResult =
+            await ValidateAndNormalizeCustomFieldsAsync(
+                ticket.Category,
+                ticket.CustomFields
+            );
+
+        if (customFieldResult.ErrorMessage != null)
+        {
+            return BadRequest(new
+            {
+                message = customFieldResult.ErrorMessage
+            });
+        }
+
+        ticket.CustomFields = customFieldResult.Values;
+
         ticket.Priority = string.IsNullOrWhiteSpace(ticket.Priority)
             ? "Medium"
             : ticket.Priority.Trim();
@@ -290,6 +306,34 @@ public partial class TicketsController : ControllerBase
         var newDescription = updatedTicket.Description.Trim();
         var newCategory = updatedTicket.Category.Trim();
 
+        var customFields = existingTicket.CustomFields;
+        var categoryChanged = !ValuesEqual(
+            previousCategory,
+            newCategory
+        );
+
+        if (
+            categoryChanged ||
+            updatedTicket.CustomFields.Count > 0
+        )
+        {
+            var customFieldResult =
+                await ValidateAndNormalizeCustomFieldsAsync(
+                    newCategory,
+                    updatedTicket.CustomFields
+                );
+
+            if (customFieldResult.ErrorMessage != null)
+            {
+                return BadRequest(new
+                {
+                    message = customFieldResult.ErrorMessage
+                });
+            }
+
+            customFields = customFieldResult.Values;
+        }
+
         var newPriority =
             string.IsNullOrWhiteSpace(updatedTicket.Priority)
                 ? existingTicket.Priority
@@ -310,6 +354,7 @@ public partial class TicketsController : ControllerBase
         existingTicket.Category = newCategory;
         existingTicket.Priority = newPriority;
         existingTicket.Status = newStatus;
+        existingTicket.CustomFields = customFields;
         existingTicket.UpdatedAt = DateTime.UtcNow;
 
         var updatedAt = existingTicket.UpdatedAt.Value;

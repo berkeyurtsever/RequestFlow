@@ -146,6 +146,7 @@ public sealed class RequestFlowWebApplicationFactory :
 
             await context.Database.EnsureCreatedAsync();
             await CategorySeeder.SeedAsync(context);
+            await RequestContentSeeder.SeedAsync(context);
             _databaseInitialized = true;
         }
         finally
