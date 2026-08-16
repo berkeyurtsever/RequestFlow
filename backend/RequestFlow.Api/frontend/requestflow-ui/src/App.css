@@ -6,5 +6,6 @@
 @import "./styles/50-themes-components.css";
 @import "./styles/60-page-overrides.css";
 @import "./styles/70-filters-notifications.css";
+@import "./styles/75-requests-kanban.css";
 @import "./styles/80-accessibility-responsive.css";
 @import "./styles/90-product-operations.css";
