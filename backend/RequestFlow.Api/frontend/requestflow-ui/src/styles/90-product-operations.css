@@ -1,6 +1,6 @@
 .audit-page {
   min-height: calc(100vh - var(--rf-navbar-height));
-  padding: 28px 32px 40px;
+  padding: 30px 32px 40px;
   background: #f5f7fb;
 }
 
@@ -25,7 +25,7 @@
 }
 
 .audit-header {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -33,15 +33,19 @@
 }
 
 .audit-header h1 {
-  margin: 5px 0 7px;
+  margin: 0;
   color: #0f172a;
-  font-size: 28px;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
 }
 
 .audit-header p {
-  margin: 0;
+  margin: 8px 0 0;
   color: #64748b;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .audit-count {
@@ -49,8 +53,9 @@
   border-radius: 999px;
   background: #dbeafe;
   color: #1d4ed8;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
+  line-height: 1;
 }
 
 .audit-card {
@@ -71,10 +76,13 @@
 .audit-search input {
   flex: 1;
   min-width: 0;
-  min-height: 40px;
-  padding: 0 12px;
+  min-height: 42px;
+  padding: 0 14px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .audit-search button,
@@ -85,7 +93,8 @@
   border-radius: 8px;
   background: #2563eb;
   color: #ffffff;
-  font-size: 10px;
+  font-family: inherit;
+  font-size: 11px;
   font-weight: 800;
   cursor: pointer;
 }
@@ -96,13 +105,27 @@
 
 .audit-table {
   width: 100%;
+  min-width: 980px;
   border-collapse: collapse;
-  font-size: 11px;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.audit-table caption.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .audit-table th,
 .audit-table td {
-  padding: 13px 15px;
+  padding: 16px;
   border-bottom: 1px solid #e2e8f0;
   text-align: left;
   vertical-align: top;
@@ -111,9 +134,10 @@
 .audit-table th {
   background: #f8fafc;
   color: #64748b;
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .audit-table td strong,
@@ -124,12 +148,14 @@
 .audit-table td span {
   margin-top: 2px;
   color: #64748b;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .audit-table code {
   color: #1d4ed8;
-  font-size: 10px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .audit-loading,
@@ -161,7 +187,7 @@
   justify-content: flex-end;
   gap: 12px;
   color: #64748b;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .audit-pagination button:disabled {
