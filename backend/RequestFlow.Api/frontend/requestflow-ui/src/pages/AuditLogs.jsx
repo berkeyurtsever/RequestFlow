@@ -108,18 +108,28 @@ function AuditLogs() {
               <tbody>
                 {data.items.map(log => (
                   <tr key={log.id}>
-                    <td data-label="When">{formatDate(log.createdAt)}</td>
+                    <td className="audit-date" data-label="When">
+                      {formatDate(log.createdAt)}
+                    </td>
                     <td data-label="Actor">
-                      <strong>{log.actorName}</strong>
-                      <span>{log.actorRole}</span>
+                      <strong className="audit-actor-name">
+                        {log.actorName}
+                      </strong>
+                      <span className="audit-actor-role">
+                        {log.actorRole}
+                      </span>
                     </td>
                     <td data-label="Action">
-                      <code>{log.action}</code>
+                      <code className="audit-action">
+                        {log.action}
+                      </code>
                     </td>
-                    <td data-label="Target">
+                    <td className="audit-target" data-label="Target">
                       {log.entityType}{log.entityId ? ` #${log.entityId}` : ""}
                     </td>
-                    <td data-label="Details">{log.summary}</td>
+                    <td className="audit-details" data-label="Details">
+                      {log.summary}
+                    </td>
                   </tr>
                 ))}
               </tbody>

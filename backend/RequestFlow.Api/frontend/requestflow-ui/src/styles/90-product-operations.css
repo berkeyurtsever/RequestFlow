@@ -108,7 +108,7 @@
   min-width: 980px;
   border-collapse: collapse;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .audit-table caption.sr-only {
@@ -123,12 +123,11 @@
   border: 0;
 }
 
-.audit-table th,
-.audit-table td {
-  padding: 16px;
+.audit-table th {
+  padding: 14px 16px;
   border-bottom: 1px solid #e2e8f0;
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .audit-table th {
@@ -136,26 +135,61 @@
   color: #64748b;
   font-size: 10px;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 
-.audit-table td strong,
-.audit-table td span {
+.audit-table td {
+  padding: 15px 16px;
+  border-bottom: 1px solid #edf1f5;
+  color: #334155;
+  font-size: 11px;
+  vertical-align: middle;
+}
+
+.audit-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.audit-table tbody tr:hover {
+  background: #fafcff;
+}
+
+.audit-actor-name,
+.audit-actor-role {
   display: block;
 }
 
-.audit-table td span {
+.audit-actor-name {
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.audit-actor-role {
   margin-top: 2px;
   color: #64748b;
   font-size: 10px;
 }
 
-.audit-table code {
+.audit-action {
   color: #1d4ed8;
   font-family: inherit;
   font-size: 11px;
   font-weight: 700;
+}
+
+.audit-date {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.audit-target,
+.audit-details {
+  color: #334155;
+  font-size: 11px;
 }
 
 .audit-loading,
@@ -200,7 +234,10 @@ html[data-theme="dark"] .audit-page {
 }
 
 html[data-theme="dark"] .audit-header h1,
-html[data-theme="dark"] .audit-table td {
+html[data-theme="dark"] .audit-table td,
+html[data-theme="dark"] .audit-actor-name,
+html[data-theme="dark"] .audit-target,
+html[data-theme="dark"] .audit-details {
   color: var(--rf-dark-title);
 }
 
@@ -214,6 +251,10 @@ html[data-theme="dark"] .audit-pagination {
 
 html[data-theme="dark"] .audit-table td {
   border-color: var(--rf-dark-border-soft);
+}
+
+html[data-theme="dark"] .audit-table tbody tr:hover {
+  background: var(--dark-hover);
 }
 
 @media (max-width: 760px) {
