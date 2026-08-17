@@ -18,7 +18,7 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 
-  --rf-sidebar-width: 264px;
+  --rf-sidebar-width: 244px;
   --rf-navbar-height: 80px;
 
   --rf-sidebar-bg: #123d5a;
@@ -5671,74 +5671,131 @@ a {
   }
 }
 
-/* SIDEBAR TYPOGRAPHY */
+/* COMPACT SIDEBAR */
+
+.rf-sidebar-brand {
+  min-height: 104px;
+  padding: 20px 18px 15px;
+  gap: 11px;
+}
+
+.rf-brand-symbol {
+  width: 49px;
+  height: 49px;
+  flex-basis: 49px;
+}
 
 .rf-brand-request,
 .rf-brand-flow {
-  font-size: 26px !important;
+  font-size: 23px !important;
   font-weight: 800 !important;
 }
 
 .rf-sidebar-brand-subtitle {
-  margin-top: 6px !important;
-  font-size: 12px !important;
+  margin-top: 5px !important;
+  font-size: 10px !important;
   font-weight: 600 !important;
+}
+
+.rf-sidebar-navigation {
+  padding: 5px 14px 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(196, 213, 226, 0.28) transparent;
+}
+
+.rf-sidebar-navigation::-webkit-scrollbar {
+  width: 4px;
+}
+
+.rf-sidebar-navigation::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(196, 213, 226, 0.28);
 }
 
 .rf-sidebar-section-title {
-  margin-bottom: 10px !important;
-  font-size: 13px !important;
+  margin: 0 10px 8px !important;
+  font-size: 11px !important;
   font-weight: 800 !important;
-  letter-spacing: 1.8px !important;
+  letter-spacing: 1.65px !important;
 }
 
 .rf-sidebar-link {
-  min-height: 50px !important;
-  padding: 0 17px !important;
-  font-size: 17px !important;
+  min-height: 43px !important;
+  padding: 0 13px !important;
+  border-radius: 11px;
+  font-size: 14px !important;
   font-weight: 600 !important;
-  gap: 15px !important;
+  gap: 12px !important;
 }
 
 .rf-sidebar-link svg {
-  width: 23px !important;
-  height: 23px !important;
-  flex: 0 0 23px !important;
+  width: 20px !important;
+  height: 20px !important;
+  flex: 0 0 20px !important;
   stroke-width: 1.9;
 }
 
+.rf-sidebar-link-active {
+  box-shadow:
+    0 7px 18px rgba(34, 90, 214, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
 .rf-sidebar-section {
-  margin-bottom: 25px !important;
+  margin-bottom: 18px !important;
 }
 
 .rf-sidebar-menu {
-  gap: 5px !important;
+  gap: 3px !important;
+}
+
+.rf-sidebar-profile {
+  width: calc(100% - 28px);
+  min-height: 75px;
+  margin-right: 14px;
+  margin-left: 14px;
+  padding: 11px 7px 13px;
+  gap: 11px;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.rf-sidebar-profile:hover {
+  border-top-color: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .rf-sidebar-user-info strong {
-  font-size: 14px !important;
+  font-size: 12px !important;
   font-weight: 800 !important;
 }
 
 .rf-sidebar-user-info span {
-  margin-top: 4px !important;
-  font-size: 11px !important;
+  margin-top: 3px !important;
+  font-size: 9px !important;
 }
 
 .rf-sidebar-avatar {
-  font-size: 15px !important;
+  width: 42px;
+  height: 42px;
+  flex-basis: 42px;
+  border-radius: 12px;
+  font-size: 13px !important;
 }
 
 @media (max-height: 850px) and (min-width: 761px) {
   .rf-sidebar-brand {
-    min-height: 105px !important;
-    padding-top: 15px !important;
-    padding-bottom: 12px !important;
+    min-height: 88px !important;
+    padding-top: 12px !important;
+    padding-bottom: 10px !important;
   }
 
   .rf-brand-request,
   .rf-brand-flow {
-    font-size: 23px !important;
+    font-size: 21px !important;
   }
 
   .rf-sidebar-brand-subtitle {
@@ -5746,7 +5803,7 @@ a {
   }
 
   .rf-sidebar-section {
-    margin-bottom: 18px !important;
+    margin-bottom: 13px !important;
   }
 
   .rf-sidebar-section-title {
@@ -5755,18 +5812,18 @@ a {
   }
 
   .rf-sidebar-link {
-    min-height: 43px !important;
-    font-size: 15px !important;
+    min-height: 38px !important;
+    font-size: 13px !important;
   }
 
   .rf-sidebar-link svg {
-    width: 21px !important;
-    height: 21px !important;
-    flex-basis: 21px !important;
+    width: 19px !important;
+    height: 19px !important;
+    flex-basis: 19px !important;
   }
 
   .rf-sidebar-profile {
-    min-height: 72px !important;
+    min-height: 64px !important;
   }
 }
 
