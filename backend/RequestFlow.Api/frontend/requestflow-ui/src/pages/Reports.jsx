@@ -7,13 +7,16 @@ import {
 import {
   AlertCircle,
   BarChart3,
+  CalendarClock,
   CheckCircle2,
   Clock3,
   Download,
   Eye,
   FileText,
   LoaderCircle,
-  RefreshCw
+  Mail,
+  RefreshCw,
+  Send
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -29,8 +32,13 @@ import {
   YAxis
 } from "recharts";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const emptyReport = {
+  period: "all",
+  periodLabel: "All time",
+  fromUtc: null,
+  toUtc: null,
   totalRequests: 0,
   openRequests: 0,
   inProgressRequests: 0,
@@ -46,6 +54,16 @@ const emptyReport = {
   recentRequests: []
 };
 
+const emptySchedule = {
+  enabled: false,
+  frequency: "Weekly",
+  recipients: "",
+  lastSentAtUtc: null,
+  nextRunAtUtc: null,
+  lastDeliveryStatus: "Not sent",
+  lastError: null
+};
+
 const chartColors = {
   open: "#2563eb",
   "in progress": "#7c3aed",
@@ -58,13 +76,29 @@ const chartColors = {
 
 function Reports() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = String(user?.role || "")
+    .trim()
+    .toLowerCase() === "admin";
 
   const [report, setReport] = useState(emptyReport);
+  const [selectedPeriod, setSelectedPeriod] =
+    useState("month");
+  const [schedule, setSchedule] =
+    useState(emptySchedule);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] =
     useState(false);
   const [error, setError] = useState("");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [isScheduleLoading, setIsScheduleLoading] =
+    useState(false);
+  const [isScheduleSaving, setIsScheduleSaving] =
+    useState(false);
+  const [isSendingReport, setIsSendingReport] =
+    useState(false);
+  const [scheduleMessage, setScheduleMessage] =
+    useState("");
 
   const loadReports = useCallback(
     async (showRefreshSpinner = false) => {
@@ -77,7 +111,9 @@ function Reports() {
       setError("");
 
       try {
-        const response = await api.get("/Reports");
+        const response = await api.get("/Reports", {
+          params: { period: selectedPeriod }
+        });
 
         setReport({
           ...emptyReport,
@@ -136,12 +172,45 @@ function Reports() {
         setIsRefreshing(false);
       }
     },
-    []
+    [selectedPeriod]
   );
 
   useEffect(() => {
     loadReports();
   }, [loadReports]);
+
+  const loadSchedule = useCallback(async () => {
+    if (!isAdmin) {
+      return;
+    }
+
+    setIsScheduleLoading(true);
+
+    try {
+      const response = await api.get("/Reports/schedule");
+      setSchedule({
+        ...emptySchedule,
+        ...response.data
+      });
+    } catch (requestError) {
+      console.error(
+        "Report schedule could not be loaded:",
+        requestError
+      );
+      setScheduleMessage(
+        getRequestError(
+          requestError,
+          "Automatic report settings could not be loaded."
+        )
+      );
+    } finally {
+      setIsScheduleLoading(false);
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
+    void loadSchedule();
+  }, [loadSchedule]);
 
   const statusData = useMemo(() => {
     return report.statusData.map(item => ({
@@ -161,7 +230,11 @@ function Reports() {
         fullName:
           item.name || "Uncategorized",
         requests:
-          Number(item.requests) || 0
+          Number(item.requests) || 0,
+        percentage:
+          Number(item.percentage) || 0,
+        intensity:
+          item.intensity || "Low"
       }))
       .sort(
         (first, second) =>
@@ -179,6 +252,7 @@ function Reports() {
     const rows = [
       ["RequestFlow Reports"],
       ["Generated At", new Date().toLocaleString()],
+      ["Period", report.periodLabel],
       [],
       ["Summary"],
       ["Total Requests", report.totalRequests],
@@ -206,10 +280,12 @@ function Reports() {
       ]),
       [],
       ["Category Distribution"],
-      ["Category", "Request Count"],
+      ["Category", "Request Count", "Share", "Intensity"],
       ...report.categoryData.map(item => [
         item.name,
-        item.requests
+        item.requests,
+        `${Number(item.percentage) || 0}%`,
+        item.intensity
       ]),
       [],
       ["Recent Requests"],
@@ -249,7 +325,7 @@ function Reports() {
 
     downloadLink.href = downloadUrl;
     downloadLink.download =
-      `requestflow-report-${getFileDate()}.csv`;
+      `requestflow-${selectedPeriod}-report-${getFileDate()}.csv`;
 
     document.body.appendChild(downloadLink);
     downloadLink.click();
@@ -263,13 +339,14 @@ function Reports() {
 
     try {
       const response = await api.get("/Reports/pdf", {
+        params: { period: selectedPeriod },
         responseType: "blob"
       });
       const downloadUrl = URL.createObjectURL(response.data);
       const downloadLink = document.createElement("a");
       downloadLink.href = downloadUrl;
       downloadLink.download =
-        `requestflow-report-${getFileDate()}.pdf`;
+        `requestflow-${selectedPeriod}-report-${getFileDate()}.pdf`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       downloadLink.remove();
@@ -279,6 +356,80 @@ function Reports() {
       setError("PDF report could not be exported.");
     } finally {
       setIsExportingPdf(false);
+    }
+  };
+
+  const handleScheduleChange = event => {
+    const { name, value, type, checked } = event.target;
+
+    setSchedule(previous => ({
+      ...previous,
+      [name]: type === "checkbox" ? checked : value
+    }));
+    setScheduleMessage("");
+  };
+
+  const handleSaveSchedule = async () => {
+    setIsScheduleSaving(true);
+    setScheduleMessage("");
+
+    try {
+      const response = await api.put(
+        "/Reports/schedule",
+        {
+          enabled: Boolean(schedule.enabled),
+          frequency: schedule.frequency,
+          recipients: schedule.recipients
+        }
+      );
+      setSchedule({
+        ...emptySchedule,
+        ...response.data
+      });
+      setScheduleMessage(
+        schedule.enabled
+          ? "Automatic report delivery is active."
+          : "Automatic report delivery is disabled."
+      );
+    } catch (requestError) {
+      setScheduleMessage(
+        getRequestError(
+          requestError,
+          "Automatic report settings could not be saved."
+        )
+      );
+    } finally {
+      setIsScheduleSaving(false);
+    }
+  };
+
+  const handleSendReportNow = async () => {
+    setIsSendingReport(true);
+    setScheduleMessage("");
+
+    try {
+      await api.put("/Reports/schedule", {
+        enabled: Boolean(schedule.enabled),
+        frequency: schedule.frequency,
+        recipients: schedule.recipients
+      });
+      const response = await api.post(
+        "/Reports/schedule/send-now"
+      );
+      setSchedule({
+        ...emptySchedule,
+        ...response.data
+      });
+      setScheduleMessage("The PDF report email was sent.");
+    } catch (requestError) {
+      setScheduleMessage(
+        getRequestError(
+          requestError,
+          "The PDF report email could not be sent."
+        )
+      );
+    } finally {
+      setIsSendingReport(false);
     }
   };
 
@@ -306,12 +457,28 @@ function Reports() {
           <h1>Reports & Analytics</h1>
 
           <p>
-            Monitor request performance and system
-            statistics.
+            Monitor request performance and system statistics. Showing{" "}
+            <strong>{report.periodLabel.toLowerCase()}</strong>.
           </p>
         </div>
 
         <div className="reports-header-actions">
+          <label className="reports-period-control">
+            <CalendarClock size={16} />
+            <span>Period</span>
+            <select
+              value={selectedPeriod}
+              onChange={event =>
+                setSelectedPeriod(event.target.value)
+              }
+              aria-label="Report period"
+            >
+              <option value="week">Last 7 Days</option>
+              <option value="month">Last 30 Days</option>
+              <option value="all">All Time</option>
+            </select>
+          </label>
+
           <button
             type="button"
             className="reports-refresh-button"
@@ -527,10 +694,9 @@ function Reports() {
         <article className="reports-chart-card">
           <div className="reports-card-heading">
             <div>
-              <h2>Requests by Category</h2>
+              <h2>Category Intensity</h2>
               <p>
-                Categories with the highest number of
-                requests.
+                Request volume, share and intensity by category.
               </p>
             </div>
 
@@ -542,79 +708,200 @@ function Reports() {
               message="No category data is available."
             />
           ) : (
-            <div className="reports-bar-wrapper">
-              <ResponsiveContainer
-                width="100%"
-                height="100%"
-              >
-                <BarChart
-                  data={categoryData}
-                  margin={{
-                    top: 12,
-                    right: 12,
-                    left: -18,
-                    bottom: 15
-                  }}
+            <>
+              <div className="reports-bar-wrapper">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
                 >
-                  <CartesianGrid
-                    strokeDasharray="4 4"
-                    vertical={false}
-                    stroke="#e2e8f0"
-                  />
-
-                  <XAxis
-                    dataKey="name"
-                    tick={{
-                      fill: "#64748b",
-                      fontSize: 10
+                  <BarChart
+                    data={categoryData}
+                    margin={{
+                      top: 12,
+                      right: 12,
+                      left: -18,
+                      bottom: 15
                     }}
-                    axisLine={false}
-                    tickLine={false}
-                    interval={0}
-                    angle={-18}
-                    textAnchor="end"
-                    height={60}
-                  />
+                  >
+                    <CartesianGrid
+                      strokeDasharray="4 4"
+                      vertical={false}
+                      stroke="#e2e8f0"
+                    />
 
-                  <YAxis
-                    allowDecimals={false}
-                    tick={{
-                      fill: "#64748b",
-                      fontSize: 10
-                    }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
+                    <XAxis
+                      dataKey="name"
+                      tick={{
+                        fill: "#64748b",
+                        fontSize: 10
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                      interval={0}
+                      angle={-18}
+                      textAnchor="end"
+                      height={60}
+                    />
 
-                  <Tooltip
-                    cursor={{
-                      fill: "rgba(37, 99, 235, 0.05)"
-                    }}
-                    formatter={value => [
-                      `${value} requests`,
-                      "Count"
-                    ]}
-                    labelFormatter={(
-                      label,
-                      payload
-                    ) =>
-                      payload?.[0]?.payload
-                        ?.fullName || label
-                    }
-                  />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{
+                        fill: "#64748b",
+                        fontSize: 10
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
 
-                  <Bar
-                    dataKey="requests"
-                    fill="#2563eb"
-                    radius={[7, 7, 0, 0]}
-                    maxBarSize={48}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+                    <Tooltip
+                      cursor={{
+                        fill: "rgba(37, 99, 235, 0.05)"
+                      }}
+                      formatter={(value, name, item) => [
+                        `${value} requests (${item?.payload?.percentage || 0}%)`,
+                        item?.payload?.intensity || name
+                      ]}
+                      labelFormatter={(
+                        label,
+                        payload
+                      ) =>
+                        payload?.[0]?.payload
+                          ?.fullName || label
+                      }
+                    />
+
+                    <Bar
+                      dataKey="requests"
+                      fill="#2563eb"
+                      radius={[7, 7, 0, 0]}
+                      maxBarSize={48}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="reports-intensity-list">
+                {categoryData.slice(0, 4).map(item => (
+                  <div key={item.fullName}>
+                    <span>{item.fullName}</span>
+                    <strong>{item.percentage}%</strong>
+                    <b className={getClassName(item.intensity)}>
+                      {item.intensity}
+                    </b>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </article>
       </section>
+
+      {isAdmin && (
+        <section className="reports-schedule-card">
+          <div className="reports-schedule-header">
+            <div className="reports-schedule-title">
+              <span>
+                <Mail size={20} />
+              </span>
+              <div>
+                <h2>Automatic Email Reports</h2>
+                <p>
+                  Send a weekly or monthly PDF report at 09:00 Istanbul time.
+                </p>
+              </div>
+            </div>
+
+            <label className="reports-schedule-toggle">
+              <input
+                type="checkbox"
+                name="enabled"
+                checked={Boolean(schedule.enabled)}
+                onChange={handleScheduleChange}
+                disabled={isScheduleLoading}
+              />
+              <span>{schedule.enabled ? "Enabled" : "Disabled"}</span>
+            </label>
+          </div>
+
+          <div className="reports-schedule-fields">
+            <label>
+              <span>Frequency</span>
+              <select
+                name="frequency"
+                value={schedule.frequency}
+                onChange={handleScheduleChange}
+                disabled={isScheduleLoading}
+              >
+                <option value="Weekly">Weekly</option>
+                <option value="Monthly">Monthly</option>
+              </select>
+            </label>
+
+            <label className="reports-recipient-field">
+              <span>Recipients</span>
+              <input
+                type="text"
+                name="recipients"
+                value={schedule.recipients}
+                onChange={handleScheduleChange}
+                placeholder="manager@company.com; operations@company.com"
+                disabled={isScheduleLoading}
+              />
+              <small>Separate up to 10 addresses with commas or semicolons.</small>
+            </label>
+          </div>
+
+          <div className="reports-schedule-status">
+            <div>
+              <span>Last delivery</span>
+              <strong>{schedule.lastDeliveryStatus}</strong>
+              <small>{formatDateTime(schedule.lastSentAtUtc)}</small>
+            </div>
+            <div>
+              <span>Next scheduled run</span>
+              <strong>
+                {schedule.enabled ? formatDateTime(schedule.nextRunAtUtc) : "Disabled"}
+              </strong>
+              <small>{schedule.lastError || "Schedule uses Istanbul business time."}</small>
+            </div>
+          </div>
+
+          <div className="reports-schedule-footer">
+            {scheduleMessage && (
+              <p role="status">{scheduleMessage}</p>
+            )}
+
+            <div>
+              <button
+                type="button"
+                className="reports-refresh-button"
+                onClick={handleSendReportNow}
+                disabled={
+                  isScheduleLoading ||
+                  isScheduleSaving ||
+                  isSendingReport
+                }
+              >
+                <Send size={16} />
+                {isSendingReport ? "Sending..." : "Send Now"}
+              </button>
+              <button
+                type="button"
+                className="reports-export-button"
+                onClick={handleSaveSchedule}
+                disabled={
+                  isScheduleLoading ||
+                  isScheduleSaving ||
+                  isSendingReport
+                }
+              >
+                <CalendarClock size={16} />
+                {isScheduleSaving ? "Saving..." : "Save Schedule"}
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="reports-recent-card">
         <div className="reports-recent-header">
@@ -823,6 +1110,34 @@ function formatDate(dateValue) {
     day: "numeric",
     year: "numeric"
   });
+}
+
+function formatDateTime(dateValue) {
+  if (!dateValue) {
+    return "Not sent yet";
+  }
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not available";
+  }
+
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+function getRequestError(requestError, fallback) {
+  return (
+    requestError.response?.data?.message ||
+    requestError.response?.data?.title ||
+    fallback
+  );
 }
 
 function shortenText(value, maximumLength) {

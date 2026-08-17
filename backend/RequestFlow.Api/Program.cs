@@ -69,9 +69,12 @@ if (!builder.Environment.IsEnvironment("Testing"))
 {
     builder.Services.AddHostedService<NotificationEmailWorker>();
     builder.Services.AddHostedService<SlaMonitoringWorker>();
+    builder.Services.AddHostedService<AutomatedReportWorker>();
 }
 
+builder.Services.AddScoped<IReportDataService, ReportDataService>();
 builder.Services.AddScoped<IReportPdfService, ReportPdfService>();
+builder.Services.AddScoped<IReportEmailService, ReportEmailService>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 

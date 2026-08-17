@@ -588,6 +588,7 @@ html[data-theme="dark"]
   .report-stat-card,
   .reports-chart-card,
   .report-chart-card,
+  .reports-schedule-card,
   .settings-theme-section,
   .settings-form,
   .settings-card
@@ -598,6 +599,59 @@ html[data-theme="dark"]
 
   box-shadow:
     0 12px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+html[data-theme="dark"]
+:is(
+  .reports-period-control,
+  .reports-schedule-fields input,
+  .reports-schedule-fields select
+) {
+  border-color: var(--dark-border-light) !important;
+  background: var(--dark-input) !important;
+  color: var(--dark-title) !important;
+}
+
+html[data-theme="dark"] .reports-period-control select {
+  background: var(--dark-input) !important;
+  color: var(--dark-title) !important;
+}
+
+html[data-theme="dark"]
+:is(
+  .reports-intensity-list > div,
+  .reports-schedule-status > div
+) {
+  border-color: var(--dark-border) !important;
+  background: var(--dark-surface-2) !important;
+}
+
+html[data-theme="dark"]
+:is(
+  .reports-schedule-header,
+  .reports-schedule-footer
+) {
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"]
+:is(
+  .reports-period-control > span,
+  .reports-intensity-list span,
+  .reports-schedule-toggle,
+  .reports-schedule-fields label > span,
+  .reports-schedule-status span
+) {
+  color: var(--dark-text) !important;
+}
+
+html[data-theme="dark"]
+:is(
+  .reports-intensity-list strong,
+  .reports-schedule-title h2,
+  .reports-schedule-status strong
+) {
+  color: var(--dark-title) !important;
 }
 
 html[data-theme="dark"]

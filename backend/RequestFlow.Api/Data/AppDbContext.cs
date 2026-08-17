@@ -65,6 +65,9 @@ public class AppDbContext : DbContext
     public DbSet<CategoryField> CategoryFields =>
         Set<CategoryField>();
 
+    public DbSet<ReportSchedule> ReportSchedules =>
+        Set<ReportSchedule>();
+
     protected override void OnModelCreating(
         ModelBuilder modelBuilder
     )
@@ -85,6 +88,7 @@ public class AppDbContext : DbContext
         ConfigureKnowledgeArticle(modelBuilder);
         ConfigureRequestTemplate(modelBuilder);
         ConfigureCategoryField(modelBuilder);
+        ConfigureReportSchedule(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(
@@ -271,6 +275,24 @@ public class AppDbContext : DbContext
             field.Category,
             field.Key
         }).IsUnique();
+    }
+
+    private static void ConfigureReportSchedule(
+        ModelBuilder modelBuilder
+    )
+    {
+        var scheduleEntity = modelBuilder
+            .Entity<ReportSchedule>();
+
+        scheduleEntity.HasKey(schedule => schedule.Id);
+        scheduleEntity.Property(schedule => schedule.Frequency)
+            .IsRequired().HasMaxLength(20);
+        scheduleEntity.Property(schedule => schedule.Recipients)
+            .IsRequired().HasMaxLength(1500);
+        scheduleEntity.Property(schedule => schedule.LastDeliveryStatus)
+            .IsRequired().HasMaxLength(80);
+        scheduleEntity.Property(schedule => schedule.LastError)
+            .HasMaxLength(500);
     }
 
     private static void ConfigureUser(
