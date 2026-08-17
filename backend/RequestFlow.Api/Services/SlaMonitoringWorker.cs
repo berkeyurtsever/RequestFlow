@@ -22,24 +22,36 @@ public sealed class SlaMonitoringWorker : BackgroundService
         CancellationToken stoppingToken
     )
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await CheckBreachesAsync(stoppingToken);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(
-                    exception,
-                    "SLA deadlines could not be checked."
+                try
+                {
+                    await CheckBreachesAsync(stoppingToken);
+                }
+                catch (Exception exception) when (
+                    exception is not OperationCanceledException ||
+                    !stoppingToken.IsCancellationRequested
+                )
+                {
+                    _logger.LogError(
+                        exception,
+                        "SLA deadlines could not be checked."
+                    );
+                }
+
+                await Task.Delay(
+                    TimeSpan.FromMinutes(2),
+                    stoppingToken
                 );
             }
-
-            await Task.Delay(
-                TimeSpan.FromMinutes(2),
-                stoppingToken
-            );
+        }
+        catch (OperationCanceledException) when (
+            stoppingToken.IsCancellationRequested
+        )
+        {
+            // Application shutdown cancels the delay and ends the worker.
         }
     }
 
