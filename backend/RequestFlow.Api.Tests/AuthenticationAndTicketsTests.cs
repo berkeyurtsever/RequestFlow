@@ -825,6 +825,73 @@ public sealed class AuthenticationAndTicketsTests :
         Assert.Equal("%PDF", System.Text.Encoding.ASCII.GetString(pdf, 0, 4));
     }
 
+    [Fact]
+    public async Task Admin_CanFilterReportsAndSendScheduledPdfEmail()
+    {
+        var auth = await RegisterAdminAsync();
+        UseBearerToken(auth.Token);
+
+        var ticketResponse = await _client.PostAsJsonAsync(
+            "/api/Tickets",
+            new Ticket
+            {
+                Title = "Category intensity report",
+                Description = "Verify weekly category reporting and email delivery.",
+                Category = "Report Operations",
+                Priority = "High"
+            }
+        );
+        Assert.Equal(HttpStatusCode.Created, ticketResponse.StatusCode);
+
+        var reportResponse = await _client.GetAsync(
+            "/api/Reports?period=week"
+        );
+        var reportJson = await reportResponse.Content
+            .ReadFromJsonAsync<JsonElement>();
+
+        Assert.Equal(HttpStatusCode.OK, reportResponse.StatusCode);
+        Assert.Equal("week", reportJson.GetProperty("period").GetString());
+        Assert.Contains(
+            reportJson.GetProperty("categoryData").EnumerateArray(),
+            item =>
+                item.GetProperty("name").GetString() ==
+                    "Report Operations" &&
+                item.GetProperty("percentage").GetDouble() > 0 &&
+                !string.IsNullOrWhiteSpace(
+                    item.GetProperty("intensity").GetString()
+                )
+        );
+
+        var scheduleResponse = await _client.PutAsJsonAsync(
+            "/api/Reports/schedule",
+            new
+            {
+                enabled = true,
+                frequency = "Weekly",
+                recipients = "reports@example.com"
+            }
+        );
+        Assert.Equal(HttpStatusCode.OK, scheduleResponse.StatusCode);
+
+        var sendResponse = await _client.PostAsync(
+            "/api/Reports/schedule/send-now",
+            content: null
+        );
+        Assert.Equal(HttpStatusCode.OK, sendResponse.StatusCode);
+
+        var emailSender = _factory.Services
+            .GetRequiredService<TestEmailSender>();
+        Assert.Contains(
+            emailSender.ReportMessages,
+            message =>
+                message.RecipientEmails.Contains(
+                    "reports@example.com"
+                ) &&
+                message.FileName.Contains("week-report") &&
+                message.AttachmentLength > 1000
+        );
+    }
+
     private async Task<AuthResponseDto> RegisterAdminAsync()
     {
         const string password = "SafePassword123!";

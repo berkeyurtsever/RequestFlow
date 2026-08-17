@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RequestFlow.Api.Data;
+using RequestFlow.Api.DTOs.Reports;
+using RequestFlow.Api.Models;
 using RequestFlow.Api.Services;
 
 namespace RequestFlow.Api.Controllers;
@@ -12,189 +15,239 @@ namespace RequestFlow.Api.Controllers;
 public class ReportsController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IReportDataService _reportDataService;
     private readonly IReportPdfService _pdfService;
+    private readonly IReportEmailService _reportEmailService;
+    private readonly IAuditLogService _auditLog;
 
     public ReportsController(
         AppDbContext context,
-        IReportPdfService pdfService
+        IReportDataService reportDataService,
+        IReportPdfService pdfService,
+        IReportEmailService reportEmailService,
+        IAuditLogService auditLog
     )
     {
         _context = context;
+        _reportDataService = reportDataService;
         _pdfService = pdfService;
+        _reportEmailService = reportEmailService;
+        _auditLog = auditLog;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<ReportDto>> GetReports(
+        [FromQuery] string? period,
+        CancellationToken cancellationToken
+    )
+    {
+        var report = await _reportDataService.GetAsync(
+            period,
+            cancellationToken
+        );
+
+        return Ok(report);
     }
 
     [HttpGet("pdf")]
     public async Task<IActionResult> DownloadPdf(
+        [FromQuery] string? period,
         CancellationToken cancellationToken
     )
     {
+        var range = ReportPeriodResolver.Resolve(period);
         var content = await _pdfService.GenerateAsync(
+            range.Key,
             cancellationToken
         );
 
         return File(
             content,
             "application/pdf",
-            $"requestflow-report-{DateTime.UtcNow:yyyy-MM-dd}.pdf"
+            $"requestflow-{range.Key}-report-{DateTime.UtcNow:yyyy-MM-dd}.pdf"
         );
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetReports()
+    [HttpGet("schedule")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<ReportScheduleDto>> GetSchedule(
+        CancellationToken cancellationToken
+    )
     {
-        var tickets = await _context.Tickets
-            .AsNoTracking()
-            .OrderByDescending(ticket => ticket.CreatedAt)
-            .ToListAsync();
-
-        var totalRequests = tickets.Count;
-
-        var openRequests = tickets.Count(ticket =>
-            ticket.Status.Equals(
-                "Open",
-                StringComparison.OrdinalIgnoreCase
-            )
+        var schedule = await GetOrCreateScheduleAsync(
+            cancellationToken
         );
 
-        var inProgressRequests = tickets.Count(ticket =>
-            ticket.Status.Equals(
-                "In Progress",
-                StringComparison.OrdinalIgnoreCase
-            )
-        );
-
-        var pendingRequests = tickets.Count(ticket =>
-            ticket.Status.Equals(
-                "Pending",
-                StringComparison.OrdinalIgnoreCase
-            )
-        );
-
-        var completedRequests = tickets.Count(ticket =>
-            ticket.Status.Equals(
-                "Resolved",
-                StringComparison.OrdinalIgnoreCase
-            )
-        );
-
-        var rejectedRequests = tickets.Count(ticket =>
-            ticket.Status.Equals(
-                "Rejected",
-                StringComparison.OrdinalIgnoreCase
-            )
-        );
-
-        var now = DateTime.UtcNow;
-        var overdueRequests = tickets.Count(ticket =>
-            !SlaPolicy.IsClosed(ticket.Status) &&
-            ticket.SlaDueAt.HasValue &&
-            ticket.SlaDueAt.Value <= now
-        );
-
-        var dueSoonRequests = tickets.Count(ticket =>
-            !SlaPolicy.IsClosed(ticket.Status) &&
-            ticket.SlaDueAt.HasValue &&
-            ticket.SlaDueAt.Value > now &&
-            ticket.SlaDueAt.Value <= now.AddHours(8)
-        );
-
-        var statusData = tickets
-            .GroupBy(ticket =>
-                string.IsNullOrWhiteSpace(ticket.Status)
-                    ? "Unknown"
-                    : ticket.Status.Trim()
-            )
-            .Select(group => new
-            {
-                name = group.Key,
-                value = group.Count()
-            })
-            .OrderByDescending(item => item.value)
-            .ToList();
-
-        var categoryData = tickets
-            .GroupBy(ticket =>
-                string.IsNullOrWhiteSpace(ticket.Category)
-                    ? "Uncategorized"
-                    : ticket.Category.Trim()
-            )
-            .Select(group => new
-            {
-                name = group.Key,
-                requests = group.Count()
-            })
-            .OrderByDescending(item => item.requests)
-            .ToList();
-
-        var priorityData = tickets
-            .GroupBy(ticket =>
-                string.IsNullOrWhiteSpace(ticket.Priority)
-                    ? "Unknown"
-                    : ticket.Priority.Trim()
-            )
-            .Select(group => new
-            {
-                name = group.Key,
-                value = group.Count()
-            })
-            .OrderByDescending(item => item.value)
-            .ToList();
-
-        var recentRequests = tickets
-            .Take(5)
-            .Select(ticket => new
-            {
-                ticket.Id,
-                ticket.Title,
-                ticket.Category,
-                ticket.Status,
-                ticket.Priority,
-                ticket.CreatedAt,
-                ticket.SlaDueAt,
-                ticket.SlaBreachedAt
-            })
-            .ToList();
-
-        var resolvedTickets = tickets
-            .Where(ticket =>
-                ticket.Status.Equals(
-                    "Resolved",
-                    StringComparison.OrdinalIgnoreCase
-                ) &&
-                ticket.UpdatedAt.HasValue
-            )
-            .ToList();
-
-        var averageResolutionHours =
-            resolvedTickets.Count == 0
-                ? 0
-                : Math.Round(
-                    resolvedTickets.Average(ticket =>
-                        (
-                            ticket.UpdatedAt!.Value -
-                            ticket.CreatedAt
-                        ).TotalHours
-                    ),
-                    1
-                );
-
-        var result = new
-        {
-            totalRequests,
-            openRequests,
-            inProgressRequests,
-            pendingRequests,
-            completedRequests,
-            rejectedRequests,
-            overdueRequests,
-            dueSoonRequests,
-            averageResolutionHours,
-            statusData,
-            categoryData,
-            priorityData,
-            recentRequests
-        };
-
-        return Ok(result);
+        return Ok(ToDto(schedule));
     }
+
+    [HttpPut("schedule")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<ReportScheduleDto>> UpdateSchedule(
+        [FromBody] UpdateReportScheduleDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        var frequency = ReportScheduleRules.NormalizeFrequency(
+            request.Frequency
+        );
+
+        if (frequency == null)
+        {
+            return BadRequest(new
+            {
+                message = "Report frequency must be Weekly or Monthly."
+            });
+        }
+
+        var recipients = ReportScheduleRules.ParseRecipients(
+            request.Recipients
+        );
+        var validationError = ValidateRecipients(
+            recipients,
+            request.Enabled
+        );
+
+        if (validationError != null)
+        {
+            return BadRequest(new { message = validationError });
+        }
+
+        var schedule = await GetOrCreateScheduleAsync(
+            cancellationToken
+        );
+        schedule.Enabled = request.Enabled;
+        schedule.Frequency = frequency;
+        schedule.Recipients = string.Join("; ", recipients);
+        schedule.NextRunAtUtc = request.Enabled
+            ? ReportScheduleRules.CalculateNextRunUtc(frequency)
+            : null;
+        schedule.UpdatedAtUtc = DateTime.UtcNow;
+
+        _auditLog.Add(
+            User,
+            "reports.schedule.updated",
+            "ReportSchedule",
+            schedule.Id.ToString(),
+            request.Enabled
+                ? $"{frequency} report emails were enabled for {recipients.Count} recipient(s)."
+                : "Automatic report emails were disabled."
+        );
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return Ok(ToDto(schedule));
+    }
+
+    [HttpPost("schedule/send-now")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<ReportScheduleDto>> SendNow(
+        CancellationToken cancellationToken
+    )
+    {
+        var schedule = await GetOrCreateScheduleAsync(
+            cancellationToken
+        );
+        var recipients = ReportScheduleRules.ParseRecipients(
+            schedule.Recipients
+        );
+        var validationError = ValidateRecipients(
+            recipients,
+            requireRecipient: true
+        );
+
+        if (validationError != null)
+        {
+            return BadRequest(new { message = validationError });
+        }
+
+        var result = await _reportEmailService.SendAsync(
+            schedule,
+            cancellationToken
+        );
+
+        schedule.LastDeliveryStatus = result.Status;
+        schedule.LastError = result.Error;
+        schedule.UpdatedAtUtc = DateTime.UtcNow;
+
+        if (!result.Sent)
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return BadRequest(new
+            {
+                message = result.Error ?? result.Status,
+                schedule = ToDto(schedule)
+            });
+        }
+
+        schedule.LastSentAtUtc = DateTime.UtcNow;
+
+        _auditLog.Add(
+            User,
+            "reports.email.sent",
+            "ReportSchedule",
+            schedule.Id.ToString(),
+            $"A {schedule.Frequency.ToLowerInvariant()} PDF report was sent to {recipients.Count} recipient(s)."
+        );
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return Ok(ToDto(schedule));
+    }
+
+    private async Task<ReportSchedule> GetOrCreateScheduleAsync(
+        CancellationToken cancellationToken
+    )
+    {
+        var schedule = await _context.ReportSchedules
+            .OrderBy(item => item.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (schedule != null)
+        {
+            return schedule;
+        }
+
+        schedule = new ReportSchedule();
+        _context.ReportSchedules.Add(schedule);
+        await _context.SaveChangesAsync(cancellationToken);
+        return schedule;
+    }
+
+    private static string? ValidateRecipients(
+        IReadOnlyCollection<string> recipients,
+        bool requireRecipient
+    )
+    {
+        if (requireRecipient && recipients.Count == 0)
+        {
+            return "At least one report recipient is required.";
+        }
+
+        if (recipients.Count > 10)
+        {
+            return "A maximum of 10 report recipients is allowed.";
+        }
+
+        var validator = new EmailAddressAttribute();
+        var invalid = recipients.FirstOrDefault(recipient =>
+            !validator.IsValid(recipient)
+        );
+
+        return invalid == null
+            ? null
+            : $"'{invalid}' is not a valid email address.";
+    }
+
+    private static ReportScheduleDto ToDto(
+        ReportSchedule schedule
+    ) => new()
+    {
+        Enabled = schedule.Enabled,
+        Frequency = schedule.Frequency,
+        Recipients = schedule.Recipients,
+        LastSentAtUtc = schedule.LastSentAtUtc,
+        NextRunAtUtc = schedule.NextRunAtUtc,
+        LastDeliveryStatus = schedule.LastDeliveryStatus,
+        LastError = schedule.LastError,
+        UpdatedAtUtc = schedule.UpdatedAtUtc
+    };
 }

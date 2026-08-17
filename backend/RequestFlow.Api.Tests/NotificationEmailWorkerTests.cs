@@ -112,5 +112,14 @@ public sealed class NotificationEmailWorkerTests
             string actionUrl,
             CancellationToken cancellationToken = default
         ) => Task.CompletedTask;
+
+        public Task SendReportAsync(
+            IReadOnlyCollection<string> recipientEmails,
+            string subject,
+            string message,
+            byte[] pdfContent,
+            string fileName,
+            CancellationToken cancellationToken = default
+        ) => Task.CompletedTask;
     }
 }

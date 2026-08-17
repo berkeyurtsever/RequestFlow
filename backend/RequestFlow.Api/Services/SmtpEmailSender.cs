@@ -181,6 +181,59 @@ public sealed class SmtpEmailSender : IEmailSender
         );
     }
 
+    public async Task SendReportAsync(
+        IReadOnlyCollection<string> recipientEmails,
+        string subject,
+        string message,
+        byte[] pdfContent,
+        string fileName,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (!IsConfigured)
+        {
+            throw new InvalidOperationException(
+                "Email delivery is not configured."
+            );
+        }
+
+        foreach (var recipientEmail in recipientEmails)
+        {
+            using var mailMessage = new MailMessage
+            {
+                From = new MailAddress(
+                    _options.FromAddress,
+                    _options.FromName
+                ),
+                Subject = subject,
+                Body = message,
+                IsBodyHtml = false
+            };
+
+            mailMessage.To.Add(
+                new MailAddress(recipientEmail)
+            );
+
+            var attachmentStream = new MemoryStream(
+                pdfContent,
+                writable: false
+            );
+            mailMessage.Attachments.Add(
+                new Attachment(
+                    attachmentStream,
+                    fileName,
+                    MediaTypeNames.Application.Pdf
+                )
+            );
+
+            using var smtpClient = CreateSmtpClient();
+            await smtpClient.SendMailAsync(
+                mailMessage,
+                cancellationToken
+            );
+        }
+    }
+
     private SmtpClient CreateSmtpClient()
     {
         var smtpClient = new SmtpClient(

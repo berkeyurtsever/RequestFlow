@@ -20,4 +20,13 @@ public interface IEmailSender
         string actionUrl,
         CancellationToken cancellationToken = default
     );
+
+    Task SendReportAsync(
+        IReadOnlyCollection<string> recipientEmails,
+        string subject,
+        string message,
+        byte[] pdfContent,
+        string fileName,
+        CancellationToken cancellationToken = default
+    );
 }

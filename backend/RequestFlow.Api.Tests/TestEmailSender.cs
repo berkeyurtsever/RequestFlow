@@ -15,6 +15,13 @@ public sealed record SentNotificationEmail(
     string ActionUrl
 );
 
+public sealed record SentReportEmail(
+    IReadOnlyCollection<string> RecipientEmails,
+    string Subject,
+    string FileName,
+    int AttachmentLength
+);
+
 public sealed class TestEmailSender : IEmailSender
 {
     private readonly ConcurrentQueue<
@@ -25,6 +32,10 @@ public sealed class TestEmailSender : IEmailSender
         SentNotificationEmail
     > _notificationMessages = new();
 
+    private readonly ConcurrentQueue<
+        SentReportEmail
+    > _reportMessages = new();
+
     public bool IsConfigured => true;
 
     public IReadOnlyCollection<
@@ -34,6 +45,10 @@ public sealed class TestEmailSender : IEmailSender
     public IReadOnlyCollection<SentNotificationEmail>
         NotificationMessages =>
         _notificationMessages.ToArray();
+
+    public IReadOnlyCollection<SentReportEmail>
+        ReportMessages =>
+        _reportMessages.ToArray();
 
     public Task SendPasswordResetAsync(
         string recipientName,
@@ -68,6 +83,27 @@ public sealed class TestEmailSender : IEmailSender
                 recipientEmail,
                 subject,
                 actionUrl
+            )
+        );
+
+        return Task.CompletedTask;
+    }
+
+    public Task SendReportAsync(
+        IReadOnlyCollection<string> recipientEmails,
+        string subject,
+        string message,
+        byte[] pdfContent,
+        string fileName,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _reportMessages.Enqueue(
+            new SentReportEmail(
+                recipientEmails,
+                subject,
+                fileName,
+                pdfContent.Length
             )
         );
 
