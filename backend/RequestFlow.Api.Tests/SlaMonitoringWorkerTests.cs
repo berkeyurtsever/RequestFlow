@@ -14,14 +14,16 @@ public sealed class SlaMonitoringWorkerTests
     [Fact]
     public async Task StopAsync_CompletesWithoutCancellationFailure()
     {
-        await using var connection = new SqliteConnection(
-            "Data Source=:memory:"
+        const string connectionString =
+            "Data Source=SlaWorkerTests;Mode=Memory;Cache=Shared";
+        await using var keepAliveConnection = new SqliteConnection(
+            connectionString
         );
-        await connection.OpenAsync();
+        await keepAliveConnection.OpenAsync();
 
         var services = new ServiceCollection();
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite(connection)
+            options.UseSqlite(connectionString)
         );
 
         await using var provider = services.BuildServiceProvider();
