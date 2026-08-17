@@ -27,24 +27,35 @@ public sealed class NotificationEmailWorker : BackgroundService
         CancellationToken stoppingToken
     )
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await ProcessPendingAsync(stoppingToken);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(
-                    exception,
-                    "Pending notification emails could not be processed."
+                try
+                {
+                    await ProcessPendingAsync(stoppingToken);
+                }
+                catch (Exception exception) when (
+                    exception is not OperationCanceledException ||
+                    !stoppingToken.IsCancellationRequested
+                )
+                {
+                    _logger.LogError(
+                        exception,
+                        "Pending notification emails could not be processed."
+                    );
+                }
+
+                await Task.Delay(
+                    TimeSpan.FromSeconds(15),
+                    stoppingToken
                 );
             }
-
-            await Task.Delay(
-                TimeSpan.FromSeconds(15),
-                stoppingToken
-            );
+        }
+        catch (OperationCanceledException) when (
+            stoppingToken.IsCancellationRequested
+        )
+        {
         }
     }
 
