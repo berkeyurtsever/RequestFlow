@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using RequestFlow.Api.Data;
+using RequestFlow.Api.Models;
 using RequestFlow.Api.Services;
 using Xunit;
 
@@ -33,6 +34,22 @@ public sealed class NotificationEmailWorkerTests
             var context = scope.ServiceProvider
                 .GetRequiredService<AppDbContext>();
             await context.Database.EnsureCreatedAsync();
+
+            var user = new User
+            {
+                FullName = "Notification Worker Test",
+                Email = "notification-worker@example.com",
+                PasswordHash = "test-password-hash"
+            };
+            context.Users.Add(user);
+            context.Notifications.Add(new Notification
+            {
+                User = user,
+                Type = "status",
+                Title = "Worker shutdown test",
+                Message = "Confirms the worker completed its first cycle."
+            });
+            await context.SaveChangesAsync();
         }
 
         var configuration = new ConfigurationBuilder()
@@ -46,6 +63,25 @@ public sealed class NotificationEmailWorkerTests
         );
 
         await worker.StartAsync(CancellationToken.None);
+
+        var cycleCompleted = false;
+        var deadline = DateTime.UtcNow.AddSeconds(5);
+
+        while (!cycleCompleted && DateTime.UtcNow < deadline)
+        {
+            await Task.Delay(25);
+
+            using var scope = provider.CreateScope();
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+            cycleCompleted = await context.Notifications
+                .AsNoTracking()
+                .AnyAsync(notification =>
+                    notification.EmailDeliveryStatus == "Skipped"
+                );
+        }
+
+        Assert.True(cycleCompleted);
         await worker.StopAsync(CancellationToken.None);
 
         Assert.NotNull(worker.ExecuteTask);
