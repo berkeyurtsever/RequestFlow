@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using RequestFlow.Api.Data;
+using RequestFlow.Api.Models;
 using RequestFlow.Api.Services;
 using Xunit;
 
@@ -30,6 +31,17 @@ public sealed class SlaMonitoringWorkerTests
             var context = scope.ServiceProvider
                 .GetRequiredService<AppDbContext>();
             await context.Database.EnsureCreatedAsync();
+
+            context.Tickets.Add(new Ticket
+            {
+                Title = "SLA shutdown test",
+                Description = "Confirms the worker completed its first cycle.",
+                Category = "General Request",
+                Priority = "High",
+                Status = "Open",
+                SlaDueAt = DateTime.UtcNow.AddMinutes(-1)
+            });
+            await context.SaveChangesAsync();
         }
 
         var worker = new SlaMonitoringWorker(
@@ -38,6 +50,23 @@ public sealed class SlaMonitoringWorkerTests
         );
 
         await worker.StartAsync(CancellationToken.None);
+
+        var cycleCompleted = false;
+        var deadline = DateTime.UtcNow.AddSeconds(5);
+
+        while (!cycleCompleted && DateTime.UtcNow < deadline)
+        {
+            await Task.Delay(25);
+
+            using var scope = provider.CreateScope();
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+            cycleCompleted = await context.Tickets
+                .AsNoTracking()
+                .AnyAsync(ticket => ticket.SlaBreachedAt.HasValue);
+        }
+
+        Assert.True(cycleCompleted);
         await worker.StopAsync(CancellationToken.None);
 
         Assert.NotNull(worker.ExecuteTask);
