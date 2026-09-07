@@ -9,7 +9,7 @@ using RequestFlow.Api.Options;
 namespace RequestFlow.Api.Controllers;
 
 [ApiController]
-[Authorize(Policy = "AdminOnly")]
+[Authorize(Policy = "ManagementOnly")]
 [Route("api/system-health")]
 public sealed class SystemHealthController : ControllerBase
 {

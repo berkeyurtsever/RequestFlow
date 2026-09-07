@@ -131,7 +131,9 @@ function Sidebar({
         path: "/audit-logs",
         icon: FileClock
       });
+    }
 
+    if (isManagement) {
       items.push({
         label: t("navigation.systemHealth"),
         path: "/system-health",
