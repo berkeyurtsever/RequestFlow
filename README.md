@@ -18,12 +18,16 @@ RequestFlow is a full-stack, role-based request management system developed duri
 - Secure, expiring, single-use email password reset links
 - Session invalidation after password changes and resets
 - Request creation, editing, deletion, assignment, and status tracking
+- List and Kanban workflows with drag-and-drop status updates
 - Priority management, advanced filtering, sorting, and pagination
-- Comments, attachments, permanent activity history, and notifications
+- Request templates, category-specific fields, and draft autosave
+- Comments, attachments, permanent activity history, and real-time notifications
+- Knowledge base guides and frequently asked questions
 - Employee, role, category, and system-setting management
 - Dashboard charts, personnel workload, response/resolution time, and SLA metrics
 - Per-user dashboard card customization saved across sessions
-- Reports with CSV and PDF export
+- SLA monitoring and an administrative audit log
+- Reports with CSV/PDF export and scheduled email delivery
 - Light and dark themes
 - Responsive desktop, tablet, and mobile layouts
 - Route-level loading so screens download only when opened
@@ -43,6 +47,10 @@ The gallery below was captured from the local Administrator interface in light m
 
 ![All requests](docs/screenshots/readme/03-all-requests.jpg)
 
+### Kanban Workflow
+
+![Request Kanban workflow](docs/screenshots/readme/12-kanban-board.jpg)
+
 ### Create Request
 
 ![Create request](docs/screenshots/readme/04-create-request.jpg)
@@ -55,6 +63,10 @@ The gallery below was captured from the local Administrator interface in light m
 
 ![Request attachments and activity](docs/screenshots/readme/06-request-details.jpg)
 
+### Knowledge Base
+
+![Knowledge base guides and FAQs](docs/screenshots/readme/10-knowledge-base.jpg)
+
 ### Employee Management
 
 ![Employee role management](docs/screenshots/readme/07-admin-management.jpg)
@@ -62,6 +74,10 @@ The gallery below was captured from the local Administrator interface in light m
 ### Reports and Analytics
 
 ![Reports and analytics](docs/screenshots/readme/08-reports.jpg)
+
+### Administrative Audit Log
+
+![Administrative audit log](docs/screenshots/readme/11-audit-log.jpg)
 
 ### Mobile Navigation
 
