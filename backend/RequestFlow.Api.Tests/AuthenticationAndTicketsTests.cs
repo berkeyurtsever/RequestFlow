@@ -42,7 +42,7 @@ public sealed class AuthenticationAndTicketsTests :
     }
 
     [Fact]
-    public async Task SystemHealthEndpoint_IsAdminOnlyAndHidesSecrets()
+    public async Task SystemHealthEndpoint_IsManagementOnlyAndHidesSecrets()
     {
         var anonymousResponse = await _client.GetAsync(
             "/api/system-health"
@@ -63,6 +63,18 @@ public sealed class AuthenticationAndTicketsTests :
         Assert.Equal(
             HttpStatusCode.Forbidden,
             userResponse.StatusCode
+        );
+
+        var supervisorAuth = await RegisterSupervisorAsync();
+        UseBearerToken(supervisorAuth.Token);
+
+        var supervisorResponse = await _client.GetAsync(
+            "/api/system-health"
+        );
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            supervisorResponse.StatusCode
         );
 
         var adminAuth = await RegisterAdminAsync();
@@ -965,6 +977,36 @@ public sealed class AuthenticationAndTicketsTests :
                 item.Id == auth.UserId
             );
             user.Role = "Admin";
+            await context.SaveChangesAsync();
+        }
+
+        var loginResponse = await _client.PostAsJsonAsync(
+            "/api/Auth/login",
+            new LoginDto
+            {
+                Email = auth.Email,
+                Password = password
+            }
+        );
+
+        loginResponse.EnsureSuccessStatusCode();
+        return (await loginResponse.Content
+            .ReadFromJsonAsync<AuthResponseDto>())!;
+    }
+
+    private async Task<AuthResponseDto> RegisterSupervisorAsync()
+    {
+        const string password = "SafePassword123!";
+        var auth = await RegisterUserAsync();
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+            var user = await context.Users.SingleAsync(item =>
+                item.Id == auth.UserId
+            );
+            user.Role = "Supervisor";
             await context.SaveChangesAsync();
         }
 

@@ -345,7 +345,9 @@ function App() {
         <Route
           path="system-health"
           element={
-            <ProtectedRoute allowedRoles={["admin"]}>
+            <ProtectedRoute
+              allowedRoles={MANAGEMENT_ROLES}
+            >
               <SystemHealth />
             </ProtectedRoute>
           }
