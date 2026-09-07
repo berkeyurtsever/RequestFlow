@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState
@@ -9,26 +10,29 @@ import {
 } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import { useLanguage } from "../context/LanguageContext";
 
-const pageTitles = {
-  "/overview": "Overview",
-  "/requests": "Requests",
-  "/requests/create": "Create Request",
-  "/notifications": "Notifications",
-  "/knowledge-base": "Knowledge Base",
-  "/tasks": "Assigned Tasks",
-  "/reports": "Reports",
-  "/employees": "Employees",
-  "/categories": "Categories",
-  "/settings": "Settings",
-  "/audit-logs": "Audit Logs",
-  "/profile": "My Profile",
-  "/change-password": "Change Password",
-  "/access-denied": "Access Denied"
+const pageTitleKeys = {
+  "/overview": "navigation.overview",
+  "/requests": "navigation.allRequests",
+  "/requests/create": "navigation.createRequest",
+  "/notifications": "navigation.notifications",
+  "/knowledge-base": "navigation.knowledgeBase",
+  "/tasks": "navigation.assignedTasks",
+  "/reports": "navigation.reports",
+  "/employees": "navigation.employees",
+  "/categories": "navigation.categories",
+  "/settings": "navigation.settings",
+  "/audit-logs": "navigation.auditLog",
+  "/system-health": "navigation.systemHealth",
+  "/profile": "page.profile",
+  "/change-password": "page.changePassword",
+  "/access-denied": "page.accessDenied"
 };
 
 function MainLayout() {
   const location = useLocation();
+  const { t } = useLanguage();
   const mainContentRef = useRef(null);
   const menuButtonRef = useRef(null);
   const wasMobileSidebarOpenRef = useRef(false);
@@ -49,18 +53,19 @@ function MainLayout() {
     setIsMobileSidebarOpen(false);
   };
 
-  const getPageTitle = pathname => {
+  const getPageTitle = useCallback(pathname => {
     if (
       pathname.startsWith("/requests/edit/")
     ) {
-      return "Edit Request";
+      return t("page.editRequest");
     }
 
-    return (
-      pageTitles[pathname] ||
-      "Page Not Found"
-    );
-  };
+    const titleKey = pageTitleKeys[pathname];
+
+    return titleKey
+      ? t(titleKey)
+      : t("page.notFound");
+  }, [t]);
 
   useEffect(() => {
     closeMobileSidebar();
@@ -82,7 +87,7 @@ function MainLayout() {
     return () => {
       window.clearTimeout(focusTimer);
     };
-  }, [location.pathname]);
+  }, [getPageTitle, location.pathname]);
 
   useEffect(() => {
     if (!isMobileSidebarOpen) {
@@ -193,7 +198,7 @@ function MainLayout() {
         href="#rf-main-content"
         className="rf-skip-link"
       >
-        Skip to main content
+          {t("page.skip")}
       </a>
 
       <Sidebar
@@ -209,7 +214,7 @@ function MainLayout() {
             : ""
         }`}
         onClick={closeMobileSidebar}
-        aria-label="Close navigation menu"
+        aria-label={t("navigation.close")}
         aria-hidden="true"
         tabIndex={-1}
       />
@@ -238,7 +243,9 @@ function MainLayout() {
         aria-live="polite"
         aria-atomic="true"
       >
-        {currentPageTitle} page loaded
+        {t("page.loaded", {
+          page: currentPageTitle
+        })}
       </div>
     </div>
   );

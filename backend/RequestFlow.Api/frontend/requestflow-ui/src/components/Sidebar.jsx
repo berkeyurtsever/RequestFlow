@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   FileClock,
+  HeartPulse,
   LayoutDashboard,
   Settings,
   Tags,
@@ -18,6 +19,7 @@ import {
   useNavigate
 } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { canUseDemoSettings } from "../utils/demoMode";
 
 function Sidebar({
@@ -26,6 +28,7 @@ function Sidebar({
 }) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const normalizedRole = String(
     user?.role || "User"
@@ -56,39 +59,39 @@ function Sidebar({
   const department =
     user?.department ||
     (isAdmin
-      ? "IT Department"
+      ? t("department.it")
       : isSupervisor
-        ? "Management"
+        ? t("department.management")
         : isStaff
-          ? "IT Department"
-          : "Standard User");
+          ? t("department.it")
+          : t("department.standard"));
 
   const workspaceItems = useMemo(() => {
     const items = [
       {
-        label: "Overview",
+        label: t("navigation.overview"),
         path: "/overview",
         icon: LayoutDashboard
       },
       {
         label: isManagement
-          ? "All Requests"
-          : "My Requests",
+          ? t("navigation.allRequests")
+          : t("navigation.myRequests"),
         path: "/requests",
         icon: ClipboardList
       },
       {
-        label: "Create Request",
+        label: t("navigation.createRequest"),
         path: "/requests/create",
         icon: CirclePlus
       },
       {
-      label: "Notifications",
+      label: t("navigation.notifications"),
       path: "/notifications",
       icon: Bell
     },
     {
-      label: "Knowledge Base",
+      label: t("navigation.knowledgeBase"),
       path: "/knowledge-base",
       icon: BookOpenCheck
     }
@@ -96,21 +99,21 @@ function Sidebar({
 
     if (isStaff || isManagement) {
       items.push({
-        label: "Assigned Tasks",
+        label: t("navigation.assignedTasks"),
         path: "/tasks",
         icon: ClipboardCheck
       });
     }
 
     return items;
-  }, [isManagement, isStaff]);
+  }, [isManagement, isStaff, t]);
 
   const managementItems = useMemo(() => {
     const items = [];
 
     if (isManagement) {
       items.push({
-        label: "Reports",
+        label: t("navigation.reports"),
         path: "/reports",
         icon: BarChart3
       });
@@ -118,21 +121,27 @@ function Sidebar({
 
     if (isAdmin) {
       items.push({
-        label: "Employees",
+        label: t("navigation.employees"),
         path: "/employees",
         icon: UsersRound
       });
 
       items.push({
-        label: "Audit Log",
+        label: t("navigation.auditLog"),
         path: "/audit-logs",
         icon: FileClock
+      });
+
+      items.push({
+        label: t("navigation.systemHealth"),
+        path: "/system-health",
+        icon: HeartPulse
       });
     }
 
     if (isManagement) {
       items.push({
-        label: "Categories",
+        label: t("navigation.categories"),
         path: "/categories",
         icon: Tags
       });
@@ -140,7 +149,7 @@ function Sidebar({
 
     if (hasSettingsAccess) {
       items.push({
-        label: "Settings",
+        label: t("navigation.settings"),
         path: "/settings",
         icon: Settings
       });
@@ -150,7 +159,8 @@ function Sidebar({
   }, [
     hasSettingsAccess,
     isAdmin,
-    isManagement
+    isManagement,
+    t
   ]);
 
   const getInitials = name => {
@@ -186,14 +196,14 @@ function Sidebar({
           ? "rf-sidebar-mobile-open"
           : ""
       }`}
-      aria-label="Main navigation"
+      aria-label={t("navigation.main")}
     >
       <div className="rf-sidebar-mobile-header">
         <button
           type="button"
           className="rf-sidebar-brand"
           onClick={handleBrandClick}
-          aria-label="Go to overview"
+          aria-label={t("navigation.overview")}
         >
           <svg
             className="rf-brand-symbol"
@@ -243,7 +253,7 @@ function Sidebar({
             </div>
 
             <span className="rf-sidebar-brand-subtitle">
-              Request Management
+              {t("brand.subtitle")}
             </span>
           </div>
         </button>
@@ -252,7 +262,7 @@ function Sidebar({
           type="button"
           className="rf-sidebar-mobile-close"
           onClick={onClose}
-          aria-label="Close navigation menu"
+          aria-label={t("navigation.close")}
         >
           <X size={20} />
         </button>
@@ -260,14 +270,14 @@ function Sidebar({
 
       <nav className="rf-sidebar-navigation">
         <SidebarSection
-          title="WORKSPACE"
+          title={t("navigation.workspace")}
           items={workspaceItems}
           onNavigate={onClose}
         />
 
         {managementItems.length > 0 && (
           <SidebarSection
-            title="MANAGEMENT"
+            title={t("navigation.management")}
             items={managementItems}
             onNavigate={onClose}
           />
@@ -278,7 +288,7 @@ function Sidebar({
         type="button"
         className="rf-sidebar-profile"
         onClick={handleProfileClick}
-        aria-label="Open profile"
+        aria-label={t("navigation.profile")}
       >
         <div className="rf-sidebar-avatar">
           {getInitials(fullName)}

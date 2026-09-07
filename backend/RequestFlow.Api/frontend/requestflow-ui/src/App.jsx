@@ -69,6 +69,9 @@ const Profile = lazy(() =>
 const AuditLogs = lazy(() =>
   import("./pages/AuditLogs")
 );
+const SystemHealth = lazy(() =>
+  import("./pages/SystemHealth")
+);
 const ChangePassword = lazy(() =>
   import("./pages/ChangePassword")
 );
@@ -77,6 +80,7 @@ const KnowledgeBase = lazy(() =>
 );
 
 import { useAuth } from "./context/AuthContext";
+import { useLanguage } from "./context/LanguageContext";
 import { canUseDemoSettings } from "./utils/demoMode";
 
 const MANAGEMENT_ROLES = [
@@ -91,6 +95,8 @@ const TASK_ROLES = [
 ];
 
 function RouteLoadingFallback() {
+  const { t } = useLanguage();
+
   return (
     <div
       className="request-page-loading"
@@ -103,7 +109,7 @@ function RouteLoadingFallback() {
         aria-hidden="true"
       />
 
-      <span>Loading page...</span>
+      <span>{t("loading.page")}</span>
     </div>
   );
 }
@@ -113,6 +119,7 @@ export function ProtectedRoute({
   allowedRoles
 }) {
   const auth = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
 
   const user = auth?.user;
@@ -131,7 +138,7 @@ export function ProtectedRoute({
         />
 
         <span>
-          Loading your account...
+          {t("loading.account")}
         </span>
       </div>
     );
@@ -331,6 +338,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AuditLogs />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="system-health"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SystemHealth />
             </ProtectedRoute>
           }
         />
