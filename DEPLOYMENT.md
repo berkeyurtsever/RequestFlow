@@ -47,6 +47,23 @@ Choose a provider that supports Docker Compose or two containers on the same pri
 
 Before making a public demo, use demo-only accounts and data. Never upload internship records, personal data, or real company documents.
 
+## Centralized error monitoring
+
+RequestFlow supports optional Sentry error monitoring for both the API and the React interface. Monitoring is disabled when the DSN values are empty, so local development and the public demo do not send data by default.
+
+Create separate Sentry projects for ASP.NET Core and React, then store these values only in hosting secrets:
+
+```dotenv
+SENTRY_DSN=https://your-backend-dsn
+VITE_SENTRY_DSN=https://your-frontend-dsn
+SENTRY_ENVIRONMENT=production
+SENTRY_TRACES_SAMPLE_RATE=0
+```
+
+`SENTRY_DSN` records unhandled API errors and server logs. `VITE_SENTRY_DSN` records unexpected browser errors and React rendering failures. The frontend value is included at build time, so rebuild and redeploy the frontend after changing it. Keep performance tracing at `0` until an explicit sampling policy is chosen.
+
+The application does not send default personally identifiable information. Still review event payloads in Sentry before enabling monitoring for real company data, and configure retention and team access in the Sentry project.
+
 ## Render public demo
 
 The repository includes a `render.yaml` Blueprint and a dedicated `Dockerfile.render` for a free, single-service portfolio demo. The React build is served by ASP.NET Core from the same origin, so the demo does not expose a separate API service.
