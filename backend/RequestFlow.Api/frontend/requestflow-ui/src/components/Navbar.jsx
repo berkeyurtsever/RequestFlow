@@ -1,5 +1,6 @@
 import {
   Bell,
+  BookOpenCheck,
   CheckCheck,
   ChevronDown,
   FileText,
@@ -60,14 +61,9 @@ function Navbar({
   } = useToast();
 
   const [
-    navbarTickets,
-    setNavbarTickets
-  ] = useState([]);
-
-  const [
     isNavbarDataLoading,
     setIsNavbarDataLoading
-  ] = useState(true);
+  ] = useState(false);
 
   const [
     navbarDataError,
@@ -142,37 +138,6 @@ function Navbar({
   const role =
     user?.role || "User";
 
-  const loadNavbarTickets =
-    useCallback(async () => {
-      setIsNavbarDataLoading(true);
-      setNavbarDataError("");
-
-      try {
-        const response =
-          await api.get("/Tickets");
-
-        setNavbarTickets(
-          extractTickets(response.data)
-        );
-      } catch (requestError) {
-        console.error(
-          "Navbar request data could not be loaded:",
-          requestError
-        );
-
-        setNavbarTickets([]);
-
-        setNavbarDataError(
-          getRequestErrorMessage(
-            requestError,
-            "Request data could not be loaded."
-          )
-        );
-      } finally {
-        setIsNavbarDataLoading(false);
-      }
-    }, []);
-
   const loadNotifications =
     useCallback(async ({
       showLoading = true
@@ -225,13 +190,6 @@ function Navbar({
       void stopRealtimeNotifications();
     };
   }, [token]);
-
-  useEffect(() => {
-    void loadNavbarTickets();
-  }, [
-    loadNavbarTickets,
-    location.pathname
-  ]);
 
   useEffect(() => {
     void loadNotifications();
@@ -475,9 +433,7 @@ function Navbar({
 
   useEffect(() => {
     const normalizedSearch =
-      searchValue
-        .trim()
-        .toLowerCase();
+      searchValue.trim();
 
     if (normalizedSearch.length < 2) {
       setSearchResults([]);
@@ -487,43 +443,65 @@ function Navbar({
 
     setIsSearching(true);
 
-    const timer =
-      window.setTimeout(() => {
-        const results =
-          navbarTickets
-            .filter(ticket => {
-              const searchableValues = [
-                ticket.id,
-                ticket.title,
-                ticket.category,
-                ticket.status,
-                ticket.priority,
-                ticket.description
-              ];
+    let isActive = true;
 
-              return searchableValues.some(
-                value =>
-                  String(value || "")
-                    .toLowerCase()
-                    .includes(
-                      normalizedSearch
-                    )
-              );
-            })
-            .slice(0, 6);
+    const timer = window.setTimeout(
+      async () => {
+        setNavbarDataError("");
+        setIsNavbarDataLoading(true);
 
-        setSearchResults(results);
-        setIsSearchPanelOpen(true);
-        setIsSearching(false);
-      }, 250);
+        try {
+          const response = await api.get(
+            "/search",
+            {
+              params: {
+                query: normalizedSearch,
+                limit: 8
+              }
+            }
+          );
+
+          if (!isActive) {
+            return;
+          }
+
+          setSearchResults(
+            Array.isArray(response.data?.items)
+              ? response.data.items
+              : []
+          );
+          setIsSearchPanelOpen(true);
+        } catch (requestError) {
+          if (!isActive) {
+            return;
+          }
+
+          console.error(
+            "Global search could not be completed:",
+            requestError
+          );
+          setSearchResults([]);
+          setNavbarDataError(
+            getRequestErrorMessage(
+              requestError,
+              "Global search could not be completed."
+            )
+          );
+        } finally {
+          if (isActive) {
+            setIsSearching(false);
+            setIsNavbarDataLoading(false);
+          }
+        }
+      },
+      280
+    );
 
     return () => {
+      isActive = false;
       window.clearTimeout(timer);
     };
-  }, [
-    searchValue,
-    navbarTickets
-  ]);
+  }, [searchValue]);
 
   const handleSearchChange = event => {
     const value =
@@ -558,21 +536,19 @@ function Navbar({
     setIsSearchPanelOpen(false);
 
     navigate(
-      `/requests?search=${encodeURIComponent(
+      `/search?query=${encodeURIComponent(
         normalizedSearch
       )}`
     );
   };
 
   const handleSearchResultClick =
-    ticketId => {
+    result => {
       setIsSearchPanelOpen(false);
       setSearchValue("");
       setSearchResults([]);
 
-      navigate(
-        `/requests/edit/${ticketId}`
-      );
+      navigate(result.url || "/search");
     };
 
   const clearSearch = () => {
@@ -856,31 +832,35 @@ function Navbar({
             ) : (
               <div className="rf-navbar-search-results">
                 {searchResults.map(
-                  ticket => (
+                  result => {
+                    const ResultIcon =
+                      getSearchResultIcon(
+                        result.type
+                      );
+
+                    return (
                     <button
                       type="button"
-                      key={ticket.id}
+                      key={`${result.type}-${result.id}`}
                       className="rf-navbar-search-result"
                       onClick={() =>
                         handleSearchResultClick(
-                          ticket.id
+                          result
                         )
                       }
                     >
                       <div className="rf-navbar-search-result-icon">
-                        <FileText size={17} />
+                        <ResultIcon size={17} />
                       </div>
 
                       <div className="rf-navbar-search-result-content">
                         <strong>
-                          {ticket.title ||
+                          {result.title ||
                             t("navbar.untitled")}
                         </strong>
 
                         <span>
-                          #{ticket.id}
-                          {" · "}
-                          {ticket.category ||
+                          {result.subtitle ||
                             t("navbar.uncategorized")}
                         </span>
                       </div>
@@ -888,20 +868,23 @@ function Navbar({
                       <div className="rf-navbar-search-result-meta">
                         <span
                           className={`rf-navbar-search-status ${createClassName(
-                            ticket.status
+                            result.type
                           )}`}
                         >
-                          {ticket.status ||
-                            t("navbar.unknown")}
+                          {getSearchTypeLabel(
+                            result.type,
+                            t
+                          )}
                         </span>
 
                         <small>
-                          {ticket.priority ||
+                          {result.meta ||
                             t("navbar.unknown")}
                         </small>
                       </div>
                     </button>
-                  )
+                    );
+                  }
                 )}
               </div>
             )}
@@ -1226,24 +1209,28 @@ function Navbar({
   );
 }
 
-function extractTickets(responseData) {
-  if (Array.isArray(responseData)) {
-    return responseData;
+function getSearchResultIcon(type) {
+  if (type === "knowledge") {
+    return BookOpenCheck;
   }
 
-  if (
-    Array.isArray(responseData?.items)
-  ) {
-    return responseData.items;
+  if (type === "person") {
+    return UserRound;
   }
 
-  if (
-    Array.isArray(responseData?.tickets)
-  ) {
-    return responseData.tickets;
+  return FileText;
+}
+
+function getSearchTypeLabel(type, t) {
+  if (type === "knowledge") {
+    return t("search.type.knowledge");
   }
 
-  return [];
+  if (type === "person") {
+    return t("search.type.person");
+  }
+
+  return t("search.type.request");
 }
 
 function extractNotifications(

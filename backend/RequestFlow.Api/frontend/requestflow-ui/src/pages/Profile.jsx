@@ -1,85 +1,67 @@
 import {
-  BellRing,
+  Clock3,
+  Check,
   KeyRound,
   Mail,
+  MonitorSmartphone,
+  Pencil,
   ShieldCheck,
-  UserRound
+  UserRound,
+  X
 } from "lucide-react";
 import {
   useEffect,
   useState
 } from "react";
 import { useNavigate } from "react-router-dom";
+import NotificationPreferencePanel from "../components/NotificationPreferencePanel";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import api from "../services/api";
 
-const defaultPreferences = {
-  emailEnabled: true,
-  notifyAssignment: true,
-  notifyStatusChange: true,
-  notifyComments: true,
-  notifySla: true
-};
-
 function Profile() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { success, error: showError } = useToast();
-  const [preferences, setPreferences] =
-    useState(defaultPreferences);
-  const [isLoadingPreferences, setIsLoadingPreferences] =
-    useState(true);
-  const [isSavingPreferences, setIsSavingPreferences] =
-    useState(false);
-  const [deliveryStatus, setDeliveryStatus] = useState(null);
+  const [sessions, setSessions] = useState([]);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(true);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [fullNameDraft, setFullNameDraft] = useState("");
 
   useEffect(() => {
-    const loadPreferences = async () => {
+    let isActive = true;
+
+    const loadSessions = async () => {
       try {
-        const [response, statusResponse] = await Promise.all([
-          api.get("/notification-preferences"),
-          api.get("/notification-preferences/delivery-status")
-        ]);
-        setPreferences({
-          ...defaultPreferences,
-          ...response.data
-        });
-        setDeliveryStatus(statusResponse.data);
+        const response = await api.get("/Auth/sessions");
+
+        if (isActive) {
+          setSessions(
+            Array.isArray(response.data)
+              ? response.data
+              : []
+          );
+        }
       } catch (requestError) {
         console.error(
-          "Notification preferences could not be loaded:",
+          "Session history could not be loaded:",
           requestError
         );
-        showError("Email preferences could not be loaded.");
+        showError("Session history could not be loaded.");
       } finally {
-        setIsLoadingPreferences(false);
+        if (isActive) {
+          setIsLoadingSessions(false);
+        }
       }
     };
 
-    void loadPreferences();
+    void loadSessions();
+
+    return () => {
+      isActive = false;
+    };
   }, [showError]);
-
-  const savePreferences = async () => {
-    setIsSavingPreferences(true);
-
-    try {
-      const response = await api.put(
-        "/notification-preferences",
-        preferences
-      );
-      setPreferences(response.data);
-      success("Email preferences saved.");
-    } catch (requestError) {
-      console.error(
-        "Notification preferences could not be saved:",
-        requestError
-      );
-      showError("Email preferences could not be saved.");
-    } finally {
-      setIsSavingPreferences(false);
-    }
-  };
 
   const fullName =
     user?.fullName ||
@@ -95,6 +77,43 @@ function Profile() {
   );
 
   const initials = getInitials(fullName);
+
+  const beginProfileEdit = () => {
+    setFullNameDraft(fullName);
+    setIsEditingProfile(true);
+  };
+
+  const cancelProfileEdit = () => {
+    setFullNameDraft(fullName);
+    setIsEditingProfile(false);
+  };
+
+  const saveProfile = async event => {
+    event.preventDefault();
+
+    const normalizedName = fullNameDraft.trim();
+
+    if (!normalizedName) {
+      showError("Full name is required.");
+      return;
+    }
+
+    setIsSavingProfile(true);
+
+    try {
+      await updateProfile({ fullName: normalizedName });
+      setIsEditingProfile(false);
+      success("Profile information updated.");
+    } catch (requestError) {
+      console.error("Profile could not be updated:", requestError);
+      showError(
+        requestError.response?.data?.message ||
+          "Profile information could not be updated."
+      );
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
 
   return (
     <div className="profile-page">
@@ -114,6 +133,14 @@ function Profile() {
       </header>
 
       <section className="profile-card">
+        <div className="profile-edit-action">
+          {!isEditingProfile && (
+            <button type="button" onClick={beginProfileEdit}>
+              <Pencil size={15} />
+              Edit profile
+            </button>
+          )}
+        </div>
         <div className="profile-card-top">
           <div className="profile-avatar-large">
             {initials}
@@ -121,7 +148,35 @@ function Profile() {
 
           <div className="profile-card-identity">
             <div className="profile-name-row">
-              <h2>{fullName}</h2>
+              {isEditingProfile ? (
+                <form className="profile-name-form" onSubmit={saveProfile}>
+                  <label htmlFor="profile-full-name">Full name</label>
+                  <div>
+                    <input
+                      id="profile-full-name"
+                      value={fullNameDraft}
+                      maxLength={100}
+                      autoFocus
+                      onChange={event => setFullNameDraft(event.target.value)}
+                    />
+                    <button type="submit" disabled={isSavingProfile}>
+                      <Check size={15} />
+                      {isSavingProfile ? "Saving..." : "Save"}
+                    </button>
+                    <button
+                      type="button"
+                      className="secondary"
+                      onClick={cancelProfileEdit}
+                      disabled={isSavingProfile}
+                    >
+                      <X size={15} />
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <h2>{fullName}</h2>
+              )}
 
               <span
                 className={`profile-role-badge ${role.toLowerCase()}`}
@@ -185,113 +240,58 @@ function Profile() {
         </div>
       </section>
 
-      <section className="profile-preferences-card">
-        <div className="profile-preferences-heading">
+      <section className="profile-sessions-card">
+        <div className="profile-sessions-heading">
           <div className="profile-security-icon">
-            <BellRing size={19} />
+            <MonitorSmartphone size={19} />
           </div>
           <div>
-            <h2>Email Notifications</h2>
+            <h2>Sign-in History</h2>
             <p>
-              Choose which request updates are also sent to your email.
+              Review the most recent devices that accessed your account.
             </p>
           </div>
         </div>
 
-        <div className="profile-preferences-list">
-          {deliveryStatus && (
-            <div
-              className={`profile-delivery-status ${deliveryStatus.configured ? "active" : "inactive"}`}
-              role="status"
-            >
-              {deliveryStatus.message}
-            </div>
-          )}
-          <PreferenceToggle
-            label="Email delivery"
-            description="Allow RequestFlow to send notification emails."
-            checked={preferences.emailEnabled}
-            disabled={isLoadingPreferences}
-            onChange={checked => setPreferences(previous => ({
-              ...previous,
-              emailEnabled: checked
-            }))}
-          />
-          <PreferenceToggle
-            label="Assignments"
-            description="When a request is assigned or unassigned."
-            checked={preferences.notifyAssignment}
-            disabled={isLoadingPreferences || !preferences.emailEnabled}
-            onChange={checked => setPreferences(previous => ({
-              ...previous,
-              notifyAssignment: checked
-            }))}
-          />
-          <PreferenceToggle
-            label="Status changes"
-            description="When a request moves through the workflow."
-            checked={preferences.notifyStatusChange}
-            disabled={isLoadingPreferences || !preferences.emailEnabled}
-            onChange={checked => setPreferences(previous => ({
-              ...previous,
-              notifyStatusChange: checked
-            }))}
-          />
-          <PreferenceToggle
-            label="Comments"
-            description="When someone adds a comment to your request."
-            checked={preferences.notifyComments}
-            disabled={isLoadingPreferences || !preferences.emailEnabled}
-            onChange={checked => setPreferences(previous => ({
-              ...previous,
-              notifyComments: checked
-            }))}
-          />
-          <PreferenceToggle
-            label="SLA warnings"
-            description="When a request exceeds its response deadline."
-            checked={preferences.notifySla}
-            disabled={isLoadingPreferences || !preferences.emailEnabled}
-            onChange={checked => setPreferences(previous => ({
-              ...previous,
-              notifySla: checked
-            }))}
-          />
-        </div>
-
-        <button
-          type="button"
-          className="profile-preferences-save"
-          onClick={savePreferences}
-          disabled={isLoadingPreferences || isSavingPreferences}
-        >
-          {isSavingPreferences ? "Saving..." : "Save Email Preferences"}
-        </button>
+        {isLoadingSessions ? (
+          <div className="profile-sessions-state">
+            Loading sign-in history...
+          </div>
+        ) : sessions.length === 0 ? (
+          <div className="profile-sessions-state">
+            New sign-ins will appear here.
+          </div>
+        ) : (
+          <div className="profile-sessions-list">
+            {sessions.map(session => (
+              <article key={session.id} className="profile-session-row">
+                <div className="profile-session-device-icon">
+                  <MonitorSmartphone size={19} />
+                </div>
+                <div className="profile-session-copy">
+                  <div>
+                    <strong>{session.device}</strong>
+                    {session.isCurrent && (
+                      <span className="profile-session-current">
+                        Current session
+                      </span>
+                    )}
+                  </div>
+                  <small>{session.network}</small>
+                </div>
+                <div className="profile-session-time">
+                  <Clock3 size={15} />
+                  <span>{formatSessionDate(session.signedInAtUtc)}</span>
+                  {session.isExpired && <small>Expired</small>}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
-    </div>
-  );
-}
 
-function PreferenceToggle({
-  label,
-  description,
-  checked,
-  disabled,
-  onChange
-}) {
-  return (
-    <label className="profile-preference-row">
-      <span>
-        <strong>{label}</strong>
-        <small>{description}</small>
-      </span>
-      <input
-        type="checkbox"
-        checked={checked}
-        disabled={disabled}
-        onChange={event => onChange(event.target.checked)}
-      />
-    </label>
+      <NotificationPreferencePanel />
+    </div>
   );
 }
 
@@ -352,6 +352,19 @@ function normalizeRole(role) {
   }
 
   return "User";
+}
+
+function formatSessionDate(value) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Date unavailable";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(date);
 }
 
 export default Profile;

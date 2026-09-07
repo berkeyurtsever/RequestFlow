@@ -53,6 +53,9 @@ public class AppDbContext : DbContext
         UserDashboardPreferences =>
         Set<UserDashboardPreference>();
 
+    public DbSet<UserSession> UserSessions =>
+        Set<UserSession>();
+
     public DbSet<AuditLog> AuditLogs =>
         Set<AuditLog>();
 
@@ -84,6 +87,7 @@ public class AppDbContext : DbContext
         ConfigurePasswordResetToken(modelBuilder);
         ConfigureUserNotificationPreference(modelBuilder);
         ConfigureUserDashboardPreference(modelBuilder);
+        ConfigureUserSession(modelBuilder);
         ConfigureAuditLog(modelBuilder);
         ConfigureKnowledgeArticle(modelBuilder);
         ConfigureRequestTemplate(modelBuilder);
@@ -163,6 +167,34 @@ public class AppDbContext : DbContext
             .HasForeignKey<UserDashboardPreference>(
                 preference => preference.UserId
             )
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private static void ConfigureUserSession(
+        ModelBuilder modelBuilder
+    )
+    {
+        var sessionEntity = modelBuilder
+            .Entity<UserSession>();
+
+        sessionEntity.HasKey(session => session.Id);
+        sessionEntity.Property(session => session.TokenId)
+            .IsRequired().HasMaxLength(64);
+        sessionEntity.Property(session => session.UserAgent)
+            .HasMaxLength(320);
+        sessionEntity.Property(session => session.IpAddress)
+            .HasMaxLength(64);
+        sessionEntity.HasIndex(session => session.TokenId)
+            .IsUnique();
+        sessionEntity.HasIndex(session => new
+        {
+            session.UserId,
+            session.SignedInAtUtc
+        });
+        sessionEntity
+            .HasOne(session => session.User)
+            .WithMany(user => user.Sessions)
+            .HasForeignKey(session => session.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 

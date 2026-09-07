@@ -72,6 +72,9 @@ const AuditLogs = lazy(() =>
 const SystemHealth = lazy(() =>
   import("./pages/SystemHealth")
 );
+const SearchResults = lazy(() =>
+  import("./pages/SearchResults")
+);
 const ChangePassword = lazy(() =>
   import("./pages/ChangePassword")
 );
@@ -349,6 +352,15 @@ function App() {
               allowedRoles={MANAGEMENT_ROLES}
             >
               <SystemHealth />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="search"
+          element={
+            <ProtectedRoute>
+              <SearchResults />
             </ProtectedRoute>
           }
         />

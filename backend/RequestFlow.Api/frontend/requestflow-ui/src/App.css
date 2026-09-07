@@ -13,6 +13,7 @@
 @import "./styles/96-request-content.css";
 @import "./styles/97-dashboard-analytics.css";
 @import "./styles/98-system-health-language.css";
+@import "./styles/99-search-notification-sessions.css";
 
 .application-error-page {
   min-height: 100vh;
