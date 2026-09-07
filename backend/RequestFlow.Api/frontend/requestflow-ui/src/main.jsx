@@ -7,6 +7,7 @@ import App from "./App";
 import "./App.css";
 import { AuthProvider } from "./context/AuthContext";
 import { ConfirmProvider } from "./context/ConfirmContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ToastProvider } from "./context/ToastContext";
 import AppErrorBoundary from "./components/AppErrorBoundary";
@@ -34,15 +35,17 @@ async function startApplication() {
     <React.StrictMode>
       <AppErrorBoundary>
         <BrowserRouter>
-          <ThemeProvider>
-            <AuthProvider>
-              <ToastProvider>
-                <ConfirmProvider>
-                  <App />
-                </ConfirmProvider>
-              </ToastProvider>
-            </AuthProvider>
-          </ThemeProvider>
+          <LanguageProvider>
+            <ThemeProvider>
+              <AuthProvider>
+                <ToastProvider>
+                  <ConfirmProvider>
+                    <App />
+                  </ConfirmProvider>
+                </ToastProvider>
+              </AuthProvider>
+            </ThemeProvider>
+          </LanguageProvider>
         </BrowserRouter>
       </AppErrorBoundary>
     </React.StrictMode>

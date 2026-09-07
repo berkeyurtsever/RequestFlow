@@ -142,3 +142,41 @@ test("create request shows useful validation and protects drafts", async ({
     /Draft (protection active|saved)/
   );
 });
+
+test("language selection persists across navigation and reloads", async ({
+  page
+}) => {
+  await page.goto("/login");
+
+  await page
+    .getByLabel("Language")
+    .selectOption("tr");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Hesabınıza giriş yapın"
+    })
+  ).toBeVisible();
+
+  await page.reload();
+
+  await expect(
+    page.getByLabel("Dil")
+  ).toHaveValue("tr");
+
+  await page
+    .getByRole("button", {
+      name: "Demoyu İncele"
+    })
+    .click();
+
+  await expect(page).toHaveURL(
+    /\/overview$/
+  );
+  await expect(
+    page.getByRole("link", {
+      name: "Genel Bakış",
+      exact: true
+    })
+  ).toBeVisible();
+});

@@ -42,6 +42,66 @@ public sealed class AuthenticationAndTicketsTests :
     }
 
     [Fact]
+    public async Task SystemHealthEndpoint_IsAdminOnlyAndHidesSecrets()
+    {
+        var anonymousResponse = await _client.GetAsync(
+            "/api/system-health"
+        );
+
+        Assert.Equal(
+            HttpStatusCode.Unauthorized,
+            anonymousResponse.StatusCode
+        );
+
+        var userAuth = await RegisterUserAsync();
+        UseBearerToken(userAuth.Token);
+
+        var userResponse = await _client.GetAsync(
+            "/api/system-health"
+        );
+
+        Assert.Equal(
+            HttpStatusCode.Forbidden,
+            userResponse.StatusCode
+        );
+
+        var adminAuth = await RegisterAdminAsync();
+        UseBearerToken(adminAuth.Token);
+
+        var adminResponse = await _client.GetAsync(
+            "/api/system-health"
+        );
+        var content = await adminResponse.Content
+            .ReadAsStringAsync();
+        var health = JsonDocument.Parse(content).RootElement;
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            adminResponse.StatusCode
+        );
+        Assert.Equal(
+            "healthy",
+            health.GetProperty("status").GetString()
+        );
+        Assert.True(
+            health.GetProperty("components")
+                .GetArrayLength() >= 5
+        );
+        Assert.False(
+            content.Contains(
+                "password",
+                StringComparison.OrdinalIgnoreCase
+            )
+        );
+        Assert.False(
+            content.Contains(
+                "dsn",
+                StringComparison.OrdinalIgnoreCase
+            )
+        );
+    }
+
+    [Fact]
     public async Task DemoLogin_ReturnsSeededSupervisorToken()
     {
         using var demoFactory =

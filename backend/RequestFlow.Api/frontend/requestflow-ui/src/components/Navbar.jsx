@@ -29,8 +29,10 @@ import {
   stopRealtimeNotifications
 } from "../services/realtimeNotifications";
 import DemoThemeToggle from "./DemoThemeToggle";
+import LanguageSelector from "./LanguageSelector";
 import { useAuth } from "../context/AuthContext";
 import { useConfirm } from "../context/ConfirmContext";
+import { useLanguage } from "../context/LanguageContext";
 import { useToast } from "../context/ToastContext";
 import { isDemoModeEnabled } from "../utils/demoMode";
 
@@ -50,6 +52,7 @@ function Navbar({
 
   const { user, token, logout } = useAuth();
   const { confirm } = useConfirm();
+  const { locale, t } = useLanguage();
 
   const {
     info,
@@ -622,17 +625,13 @@ function Navbar({
 
     const confirmed =
       await confirm({
-        title:
-          "Sign out of RequestFlow?",
+        title: t("navbar.signOutTitle"),
 
-        message:
-          "You will need to enter your email and password to access your account again.",
+        message: t("navbar.signOutMessage"),
 
-        confirmText:
-          "Sign Out",
+        confirmText: t("navbar.signOut"),
 
-        cancelText:
-          "Cancel",
+        cancelText: t("navbar.cancel"),
 
         variant: "warning"
       });
@@ -749,7 +748,7 @@ function Navbar({
         type="button"
         className="rf-navbar-mobile-menu"
         onClick={onMenuClick}
-        aria-label="Open navigation menu"
+        aria-label={t("navigation.open")}
         aria-controls="rf-sidebar-navigation"
         aria-expanded={isMenuOpen}
       >
@@ -768,7 +767,7 @@ function Navbar({
 
           <input
             type="text"
-            placeholder="Search requests..."
+            placeholder={t("navbar.searchPlaceholder")}
             value={searchValue}
             onChange={handleSearchChange}
             onFocus={() => {
@@ -781,7 +780,7 @@ function Navbar({
                 setIsProfileMenuOpen(false);
               }
             }}
-            aria-label="Search requests"
+            aria-label={t("navbar.searchLabel")}
             autoComplete="off"
           />
 
@@ -799,7 +798,7 @@ function Navbar({
               type="button"
               className="rf-navbar-search-clear"
               onClick={clearSearch}
-              aria-label="Clear search"
+              aria-label={t("navbar.clearSearch")}
             >
               <X size={15} />
             </button>
@@ -810,7 +809,7 @@ function Navbar({
           <div className="rf-navbar-search-panel">
             <div className="rf-navbar-search-panel-header">
               <span>
-                SEARCH RESULTS
+                {t("navbar.searchResults")}
               </span>
 
               <strong>
@@ -827,7 +826,7 @@ function Navbar({
                 />
 
                 <span>
-                  Searching requests...
+                  {t("navbar.searching")}
                 </span>
               </div>
             ) : navbarDataError ? (
@@ -835,7 +834,7 @@ function Navbar({
                 <Search size={23} />
 
                 <strong>
-                  Search unavailable
+                  {t("navbar.searchUnavailable")}
                 </strong>
 
                 <span>
@@ -847,12 +846,11 @@ function Navbar({
                 <Search size={23} />
 
                 <strong>
-                  No requests found
+                  {t("navbar.noResults")}
                 </strong>
 
                 <span>
-                  Try searching with another title,
-                  category or request ID.
+                  {t("navbar.noResultsHelp")}
                 </span>
               </div>
             ) : (
@@ -876,14 +874,14 @@ function Navbar({
                       <div className="rf-navbar-search-result-content">
                         <strong>
                           {ticket.title ||
-                            "Untitled Request"}
+                            t("navbar.untitled")}
                         </strong>
 
                         <span>
                           #{ticket.id}
                           {" · "}
                           {ticket.category ||
-                            "Uncategorized"}
+                            t("navbar.uncategorized")}
                         </span>
                       </div>
 
@@ -894,12 +892,12 @@ function Navbar({
                           )}`}
                         >
                           {ticket.status ||
-                            "Unknown"}
+                            t("navbar.unknown")}
                         </span>
 
                         <small>
                           {ticket.priority ||
-                            "Unknown"}
+                            t("navbar.unknown")}
                         </small>
                       </div>
                     </button>
@@ -915,14 +913,17 @@ function Navbar({
                 openAllSearchResults
               }
             >
-              View all results for “
-              {searchValue.trim()}”
+              {t("navbar.viewResults", {
+                query: searchValue.trim()
+              })}
             </button>
           </div>
         )}
       </div>
 
       <div className="rf-navbar-actions">
+        <LanguageSelector />
+
         {isDemoModeEnabled() && (
           <DemoThemeToggle />
         )}
@@ -937,7 +938,7 @@ function Navbar({
             onClick={
               toggleNotificationPanel
             }
-            aria-label="Open notifications"
+            aria-label={t("navbar.openNotifications")}
             aria-expanded={
               isNotificationPanelOpen
             }
@@ -960,11 +961,11 @@ function Navbar({
               <div className="rf-navbar-notification-header">
                 <div>
                   <h2>
-                    Notifications
+                    {t("navigation.notifications")}
                   </h2>
 
                   <p>
-                    Recent request updates
+                    {t("navbar.recentUpdates")}
                   </p>
                 </div>
 
@@ -992,8 +993,8 @@ function Navbar({
 
                     <span>
                       {isMarkingAllRead
-                        ? "Updating..."
-                        : "Mark all read"}
+                        ? t("navbar.updating")
+                        : t("navbar.markAllRead")}
                     </span>
                   </button>
                 )}
@@ -1007,7 +1008,7 @@ function Navbar({
                   />
 
                   <span>
-                    Loading notifications...
+                    {t("navbar.loadingNotifications")}
                   </span>
                 </div>
               ) : notificationError ? (
@@ -1015,7 +1016,7 @@ function Navbar({
                   <Bell size={24} />
 
                   <strong>
-                    Notifications unavailable
+                    {t("navbar.notificationsUnavailable")}
                   </strong>
 
                   <span>
@@ -1028,7 +1029,7 @@ function Navbar({
                       void loadNotifications()
                     }
                   >
-                    Try Again
+                    {t("navbar.tryAgain")}
                   </button>
                 </div>
               ) : notifications.length ===
@@ -1037,12 +1038,11 @@ function Navbar({
                   <Bell size={24} />
 
                   <strong>
-                    No notifications
+                    {t("navbar.noNotifications")}
                   </strong>
 
                   <span>
-                    Request updates will appear
-                    here.
+                    {t("navbar.notificationsHelp")}
                   </span>
                 </div>
               ) : (
@@ -1098,7 +1098,9 @@ function Navbar({
 
                             <span>
                               {formatRelativeTime(
-                                notification.createdAt
+                                notification.createdAt,
+                                locale,
+                                t
                               )}
                             </span>
                           </div>
@@ -1126,7 +1128,7 @@ function Navbar({
                   );
                 }}
               >
-                View all notifications
+                {t("navbar.viewNotifications")}
               </button>
             </div>
           )}
@@ -1155,7 +1157,7 @@ function Navbar({
               </strong>
 
               <span>
-                {getRoleLabel(role)}
+                {getRoleLabel(role, t)}
               </span>
             </div>
 
@@ -1182,7 +1184,7 @@ function Navbar({
                 role="menuitem"
               >
                 <UserRound size={17} />
-                <span>My Profile</span>
+                <span>{t("navbar.myProfile")}</span>
               </button>
 
               <button
@@ -1195,7 +1197,7 @@ function Navbar({
                 <ShieldCheck size={17} />
 
                 <span>
-                  Change Password
+                  {t("navbar.changePassword")}
                 </span>
               </button>
 
@@ -1212,8 +1214,8 @@ function Navbar({
 
                 <span>
                   {isLoggingOut
-                    ? "Signing Out..."
-                    : "Sign Out"}
+                    ? t("navbar.signingOut")
+                    : t("navbar.signOut")}
                 </span>
               </button>
             </div>
@@ -1344,7 +1346,7 @@ function getInitials(name) {
   return initials || "U";
 }
 
-function getRoleLabel(currentRole) {
+function getRoleLabel(currentRole, t) {
   const normalizedRole = String(
     currentRole || "User"
   )
@@ -1352,23 +1354,27 @@ function getRoleLabel(currentRole) {
     .toLowerCase();
 
   if (normalizedRole === "admin") {
-    return "Administrator";
+    return t("role.admin");
   }
 
   if (
     normalizedRole === "supervisor"
   ) {
-    return "Supervisor";
+    return t("role.supervisor");
   }
 
   if (normalizedRole === "staff") {
-    return "Staff Member";
+    return t("role.staff");
   }
 
-  return "Standard User";
+  return t("role.user");
 }
 
-function formatRelativeTime(dateValue) {
+function formatRelativeTime(
+  dateValue,
+  locale,
+  t
+) {
   const date = parseDate(dateValue);
 
   const difference =
@@ -1380,7 +1386,7 @@ function formatRelativeTime(dateValue) {
   );
 
   if (seconds < 60) {
-    return "Just now";
+    return t("time.justNow");
   }
 
   const minutes = Math.floor(
@@ -1388,7 +1394,9 @@ function formatRelativeTime(dateValue) {
   );
 
   if (minutes < 60) {
-    return `${minutes} min ago`;
+    return t("time.minutesAgo", {
+      count: minutes
+    });
   }
 
   const hours = Math.floor(
@@ -1396,7 +1404,9 @@ function formatRelativeTime(dateValue) {
   );
 
   if (hours < 24) {
-    return `${hours} hr ago`;
+    return t("time.hoursAgo", {
+      count: hours
+    });
   }
 
   const days = Math.floor(
@@ -1404,13 +1414,16 @@ function formatRelativeTime(dateValue) {
   );
 
   if (days < 7) {
-    return `${days} day${
-      days === 1 ? "" : "s"
-    } ago`;
+    return t(
+      days === 1
+        ? "time.dayAgo"
+        : "time.daysAgo",
+      { count: days }
+    );
   }
 
   return date.toLocaleDateString(
-    "en-US",
+    locale,
     {
       month: "short",
       day: "numeric"

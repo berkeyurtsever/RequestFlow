@@ -18,10 +18,13 @@ import {
   Link,
   useNavigate
 } from "react-router-dom";
+import LanguageSelector from "../components/LanguageSelector";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 function Login() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const {
     login,
@@ -95,19 +98,19 @@ function Login() {
 
     if (!email) {
       errors.email =
-        "Email address is required.";
+        t("login.emailRequired");
     } else if (
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
         email
       )
     ) {
       errors.email =
-        "Enter a valid email address.";
+        t("login.emailInvalid");
     }
 
     if (!formData.password) {
       errors.password =
-        "Password is required.";
+        t("login.passwordRequired");
     }
 
     setFormErrors(errors);
@@ -194,6 +197,8 @@ function Login() {
 
   return (
     <main className="login-page">
+      <LanguageSelector className="login-language-selector" />
+
       <section className="login-brand-panel">
         <div className="login-brand-content">
           <div className="login-brand">
@@ -206,37 +211,35 @@ function Login() {
               </div>
 
               <p>
-                Request Management System
+                {t("login.managementSystem")}
               </p>
             </div>
           </div>
 
           <div className="login-welcome-content">
             <span className="login-welcome-label">
-              WELCOME BACK
+              {t("login.welcome")}
             </span>
 
             <h1>
-              Manage company requests from one
-              central platform.
+              {t("login.heroTitle")}
             </h1>
 
             <p>
-              Create, update, assign and monitor
-              requests through a secure workflow.
+              {t("login.heroDescription")}
             </p>
 
             <div className="login-feature-list">
               <LoginFeature
-                text="Track all requests in real time"
+                text={t("login.featureTrack")}
               />
 
               <LoginFeature
-                text="Assign tasks to authorized staff"
+                text={t("login.featureAssign")}
               />
 
               <LoginFeature
-                text="Manage roles and categories securely"
+                text={t("login.featureRoles")}
               />
             </div>
           </div>
@@ -246,7 +249,7 @@ function Login() {
           <span>© 2026 RequestFlow</span>
 
           <span>
-            Secure company request management
+            {t("login.secureFooter")}
           </span>
         </div>
       </section>
@@ -263,7 +266,7 @@ function Login() {
               </strong>
 
               <small>
-                Request Management
+                {t("brand.subtitle")}
               </small>
             </div>
           </div>
@@ -273,10 +276,10 @@ function Login() {
               <ShieldCheck size={24} />
             </div>
 
-            <h2>Sign in to your account</h2>
+            <h2>{t("login.title")}</h2>
 
             <p>
-              Enter your credentials to continue.
+              {t("login.description")}
             </p>
           </div>
 
@@ -297,7 +300,7 @@ function Login() {
           >
             <div className="login-form-group">
               <label htmlFor="login-email">
-                Email Address
+                {t("login.email")}
               </label>
 
               <div
@@ -333,7 +336,7 @@ function Login() {
 
             <div className="login-form-group">
               <label htmlFor="login-password">
-                Password
+                {t("login.password")}
               </label>
 
               <div
@@ -356,7 +359,7 @@ function Login() {
                       ? "text"
                       : "password"
                   }
-                  placeholder="Enter your password"
+                  placeholder={t("login.passwordPlaceholder")}
                   value={formData.password}
                   onChange={handleInputChange}
                   onKeyDown={
@@ -380,8 +383,8 @@ function Login() {
                   }
                   aria-label={
                     showPassword
-                      ? "Hide password"
-                      : "Show password"
+                      ? t("login.hidePassword")
+                      : t("login.showPassword")
                   }
                   disabled={isSubmitting}
                 >
@@ -401,7 +404,7 @@ function Login() {
 
               {capsLockOn && (
                 <span className="login-caps-warning">
-                  Caps Lock is on.
+                  {t("login.capsLock")}
                 </span>
               )}
             </div>
@@ -419,14 +422,14 @@ function Login() {
                   disabled={isSubmitting}
                 />
 
-                <span>Remember me</span>
+                <span>{t("login.remember")}</span>
               </label>
 
               <Link
                 className="login-forgot-link"
                 to="/forgot-password"
               >
-                Forgot password?
+                {t("login.forgot")}
               </Link>
             </div>
 
@@ -442,11 +445,11 @@ function Login() {
                     size={18}
                   />
 
-                  <span>Signing in...</span>
+                  <span>{t("login.submitting")}</span>
                 </>
               ) : (
                 <>
-                  <span>Sign In</span>
+                  <span>{t("login.submit")}</span>
                   <ArrowRight size={18} />
                 </>
               )}
@@ -460,9 +463,9 @@ function Login() {
               </div>
 
               <div className="login-demo-copy">
-                <span>PUBLIC DEMO</span>
+                <span>{t("login.demoLabel")}</span>
                 <strong>
-                  Explore with safe demo data
+                  {t("login.demoTitle")}
                 </strong>
 
                 <button
@@ -480,10 +483,10 @@ function Login() {
                         className="login-button-spinner"
                         size={16}
                       />
-                      Opening demo...
+                      {t("login.demoOpening")}
                     </>
                   ) : (
-                    "Explore Demo"
+                    t("login.demoOpen")
                   )}
                 </button>
               </div>
@@ -496,9 +499,9 @@ function Login() {
                 </div>
 
                 <div>
-                  <span>Development environment</span>
+                  <span>{t("login.development")}</span>
                   <strong>
-                    Use your local account
+                    {t("login.localAccount")}
                   </strong>
                 </div>
               </div>
