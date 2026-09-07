@@ -25,6 +25,7 @@ const pageTitleKeys = {
   "/settings": "navigation.settings",
   "/audit-logs": "navigation.auditLog",
   "/system-health": "navigation.systemHealth",
+  "/search": "search.title",
   "/profile": "page.profile",
   "/change-password": "page.changePassword",
   "/access-denied": "page.accessDenied"

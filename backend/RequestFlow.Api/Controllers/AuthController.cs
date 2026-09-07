@@ -107,7 +107,7 @@ public class AuthController : ControllerBase
 
         return StatusCode(
             StatusCodes.Status201Created,
-            CreateAuthResponse(user)
+            await CreateAuthResponseAsync(user)
         );
     }
 
@@ -163,7 +163,7 @@ public class AuthController : ControllerBase
             await _context.SaveChangesAsync();
         }
 
-        return Ok(CreateAuthResponse(user));
+        return Ok(await CreateAuthResponseAsync(user));
     }
 
     [AllowAnonymous]
@@ -206,7 +206,7 @@ public class AuthController : ControllerBase
             );
         }
 
-        return Ok(CreateAuthResponse(user));
+        return Ok(await CreateAuthResponseAsync(user));
     }
 
     [AllowAnonymous]
@@ -588,18 +588,114 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpGet("me")]
-    public IActionResult GetCurrentUser()
+    public async Task<IActionResult> GetCurrentUser()
     {
+        if (!TryGetCurrentUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _context.Users
+            .AsNoTracking()
+            .SingleOrDefaultAsync(item => item.Id == userId);
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
         return Ok(new
         {
-            userId = User.FindFirst("sub")?.Value,
-            fullName = User.FindFirst("name")?.Value,
-            email = User.FindFirst("email")?.Value,
-            role = User.FindFirst("role")?.Value
+            userId = user.Id,
+            fullName = user.FullName,
+            email = user.Email,
+            role = NormalizeRole(user.Role)
         });
     }
 
-    private AuthResponseDto CreateAuthResponse(User user)
+    [Authorize]
+    [HttpPut("profile")]
+    public async Task<IActionResult> UpdateProfile(
+        UpdateProfileDto updateProfileDto
+    )
+    {
+        if (!TryGetCurrentUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var fullName = updateProfileDto.FullName.Trim();
+
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            return BadRequest(new
+            {
+                message = "Full name is required."
+            });
+        }
+
+        var user = await _context.Users.FindAsync(userId);
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        user.FullName = fullName;
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            userId = user.Id,
+            fullName = user.FullName,
+            email = user.Email,
+            role = NormalizeRole(user.Role)
+        });
+    }
+
+    [Authorize]
+    [HttpGet("sessions")]
+    public async Task<ActionResult<List<UserSessionDto>>>
+        GetSessions()
+    {
+        if (!int.TryParse(
+                User.FindFirst("sub")?.Value ??
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                out var userId
+            ))
+        {
+            return Unauthorized();
+        }
+
+        var currentTokenId =
+            User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value ??
+            User.FindFirst("jti")?.Value;
+        var now = DateTime.UtcNow;
+
+        var sessions = await _context.UserSessions
+            .AsNoTracking()
+            .Where(session => session.UserId == userId)
+            .OrderByDescending(session => session.SignedInAtUtc)
+            .Take(12)
+            .ToListAsync();
+
+        return Ok(sessions.Select(session =>
+            new UserSessionDto
+            {
+                Id = session.Id,
+                Device = DescribeDevice(session.UserAgent),
+                Network = DescribeNetwork(session.IpAddress),
+                SignedInAtUtc = session.SignedInAtUtc,
+                ExpiresAtUtc = session.ExpiresAtUtc,
+                IsCurrent = session.TokenId == currentTokenId,
+                IsExpired = session.ExpiresAtUtc <= now
+            }
+        ));
+    }
+
+    private async Task<AuthResponseDto> CreateAuthResponseAsync(
+        User user
+    )
     {
         var jwtKey = _configuration["Jwt:Key"]
             ?? throw new InvalidOperationException(
@@ -634,6 +730,8 @@ public class AuthController : ControllerBase
 
         var role = NormalizeRole(user.Role);
 
+        var tokenId = Guid.NewGuid().ToString();
+
         var claims = new List<Claim>
         {
             new(
@@ -665,7 +763,7 @@ public class AuthController : ControllerBase
             ),
             new(
                 JwtRegisteredClaimNames.Jti,
-                Guid.NewGuid().ToString()
+                tokenId
             )
         };
 
@@ -690,6 +788,32 @@ public class AuthController : ControllerBase
         var tokenValue = new JwtSecurityTokenHandler()
             .WriteToken(jwtToken);
 
+        var retentionCutoff = now.AddDays(-90);
+
+        await _context.UserSessions
+            .Where(session =>
+                session.UserId == user.Id &&
+                session.SignedInAtUtc < retentionCutoff
+            )
+            .ExecuteDeleteAsync();
+
+        _context.UserSessions.Add(new UserSession
+        {
+            UserId = user.Id,
+            TokenId = tokenId,
+            UserAgent = Request.Headers.UserAgent
+                .ToString()[..Math.Min(
+                    Request.Headers.UserAgent.ToString().Length,
+                    320
+                )],
+            IpAddress = HttpContext.Connection.RemoteIpAddress?
+                .ToString() ?? string.Empty,
+            SignedInAtUtc = now,
+            ExpiresAtUtc = expiresAt
+        });
+
+        await _context.SaveChangesAsync();
+
         return new AuthResponseDto
         {
             Token = tokenValue,
@@ -699,6 +823,70 @@ public class AuthController : ControllerBase
             Role = role,
             ExpiresAt = expiresAt
         };
+    }
+
+    private bool TryGetCurrentUserId(out int userId)
+    {
+        var value = User.FindFirst("sub")?.Value ??
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return int.TryParse(value, out userId);
+    }
+
+    private static string DescribeDevice(string userAgent)
+    {
+        if (string.IsNullOrWhiteSpace(userAgent))
+        {
+            return "Unknown device";
+        }
+
+        var browser = userAgent.Contains("Edg/", StringComparison.OrdinalIgnoreCase)
+            ? "Microsoft Edge"
+            : userAgent.Contains("Firefox/", StringComparison.OrdinalIgnoreCase)
+                ? "Firefox"
+                : userAgent.Contains("Chrome/", StringComparison.OrdinalIgnoreCase)
+                    ? "Chrome"
+                    : userAgent.Contains("Safari/", StringComparison.OrdinalIgnoreCase)
+                        ? "Safari"
+                        : "Web browser";
+
+        var platform = userAgent.Contains("iPhone", StringComparison.OrdinalIgnoreCase)
+            ? "iPhone"
+            : userAgent.Contains("iPad", StringComparison.OrdinalIgnoreCase)
+                ? "iPad"
+                : userAgent.Contains("Android", StringComparison.OrdinalIgnoreCase)
+                    ? "Android"
+                    : userAgent.Contains("Macintosh", StringComparison.OrdinalIgnoreCase)
+                        ? "macOS"
+                        : userAgent.Contains("Windows", StringComparison.OrdinalIgnoreCase)
+                            ? "Windows"
+                            : userAgent.Contains("Linux", StringComparison.OrdinalIgnoreCase)
+                                ? "Linux"
+                                : "unknown system";
+
+        return $"{browser} on {platform}";
+    }
+
+    private static string DescribeNetwork(string ipAddress)
+    {
+        if (string.IsNullOrWhiteSpace(ipAddress))
+        {
+            return "Network unavailable";
+        }
+
+        if (ipAddress is "::1" or "127.0.0.1")
+        {
+            return "Local device";
+        }
+
+        var parts = ipAddress.Split('.');
+
+        if (parts.Length == 4)
+        {
+            return $"{parts[0]}.{parts[1]}.{parts[2]}.xxx";
+        }
+
+        return "Protected network address";
     }
 
     private bool IsDemoMode() =>

@@ -17,11 +17,14 @@ RequestFlow is a full-stack, role-based request management system developed duri
 - JWT-based authentication and role-based authorization
 - Secure, expiring, single-use email password reset links
 - Session invalidation after password changes and resets
+- Editable user profiles with masked sign-in and device history
 - Request creation, editing, deletion, assignment, and status tracking
 - List and Kanban workflows with drag-and-drop status updates
 - Priority management, advanced filtering, sorting, and pagination
 - Request templates, category-specific fields, and draft autosave
 - Comments, attachments, permanent activity history, and real-time notifications
+- Role-aware global search across requests, knowledge articles, and people
+- Notification center preferences for assignments, status changes, comments, and SLA warnings
 - Knowledge base guides and frequently asked questions
 - Employee, role, category, and system-setting management
 - Dashboard charts, personnel workload, response/resolution time, and SLA metrics
@@ -39,7 +42,7 @@ RequestFlow is a full-stack, role-based request management system developed duri
 
 ## Screenshots
 
-The gallery below was captured from the local Administrator interface in light mode using sample records and reflects the current application.
+The gallery below was captured from the local Administrator and Supervisor interfaces in English light mode using sample records and reflects the current application.
 
 ### Dashboard
 
@@ -48,6 +51,10 @@ The gallery below was captured from the local Administrator interface in light m
 ### All Requests
 
 ![All requests](docs/screenshots/readme/03-all-requests.jpg)
+
+### Global Search
+
+![Global search across requests and knowledge articles](docs/screenshots/readme/14-global-search.png)
 
 ### Kanban Workflow
 
@@ -69,6 +76,14 @@ The gallery below was captured from the local Administrator interface in light m
 
 ![Knowledge base guides and FAQs](docs/screenshots/readme/10-knowledge-base.jpg)
 
+### Notification Center Settings
+
+![Notification center email preference settings](docs/screenshots/readme/15-notification-settings.png)
+
+### Profile and Sign-in History
+
+![User profile and masked sign-in history](docs/screenshots/readme/16-profile-sessions.png)
+
 ### Employee Management
 
 ![Employee role management](docs/screenshots/readme/07-admin-management.jpg)
@@ -80,6 +95,10 @@ The gallery below was captured from the local Administrator interface in light m
 ### Administrative Audit Log
 
 ![Administrative audit log](docs/screenshots/readme/11-audit-log.jpg)
+
+### System Health
+
+![System health and service diagnostics](docs/screenshots/readme/13-system-health.png)
 
 ### Mobile Navigation
 

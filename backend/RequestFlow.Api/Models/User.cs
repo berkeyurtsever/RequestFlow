@@ -60,4 +60,11 @@ public class User
     [JsonIgnore]
     public UserDashboardPreference?
         DashboardPreference { get; set; }
+
+    [JsonIgnore]
+    public ICollection<UserSession> Sessions
+    {
+        get;
+        set;
+    } = new List<UserSession>();
 }

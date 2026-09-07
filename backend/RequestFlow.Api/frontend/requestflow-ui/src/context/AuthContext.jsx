@@ -680,6 +680,33 @@ export function AuthProvider({
       token
     ]);
 
+  const updateProfile = useCallback(
+    async profileData => {
+      const response = await api.put(
+        "/Auth/profile",
+        profileData
+      );
+
+      const updatedUser = normalizeUser(
+        response.data,
+        token
+      );
+      const rememberMe = Boolean(
+        localStorage.getItem(TOKEN_KEY)
+      );
+
+      saveSession({
+        token,
+        user: updatedUser,
+        rememberMe
+      });
+      setUser(updatedUser);
+
+      return updatedUser;
+    },
+    [token]
+  );
+
   const logout = useCallback(() => {
     clearStoredSession();
     setToken(null);
@@ -728,6 +755,7 @@ export function AuthProvider({
       logout,
       forgotPassword,
       changePassword,
+      updateProfile,
       refreshUser
     }),
     [
@@ -741,6 +769,7 @@ export function AuthProvider({
       logout,
       forgotPassword,
       changePassword,
+      updateProfile,
       refreshUser
     ]
   );

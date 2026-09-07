@@ -217,6 +217,104 @@ public sealed class AuthenticationAndTicketsTests :
     }
 
     [Fact]
+    public async Task SignInHistory_ReturnsTheCurrentMaskedSession()
+    {
+        _client.DefaultRequestHeaders.UserAgent.ParseAdd(
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " +
+            "AppleWebKit/537.36 Chrome/128.0.0.0 Safari/537.36"
+        );
+
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var response = await _client.GetAsync("/api/Auth/sessions");
+        var sessions = await response.Content
+            .ReadFromJsonAsync<List<UserSessionDto>>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(sessions);
+        Assert.NotEmpty(sessions);
+        Assert.True(sessions[0].IsCurrent);
+        Assert.Equal("Chrome on macOS", sessions[0].Device);
+        Assert.DoesNotContain("127.0.0.1", sessions[0].Network);
+    }
+
+    [Fact]
+    public async Task CurrentUser_CanUpdateProfileName()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var updateResponse = await _client.PutAsJsonAsync(
+            "/api/Auth/profile",
+            new UpdateProfileDto
+            {
+                FullName = "Updated Integration User"
+            }
+        );
+
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+
+        var meResponse = await _client.GetAsync("/api/Auth/me");
+        var profile = await meResponse.Content
+            .ReadFromJsonAsync<JsonElement>();
+
+        Assert.Equal(HttpStatusCode.OK, meResponse.StatusCode);
+        Assert.Equal(
+            "Updated Integration User",
+            profile.GetProperty("fullName").GetString()
+        );
+        Assert.Equal(auth.Email, profile.GetProperty("email").GetString());
+    }
+
+    [Fact]
+    public async Task GlobalSearch_ReturnsVisibleRequestsAndKnowledge()
+    {
+        var auth = await RegisterUserAsync();
+        UseBearerToken(auth.Token);
+
+        var createResponse = await _client.PostAsJsonAsync(
+            "/api/Tickets",
+            new Ticket
+            {
+                Title = "Atlas monitor replacement",
+                Description = "A searchable integration test request.",
+                Category = "General Request",
+                Priority = "Medium"
+            }
+        );
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+
+        var requestSearchResponse = await _client.GetAsync(
+            "/api/search?query=Atlas&limit=30"
+        );
+        var requestSearch = await requestSearchResponse.Content
+            .ReadFromJsonAsync<JsonElement>();
+
+        Assert.Equal(HttpStatusCode.OK, requestSearchResponse.StatusCode);
+        Assert.Contains(
+            requestSearch.GetProperty("items").EnumerateArray(),
+            item =>
+                item.GetProperty("type").GetString() == "request" &&
+                item.GetProperty("title").GetString() ==
+                    "Atlas monitor replacement"
+        );
+
+        var knowledgeSearchResponse = await _client.GetAsync(
+            "/api/search?query=request&limit=30"
+        );
+        var knowledgeSearch = await knowledgeSearchResponse.Content
+            .ReadFromJsonAsync<JsonElement>();
+
+        Assert.Equal(HttpStatusCode.OK, knowledgeSearchResponse.StatusCode);
+        Assert.Contains(
+            knowledgeSearch.GetProperty("items").EnumerateArray(),
+            item => item.GetProperty("type").GetString() == "knowledge"
+        );
+    }
+
+    [Fact]
     public async Task AuthenticatedUser_CanCreateAndReadOwnTicket()
     {
         var auth = await RegisterUserAsync();

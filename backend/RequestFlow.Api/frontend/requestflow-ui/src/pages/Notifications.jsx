@@ -2,6 +2,7 @@ import {
   Bell,
   CheckCheck,
   LoaderCircle,
+  Settings2,
   Trash2
 } from "lucide-react";
 import {
@@ -12,6 +13,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 
+import NotificationPreferencePanel from "../components/NotificationPreferencePanel";
 import { useConfirm } from "../context/ConfirmContext";
 import { useToast } from "../context/ToastContext";
 import api from "../services/api";
@@ -70,6 +72,11 @@ function Notifications() {
     loadError,
     setLoadError
   ] = useState("");
+
+  const [
+    showPreferences,
+    setShowPreferences
+  ] = useState(false);
 
   const loadNotifications =
     useCallback(async () => {
@@ -409,7 +416,22 @@ function Notifications() {
           </p>
         </div>
 
-        {unreadCount > 0 && (
+        <div className="notifications-header-actions">
+          <button
+            type="button"
+            className="notifications-settings-button"
+            onClick={() =>
+              setShowPreferences(previous => !previous)
+            }
+            aria-expanded={showPreferences}
+          >
+            <Settings2 size={17} />
+            <span>
+              {showPreferences ? "Close settings" : "Notification settings"}
+            </span>
+          </button>
+
+          {unreadCount > 0 && (
           <button
             type="button"
             className="notifications-mark-all-button"
@@ -435,8 +457,13 @@ function Notifications() {
                 : "Mark all as read"}
             </span>
           </button>
-        )}
+          )}
+        </div>
       </header>
+
+      {showPreferences && (
+        <NotificationPreferencePanel compact />
+      )}
 
       <section className="notifications-summary-card">
         <div className="notifications-summary-icon">
