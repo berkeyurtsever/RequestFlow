@@ -234,7 +234,11 @@ npm ci
 npm run lint
 npm run test
 npm run build
+npx playwright install chromium
+npm run test:e2e
 ```
+
+The browser journeys start an isolated local API and database, then verify demo sign-in, the dashboard, request list, Kanban board, knowledge base, form validation, and draft protection.
 
 ## Project Structure
 

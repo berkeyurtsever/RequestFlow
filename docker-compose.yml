@@ -20,6 +20,9 @@ services:
       Email__Password: ${SMTP_PASSWORD:-}
       Email__FromAddress: ${SMTP_FROM_ADDRESS:-}
       Email__FromName: ${SMTP_FROM_NAME:-RequestFlow}
+      Sentry__Dsn: ${SENTRY_DSN:-}
+      Sentry__Environment: ${SENTRY_ENVIRONMENT:-production}
+      Sentry__TracesSampleRate: ${SENTRY_TRACES_SAMPLE_RATE:-0}
     ports:
       - "5131:8080"
     volumes:
@@ -33,6 +36,9 @@ services:
       dockerfile: backend/RequestFlow.Api/frontend/requestflow-ui/Dockerfile
       args:
         VITE_API_BASE_URL: /api
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-production}
+        VITE_SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-0}
     depends_on:
       - api
     ports:

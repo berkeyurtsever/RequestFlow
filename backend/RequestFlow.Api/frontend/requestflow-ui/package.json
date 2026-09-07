@@ -10,12 +10,15 @@
     "preview": "vite preview",
     "audit:production": "node scripts/check-production-audit.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@microsoft/signalr": "^10.0.4",
+    "@sentry/react": "^10.73.0",
     "axios": "^1.18.1",
     "lucide-react": "^1.25.0",
-    "@microsoft/signalr": "^10.0.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "7.18.2",
@@ -23,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.3",

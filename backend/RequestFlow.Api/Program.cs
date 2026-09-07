@@ -17,6 +17,40 @@ using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var sentryDsn = (
+    builder.Configuration["Sentry:Dsn"] ??
+    builder.Configuration["SENTRY_DSN"]
+)?.Trim();
+
+if (!string.IsNullOrWhiteSpace(sentryDsn))
+{
+    builder.WebHost.UseSentry(options =>
+    {
+        options.Dsn = sentryDsn;
+        options.Environment =
+            builder.Configuration[
+                "Sentry:Environment"
+            ] ??
+            builder.Configuration[
+                "SENTRY_ENVIRONMENT"
+            ] ??
+            builder.Environment.EnvironmentName;
+        options.SendDefaultPii = false;
+        options.AttachStacktrace = true;
+        options.TracesSampleRate = Math.Clamp(
+            builder.Configuration.GetValue<double?>(
+                "Sentry:TracesSampleRate"
+            ) ??
+            builder.Configuration.GetValue<double?>(
+                "SENTRY_TRACES_SAMPLE_RATE"
+            ) ??
+            0,
+            0,
+            1
+        );
+    });
+}
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(options =>

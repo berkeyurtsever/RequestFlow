@@ -22,6 +22,8 @@ Thumbs.db
 **/dist-ssr/
 **/.vite/
 **/.vite-temp/
+**/playwright-report/
+**/test-results/
 
 # Logs and generated reports
 logs/
